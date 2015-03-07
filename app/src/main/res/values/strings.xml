@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Open Days</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="no_response">No token received yet.</string>
+    <string name="title_activity_authenticator">AuthenticatorActivity</string>
+    <string name="login">Login</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="open_days">Open Days</string>
+    <string name="label">Open Days Account</string>
+    <string name="login_error_message">Wrong username or password.</string>
+
+</resources>
