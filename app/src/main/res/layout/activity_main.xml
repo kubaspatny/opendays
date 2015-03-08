@@ -39,4 +39,10 @@
         android:text="Go to activity 2"
         />
 
+    <Button android:id="@+id/activity3"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="Go to guided groups"
+        />
+
 </LinearLayout>

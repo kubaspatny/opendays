@@ -88,4 +88,7 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
         super.onPause();
     }
 
+    public AccountManager getAccountManager() {
+        return mAccountManager;
+    }
 }

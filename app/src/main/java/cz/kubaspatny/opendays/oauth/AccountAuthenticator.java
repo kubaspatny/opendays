@@ -67,6 +67,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
                     AccessToken accessToken = AuthServer.refreshAccessToken(account.name, refreshToken, authTokenType);
 
                     if(accessToken != null){
+                        Log.d(TAG, "received access token!");
                         if(accessToken.getRefreshToken() != null && !TextUtils.isEmpty(accessToken.getRefreshToken().getValue())){
                             accountManager.setPassword(account, accessToken.getRefreshToken().getValue());
                         }
@@ -88,6 +89,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
+        Log.d(TAG, "Still no token! Going to prompt user for credentials!");
         // If we get here, then we couldn't access the user's password - so we
         // need to re-prompt them for their credentials. We do that by creating
         // an intent to display our AuthenticatorActivity.

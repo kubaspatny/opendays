@@ -13,5 +13,8 @@
     <string name="label">Open Days Account</string>
     <string name="login_error_message">Wrong username or password.</string>
     <string name="title_activity_base">BaseActivity</string>
+    <string name="title_activity_guided_groups">GuidedGroups</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="guided_groups_empty_state_label">No groups yet..</string>
 
 </resources>

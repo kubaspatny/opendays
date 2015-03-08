@@ -5,17 +5,13 @@ import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cz.kubaspatny.opendays.MainActivity;
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.exception.LoginException;

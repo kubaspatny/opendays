@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="cz.kubaspatny.opendays.MainActivity"
+            android:name="cz.kubaspatny.opendays.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,11 +25,9 @@
         </activity>
         <activity
             android:name="cz.kubaspatny.opendays.activity.AuthenticatorActivity"
+            android:excludeFromRecents="true"
             android:label="@string/title_activity_authenticator"
-            android:noHistory="true"
-            android:excludeFromRecents="true">
-
-
+            android:noHistory="true" >
         </activity>
 
         <service android:name="cz.kubaspatny.opendays.oauth.AuthenticationService" >
@@ -45,6 +43,23 @@
         <activity
             android:name="cz.kubaspatny.opendays.activity.BaseActivity"
             android:label="@string/title_activity_base" >
+        </activity>
+
+        <provider
+            android:name="cz.kubaspatny.opendays.database.DbContentProvider"
+            android:authorities="cz.kubaspatny.opendays.dbcontentprovider"
+            android:exported="false"
+            android:readPermission="true"
+            android:writePermission="true" >
+        </provider>
+
+        <activity
+            android:name="cz.kubaspatny.opendays.activity.GuidedGroups"
+            android:label="@string/title_activity_guided_groups"
+            android:parentActivityName="cz.kubaspatny.opendays.activity.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="cz.kubaspatny.opendays.activity.MainActivity" />
         </activity>
     </application>
 

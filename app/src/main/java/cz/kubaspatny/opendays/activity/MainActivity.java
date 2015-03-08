@@ -1,4 +1,4 @@
-package cz.kubaspatny.opendays;
+package cz.kubaspatny.opendays.activity;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -7,7 +7,6 @@ import android.accounts.AccountManagerFuture;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,7 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cz.kubaspatny.opendays.activity.BaseActivity;
+import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
 
 
@@ -64,13 +63,14 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        findViewById(R.id.activity2).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.activity3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, BaseActivity.class);
+                Intent i = new Intent(MainActivity.this, GuidedGroups.class);
                 startActivity(i);
             }
         });
+
 
         if (savedInstanceState != null) {
             boolean showDialog = savedInstanceState.getBoolean(STATE_DIALOG);
@@ -88,27 +88,6 @@ public class MainActivity extends BaseActivity {
             outState.putBoolean(STATE_DIALOG, true);
             outState.putBoolean(STATE_INVALIDATE, mInvalidate);
         }
-    }
-
-    /**
-     * Add new account to the account manager
-     * @param accountType
-     * @param authTokenType
-     */
-    private void addNewAccount(String accountType, String authTokenType) {
-        final AccountManagerFuture<Bundle> future = mAccountManager.addAccount(accountType, authTokenType, null, null, this, new AccountManagerCallback<Bundle>() {
-            @Override
-            public void run(AccountManagerFuture<Bundle> future) {
-                try {
-                    Bundle bnd = future.getResult();
-                    showMessage("Account was created");
-                    Log.d("udinic", "AddNewAccount Bundle is " + bnd);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    showMessage(e.getMessage());
-                }
-            }
-        }, null);
     }
 
     /**
