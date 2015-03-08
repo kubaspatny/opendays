@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cz.kubaspatny.opendays.MainActivity;
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.exception.LoginException;
@@ -32,13 +33,11 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     public static final String KEY_ERROR_MESSAGE = "ERR_MSG";
     public static final String KEY_ERROR_CODE = "ERR_CODE";
     public final static String PARAM_USER_PASS = "USER_PASS";
+    public final static String ARG_START_MAIN = "START_MAIN";
 
     private AccountManager mAccountManager;
     private String mAuthTokenType;
 
-    /**
-     * Called when the activity is first created.
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,8 +106,8 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
                         // display: Wrong username or password
                         loginError.setVisibility(View.VISIBLE);
                     } else {
-                        Toast.makeText(AuthenticatorActivity.this, "Oops! Couldn't log in. Check internet connection.", Toast.LENGTH_LONG).show();
                         // display: Oops! Couldn't log in. Check your internet connection.
+                        Toast.makeText(AuthenticatorActivity.this, "Oops! Couldn't log in. Check internet connection.", Toast.LENGTH_LONG).show();
                         Log.d(TAG, "login > onPostExecute > " + error_code + " > " + intent.getStringExtra(KEY_ERROR_MESSAGE));
                     }
 
@@ -144,6 +143,12 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
 
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);
+
+        if (getIntent().getBooleanExtra(ARG_START_MAIN, false)){
+            Intent i = new Intent(this, MainActivity.class);
+            startActivity(i);
+        }
+
         finish();
     }
 }

@@ -10,33 +10,33 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/token_response"
+        android:id="@+id/access_token"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_response"/>
+        android:text="ACCESS TOKEN: none"/>
 
-    <Button android:id="@+id/button1"
+    <TextView
+        android:id="@+id/refresh_token"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:text="Button 1"
-        />
-
-    <Button android:id="@+id/button2"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:text="Button 2"
-        />
+        android:text="REFRESH TOKEN: none"/>
 
     <Button android:id="@+id/button3"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:text="Button 3"
+        android:text="Get Access Token"
         />
 
     <Button android:id="@+id/button4"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:text="Button 4"
+        android:text="Invalidate Access Token"
+        />
+
+    <Button android:id="@+id/activity2"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="Go to activity 2"
         />
 
 </LinearLayout>

@@ -12,5 +12,6 @@
     <string name="open_days">Open Days</string>
     <string name="label">Open Days Account</string>
     <string name="login_error_message">Wrong username or password.</string>
+    <string name="title_activity_base">BaseActivity</string>
 
 </resources>
