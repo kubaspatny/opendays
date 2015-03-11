@@ -35,6 +35,8 @@ import cz.kubaspatny.opendays.oauth.AuthServer;
 
 public class GroupListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
 
+    public final static String TAG = GroupListFragment.class.getSimpleName();
+
     private ListView listView;
     private SwipeRefreshLayout swipeContainer;
     private LinearLayout emptyView;
@@ -87,7 +89,6 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onRefresh() {
-        new LoadGroupsAsyncTask(getActivity()).execute();
 
 //        if(ConnectionUtils.isConnected(getActivity())){
 //            new LoadGroupsAsyncTask().execute();
@@ -112,6 +113,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(TAG, "swapping cursor");
         cursorAdapter.swapCursor(data);
     }
 
@@ -127,61 +129,61 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         getActivity().getSupportLoaderManager().destroyLoader(0);
     }
 
-    private class LoadGroupsAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        public final String DEBUG_TAG = LoadGroupsAsyncTask.class.getSimpleName();
-        private Exception e;
-        private Activity activity;
-
-        private LoadGroupsAsyncTask(Activity activity) {
-            this.activity = activity;
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            try {
-
-                List<GroupDto> groups = AuthServer.getGroups(((BaseActivity)getActivity()).getAccountManager());
-                if(groups != null) getActivity().getContentResolver().delete(DbContentProvider.CONTENT_URI, null, null); // delete previous groups
-
-                for(GroupDto g : groups){
-
-                    ContentValues values = new ContentValues();
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID, g.getId());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, g.getStartingPosition());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ACTIVE, g.isActive());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, g.getRoute().getId());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, g.getRoute().getName());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, g.getRoute().getHexColor());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_INFORMATION, g.getRoute().getInformation());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP, g.getRoute().getDate().toInstant().toString());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_ID, g.getRoute().getEvent().getId());
-                    values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_NAME, g.getRoute().getEvent().getName());
-                    getActivity().getContentResolver().insert(DbContentProvider.CONTENT_URI, values);
-                }
-
-                return null;
-
-            } catch (LoginException e) {
-                Log.d(DEBUG_TAG, "Couldn't obtain access token.");
-            } catch (MalformedURLException e){
-                this.e = e;
-                Log.d(DEBUG_TAG, e.getLocalizedMessage());
-            } catch(Exception e){
-                this.e = e;
-                String message = (e.getLocalizedMessage() == null) ? "Error downloading groups." : e.getLocalizedMessage();
-                Log.d(DEBUG_TAG, message);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void notUsed) {
-            if(e != null) Toast.makeText(activity, "Couldn't load data. Check your internet connection.", Toast.LENGTH_SHORT).show();
-            swipeContainer.setRefreshing(false);
-        }
-    }
+//    private class LoadGroupsAsyncTask extends AsyncTask<Void, Void, Void> {
+//
+//        public final String DEBUG_TAG = LoadGroupsAsyncTask.class.getSimpleName();
+//        private Exception e;
+//        private Activity activity;
+//
+//        private LoadGroupsAsyncTask(Activity activity) {
+//            this.activity = activity;
+//        }
+//
+//        @Override
+//        protected Void doInBackground(Void... voids) {
+//
+//            try {
+//
+//                List<GroupDto> groups = AuthServer.getGroups(((BaseActivity)getActivity()).getAccountManager());
+//                if(groups != null) getActivity().getContentResolver().delete(DbContentProvider.CONTENT_URI, null, null); // delete previous groups
+//
+//                for(GroupDto g : groups){
+//
+//                    ContentValues values = new ContentValues();
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID, g.getId());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, g.getStartingPosition());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ACTIVE, g.isActive());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, g.getRoute().getId());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, g.getRoute().getName());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, g.getRoute().getHexColor());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_INFORMATION, g.getRoute().getInformation());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP, g.getRoute().getDate().toInstant().toString());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_ID, g.getRoute().getEvent().getId());
+//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_NAME, g.getRoute().getEvent().getName());
+//                    getActivity().getContentResolver().insert(DbContentProvider.CONTENT_URI, values);
+//                }
+//
+//                return null;
+//
+//            } catch (LoginException e) {
+//                Log.d(DEBUG_TAG, "Couldn't obtain access token.");
+//            } catch (MalformedURLException e){
+//                this.e = e;
+//                Log.d(DEBUG_TAG, e.getLocalizedMessage());
+//            } catch(Exception e){
+//                this.e = e;
+//                String message = (e.getLocalizedMessage() == null) ? "Error downloading groups." : e.getLocalizedMessage();
+//                Log.d(DEBUG_TAG, message);
+//            }
+//
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void notUsed) {
+//            if(e != null) Toast.makeText(activity, "Couldn't load data. Check your internet connection.", Toast.LENGTH_SHORT).show();
+//            swipeContainer.setRefreshing(false);
+//        }
+//    }
 
 }
