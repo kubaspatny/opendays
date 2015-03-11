@@ -35,7 +35,7 @@ public class CircleView extends View {
 
         int min = Math.min(width, height);
 
-        canvas.drawCircle(width / 2f, height / 2f, min * 0.5f, mCirclePaint);
+        canvas.drawCircle(width / 2f, height / 2f, min * 0.5f - 8, mCirclePaint);
 
 
     }
@@ -53,4 +53,5 @@ public class CircleView extends View {
         mCirclePaint.setColor(Color.parseColor(color));
         invalidate();
     }
+
 }

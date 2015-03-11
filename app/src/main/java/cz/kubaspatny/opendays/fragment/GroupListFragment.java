@@ -28,6 +28,7 @@ import cz.kubaspatny.opendays.adapter.GuidedGroupsAdapter;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.net.ConnectionUtils;
 import cz.kubaspatny.opendays.oauth.AuthServer;
 
 public class GroupListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -75,7 +76,6 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
             }
         });
 
-
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
         cursorAdapter = new GuidedGroupsAdapter(getActivity(), null, 0);
         listView.setAdapter(cursorAdapter);
@@ -85,10 +85,16 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onRefresh() {
-        new LoadGroupsAsyncTask().execute();
+
+        if(ConnectionUtils.isConnected(getActivity())){
+            new LoadGroupsAsyncTask().execute();
+        } else {
+            swipeContainer.setRefreshing(false);
+            Toast.makeText(getActivity(), "Check your internet connection.", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
-    // ----------------- LOADER CALLBACKS ----------------------------------------
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
@@ -112,8 +118,6 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         cursorAdapter.swapCursor(null);
     }
 
-    // ---------------------------------------------------------------------------
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -125,16 +129,10 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         public final String DEBUG_TAG = LoadGroupsAsyncTask.class.getSimpleName();
 
         @Override
-        protected void onPreExecute() {
-            Toast.makeText(getActivity(), "Downloading groups.", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
         protected Void doInBackground(Void... voids) {
 
             try {
 
-                // call this using activity -> onAttach check
                 List<GroupDto> groups = AuthServer.getGroups(getActivity(), ((BaseActivity)getActivity()).getAccountManager());
                 if(!groups.isEmpty()) getActivity().getContentResolver().delete(DbContentProvider.CONTENT_URI, null, null); // delete previous groups
 
@@ -170,7 +168,6 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         protected void onPostExecute(Void notUsed) {
             swipeContainer.setRefreshing(false);
         }
-    } // async task
-
+    }
 
 }

@@ -5,6 +5,8 @@ import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -67,8 +69,10 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
                     AccessToken accessToken = AuthServer.refreshAccessToken(account.name, refreshToken, authTokenType);
 
                     if(accessToken != null){
-                        Log.d(TAG, "received access token!");
+                        Log.d(TAG, "Received access & refresh token!");
+
                         if(accessToken.getRefreshToken() != null && !TextUtils.isEmpty(accessToken.getRefreshToken().getValue())){
+                            Log.d(TAG, "Setting new refresh token: " + refreshToken + " -> " + accessToken.getRefreshToken().getValue());
                             accountManager.setPassword(account, accessToken.getRefreshToken().getValue());
                         }
 
@@ -82,6 +86,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
         // If we get an authToken - we return it
         if (!TextUtils.isEmpty(authToken)) {
+            Log.d(TAG, "Returning access token.");
             final Bundle result = new Bundle();
             result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
             result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
@@ -89,15 +94,16 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
-        Log.d(TAG, "Still no token! Going to prompt user for credentials!");
-        // If we get here, then we couldn't access the user's password - so we
-        // need to re-prompt them for their credentials. We do that by creating
-        // an intent to display our AuthenticatorActivity.
+        Log.d(TAG, "Still no token! Going to prompt user for credentials!");                        // it would be best to "save username"
+        // If we get here, then we couldn't access the user's password - so we                      // remove account
+        // need to re-prompt them for their credentials. We do that by creating                     // ask for credentials showing saved username
+        // an intent to display our AuthenticatorActivity.                                          // but user can't go back because there's no account
         final Intent intent = new Intent(mContext, AuthenticatorActivity.class);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
         intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);
         intent.putExtra(AuthenticatorActivity.ARG_AUTH_TYPE, authTokenType);
         intent.putExtra(AuthenticatorActivity.ARG_ACCOUNT_NAME, account.name);
+
         final Bundle bundle = new Bundle();
         bundle.putParcelable(AccountManager.KEY_INTENT, intent);
         return bundle;

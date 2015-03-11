@@ -121,18 +121,22 @@ public class AuthServer {
 
 
         Account[] accounts = mAccountManager.getAccountsByType(AuthConstants.ACCOUNT_TYPE);
+        Account account = null;
         if (accounts.length != 0) {
             String oldToken = mAccountManager.peekAuthToken(accounts[0], AuthConstants.AUTHTOKEN_TYPE_FULL_ACCESS);
+            account = accounts[0];
             if (oldToken != null) {
                 mAccountManager.invalidateAuthToken(AuthConstants.ACCOUNT_TYPE, oldToken);
             }
         }
 
-        AccountManagerFuture<Bundle> future = mAccountManager.getAuthTokenByFeatures(AuthConstants.ACCOUNT_TYPE, AuthConstants.AUTHTOKEN_TYPE_FULL_ACCESS, null, activity, null, null, null, null);
-        Bundle bundle = future.getResult();
-        String token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+//        AccountManagerFuture<Bundle> future = mAccountManager.getAuthTokenByFeatures(AuthConstants.ACCOUNT_TYPE, AuthConstants.AUTHTOKEN_TYPE_FULL_ACCESS, null, activity, null, null, null, null);
+//        Bundle bundle = future.getResult();
+//        String token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+
+        String token = mAccountManager.blockingGetAuthToken(account, AuthConstants.AUTHTOKEN_TYPE_FULL_ACCESS, true);
         requestBuilder.addHeader("Authorization", "Bearer " + token);
-        Log.d(TAG, "getGroups > token: " + token);
+        Log.d(TAG, "getGroups > received access token: " + token);
 
         Request request = requestBuilder.build();
 
@@ -148,13 +152,14 @@ public class AuthServer {
             }
 
             json = response.body().string();
+            Log.d(TAG, "Received json: " + json);
 
         } catch (Exception e){
             Log.d(TAG, e.getMessage());
             throw new Exception(e.getMessage());
         }
 
-        Log.d(TAG, "JSON: " + json);
+        Log.d(TAG, "Trying to parse json: " + json);
 
         Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
         return Arrays.asList(gson.fromJson(json, GroupDto[].class));

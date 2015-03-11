@@ -36,6 +36,9 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        Log.d(TAG, "onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authenticator);
         mAccountManager = AccountManager.get(getBaseContext());
@@ -47,6 +50,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
         }
 
         if (accountName != null) { // reprompting user for credentials
+            Log.d(TAG, "onCreate > reprompring user for credentials");
             ((EditText) findViewById(R.id.username)).setText(accountName);
         }
 
@@ -59,6 +63,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
     }
 
     public void login() {
+        Log.d(TAG, "login");
         final String userName = ((TextView) findViewById(R.id.username)).getText().toString();
         final String userPass = ((TextView) findViewById(R.id.password)).getText().toString();
         final TextView loginError = (TextView) findViewById(R.id.loginError);
@@ -87,6 +92,8 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
                     data.putString(KEY_ERROR_MESSAGE, e.getMessage());
                 }
 
+                Log.d(TAG, "login > end of doInBackground AsyncTask");
+
                 final Intent res = new Intent();
                 res.putExtras(data);
                 return res;
@@ -94,6 +101,8 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
 
             @Override
             protected void onPostExecute(Intent intent) {
+                Log.d(TAG, "login > onPostExecute AsyncTask");
+
                 if (intent.hasExtra(KEY_ERROR_MESSAGE)) {
 
                     int error_code = intent.getIntExtra(KEY_ERROR_CODE, 999);
