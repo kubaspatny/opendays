@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import static cz.kubaspatny.opendays.app.AppConstants.*;
+
 /**
  * Created by Kuba on 8/3/2015.
  */
@@ -18,7 +20,6 @@ public class DbContentProvider extends ContentProvider {
     private static final int ALL_GUIDEDGROUPS = 1;
     private static final int SINGLE_GUIDEDGROUP = 2;
 
-    private static final String AUTHORITY = "cz.kubaspatny.opendays.dbcontentprovider";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + DataContract.GuidedGroups.TABLE_NAME);
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 

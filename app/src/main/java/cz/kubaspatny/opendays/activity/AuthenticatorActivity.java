@@ -3,6 +3,7 @@ package cz.kubaspatny.opendays.activity;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import cz.kubaspatny.opendays.R;
+import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
@@ -145,6 +147,11 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
             Log.d(TAG, "finishLogin -> setPassword");
             mAccountManager.setPassword(account, accountPassword);
         }
+
+        Log.d(TAG, "Allowing sync.");
+        ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
+        ContentResolver.addPeriodicSync(account, AppConstants.AUTHORITY, new Bundle(), 20);
 
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);

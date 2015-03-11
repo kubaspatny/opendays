@@ -7,13 +7,17 @@ import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.IOException;
+
 import cz.kubaspatny.opendays.activity.AuthenticatorActivity;
+import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 
 /**
@@ -46,6 +50,10 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
     }
 
+    /**
+     *
+     * @throws NetworkErrorException throws in case of network error while obtaining refresh token
+     */
     @Override
     public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
         Log.d(TAG, "getAuthToken");
@@ -72,12 +80,16 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
                         Log.d(TAG, "Received access & refresh token!");
 
                         if(accessToken.getRefreshToken() != null && !TextUtils.isEmpty(accessToken.getRefreshToken().getValue())){
-                            Log.d(TAG, "Setting new refresh token: " + refreshToken + " -> " + accessToken.getRefreshToken().getValue());
                             accountManager.setPassword(account, accessToken.getRefreshToken().getValue());
                         }
 
                         authToken = accessToken.getValue();
                     }
+
+                } catch (NetworkErrorException e) {
+                    Log.d(TAG, "Refresh failed due to network error! " + e.getLocalizedMessage());
+                    throw new NetworkErrorException(e);
+
                 } catch (Exception e) {
                     Log.d(TAG, "getAuthToken > " + e.getLocalizedMessage());
                 }
@@ -94,10 +106,15 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
             return result;
         }
 
-        Log.d(TAG, "Still no token! Going to prompt user for credentials!");                        // it would be best to "save username"
-        // If we get here, then we couldn't access the user's password - so we                      // remove account
-        // need to re-prompt them for their credentials. We do that by creating                     // ask for credentials showing saved username
-        // an intent to display our AuthenticatorActivity.                                          // but user can't go back because there's no account
+        Log.d(TAG, "Still no token! Going to prompt user for credentials!");
+        // If we get here, then we couldn't access the user's password - so we
+        // need to re-prompt them for their credentials. We do that by creating
+        // an intent to display our AuthenticatorActivity.
+        Log.d(TAG, "Disabling sync.");
+        ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, false); // turn off sync till user logs back in
+        ContentResolver.removePeriodicSync(account, AppConstants.AUTHORITY, new Bundle());
+        ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 0);
+
         final Intent intent = new Intent(mContext, AuthenticatorActivity.class);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
         intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);

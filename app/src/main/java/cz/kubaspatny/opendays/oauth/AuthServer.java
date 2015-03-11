@@ -4,8 +4,10 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
+import android.accounts.NetworkErrorException;
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -19,12 +21,14 @@ import com.squareup.okhttp.Response;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.exception.ErrorCodeException;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.json.DateTimeSerializer;
 
@@ -103,6 +107,8 @@ public class AuthServer {
             }
 
             token = response.body().string();
+        } catch (UnknownHostException e) {
+            throw new NetworkErrorException(e.getLocalizedMessage());
         } catch (Exception e){
             Log.d(TAG, e.getMessage());
         }
@@ -110,7 +116,7 @@ public class AuthServer {
         return new Gson().fromJson(token, AccessToken.class);
     }
 
-    public static List<GroupDto> getGroups(Activity activity, AccountManager mAccountManager) throws Exception {
+    public static List<GroupDto> getGroups(AccountManager mAccountManager) throws Exception {
 
         String url = "http://resttime-kubaspatny.rhcloud.com/api/v1/user/login4/groups?page=0&pageSize=25";
         String json;
@@ -118,7 +124,6 @@ public class AuthServer {
         OkHttpClient client = new OkHttpClient();
         final Request.Builder requestBuilder = new Request.Builder()
                 .url(url);
-
 
         Account[] accounts = mAccountManager.getAccountsByType(AuthConstants.ACCOUNT_TYPE);
         Account account = null;
@@ -130,14 +135,13 @@ public class AuthServer {
             }
         }
 
-//        AccountManagerFuture<Bundle> future = mAccountManager.getAuthTokenByFeatures(AuthConstants.ACCOUNT_TYPE, AuthConstants.AUTHTOKEN_TYPE_FULL_ACCESS, null, activity, null, null, null, null);
-//        Bundle bundle = future.getResult();
-//        String token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-
         String token = mAccountManager.blockingGetAuthToken(account, AuthConstants.AUTHTOKEN_TYPE_FULL_ACCESS, true);
-        requestBuilder.addHeader("Authorization", "Bearer " + token);
-        Log.d(TAG, "getGroups > received access token: " + token);
 
+        if(token == null || TextUtils.isEmpty(token)){
+           throw new LoginException("Couldn't obtain access token.", 999);
+        }
+
+        requestBuilder.addHeader("Authorization", "Bearer " + token);
         Request request = requestBuilder.build();
 
         try {
@@ -148,19 +152,21 @@ public class AuthServer {
                 ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
                 Log.d(TAG, "Error loading groups! " + errorMessage.getMessage());
 
-                throw new Exception("Error loading groups! " + response.body().string());
+                throw new ErrorCodeException("Error loading groups! " + response.body().string(), response.code());
             }
 
             json = response.body().string();
-            Log.d(TAG, "Received json: " + json);
 
+        } catch (UnknownHostException e) {
+            throw new NetworkErrorException(e.getLocalizedMessage());
+        } catch (ErrorCodeException e) {
+            throw e;
         } catch (Exception e){
             Log.d(TAG, e.getMessage());
-            throw new Exception(e.getMessage());
+            throw new Exception(e.getClass().getSimpleName() + ": " + e.getMessage());
         }
 
-        Log.d(TAG, "Trying to parse json: " + json);
-
+        Log.d(TAG, "Parsing json.");
         Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
         return Arrays.asList(gson.fromJson(json, GroupDto[].class));
     }

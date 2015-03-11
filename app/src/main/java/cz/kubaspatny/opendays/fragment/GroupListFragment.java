@@ -1,5 +1,6 @@
 package cz.kubaspatny.opendays.fragment;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -28,6 +29,7 @@ import cz.kubaspatny.opendays.adapter.GuidedGroupsAdapter;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.net.ConnectionUtils;
 import cz.kubaspatny.opendays.oauth.AuthServer;
 
@@ -85,13 +87,14 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onRefresh() {
+        new LoadGroupsAsyncTask(getActivity()).execute();
 
-        if(ConnectionUtils.isConnected(getActivity())){
-            new LoadGroupsAsyncTask().execute();
-        } else {
-            swipeContainer.setRefreshing(false);
-            Toast.makeText(getActivity(), "Check your internet connection.", Toast.LENGTH_SHORT).show();
-        }
+//        if(ConnectionUtils.isConnected(getActivity())){
+//            new LoadGroupsAsyncTask().execute();
+//        } else {
+//            swipeContainer.setRefreshing(false);
+//            Toast.makeText(getActivity(), "Check your internet connection.", Toast.LENGTH_SHORT).show();
+//        }
 
     }
 
@@ -127,14 +130,20 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
     private class LoadGroupsAsyncTask extends AsyncTask<Void, Void, Void> {
 
         public final String DEBUG_TAG = LoadGroupsAsyncTask.class.getSimpleName();
+        private Exception e;
+        private Activity activity;
+
+        private LoadGroupsAsyncTask(Activity activity) {
+            this.activity = activity;
+        }
 
         @Override
         protected Void doInBackground(Void... voids) {
 
             try {
 
-                List<GroupDto> groups = AuthServer.getGroups(getActivity(), ((BaseActivity)getActivity()).getAccountManager());
-                if(!groups.isEmpty()) getActivity().getContentResolver().delete(DbContentProvider.CONTENT_URI, null, null); // delete previous groups
+                List<GroupDto> groups = AuthServer.getGroups(((BaseActivity)getActivity()).getAccountManager());
+                if(groups != null) getActivity().getContentResolver().delete(DbContentProvider.CONTENT_URI, null, null); // delete previous groups
 
                 for(GroupDto g : groups){
 
@@ -154,11 +163,15 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
                 return null;
 
-            } catch(MalformedURLException e){
-                Log.e(DEBUG_TAG, e.getLocalizedMessage());
+            } catch (LoginException e) {
+                Log.d(DEBUG_TAG, "Couldn't obtain access token.");
+            } catch (MalformedURLException e){
+                this.e = e;
+                Log.d(DEBUG_TAG, e.getLocalizedMessage());
             } catch(Exception e){
+                this.e = e;
                 String message = (e.getLocalizedMessage() == null) ? "Error downloading groups." : e.getLocalizedMessage();
-                Log.e(DEBUG_TAG, message);
+                Log.d(DEBUG_TAG, message);
             }
 
             return null;
@@ -166,6 +179,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
         @Override
         protected void onPostExecute(Void notUsed) {
+            if(e != null) Toast.makeText(activity, "Couldn't load data. Check your internet connection.", Toast.LENGTH_SHORT).show();
             swipeContainer.setRefreshing(false);
         }
     }
