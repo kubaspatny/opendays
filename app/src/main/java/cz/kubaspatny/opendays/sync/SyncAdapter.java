@@ -7,6 +7,7 @@ import android.accounts.NetworkErrorException;
 import android.accounts.OperationCanceledException;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,9 +18,11 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.kubaspatny.opendays.activity.BaseActivity;
+import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
@@ -71,11 +74,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(TAG, "loadGuidedGroups");
 
 
+
+        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
         List<GroupDto> groups = SyncEndpoint.getGroups(account, getAccessToken(account), 0, 25);
-        if(groups != null) mContentResolver.delete(DbContentProvider.CONTENT_URI, null, null); // delete previous groups
+
+        if(groups != null){
+            batch.add(ContentProviderOperation.newDelete(DbContentProvider.CONTENT_URI).build());
+//            mContentResolver.delete(DbContentProvider.CONTENT_URI, null, null); // delete previous groups
+        }
 
         for(GroupDto g : groups){
-
             ContentValues values = new ContentValues();
             values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID, g.getId());
             values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, g.getStartingPosition());
@@ -88,7 +96,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_ID, g.getRoute().getEvent().getId());
             values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_NAME, g.getRoute().getEvent().getName());
             mContentResolver.insert(DbContentProvider.CONTENT_URI, values);
+            batch.add(ContentProviderOperation.newInsert(DbContentProvider.CONTENT_URI).withValues(values).build());
         }
+
+        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
 
     }
 
