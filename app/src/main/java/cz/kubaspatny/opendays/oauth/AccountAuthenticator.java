@@ -5,8 +5,6 @@ import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +12,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.IOException;
-
-import cz.kubaspatny.opendays.activity.AuthenticatorActivity;
+import cz.kubaspatny.opendays.ui.activity.AuthenticatorActivity;
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 

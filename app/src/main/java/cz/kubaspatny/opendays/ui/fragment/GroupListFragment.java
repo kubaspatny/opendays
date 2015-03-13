@@ -1,15 +1,11 @@
-package cz.kubaspatny.opendays.fragment;
+package cz.kubaspatny.opendays.ui.fragment;
 
-import android.app.Activity;
-import android.content.ContentValues;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,20 +14,12 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import java.net.MalformedURLException;
-import java.util.List;
 
 import cz.kubaspatny.opendays.R;
-import cz.kubaspatny.opendays.activity.BaseActivity;
+import cz.kubaspatny.opendays.ui.activity.BaseActivity;
 import cz.kubaspatny.opendays.adapter.GuidedGroupsAdapter;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
-import cz.kubaspatny.opendays.domainobject.GroupDto;
-import cz.kubaspatny.opendays.exception.LoginException;
-import cz.kubaspatny.opendays.net.ConnectionUtils;
-import cz.kubaspatny.opendays.oauth.AuthServer;
 
 public class GroupListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
 

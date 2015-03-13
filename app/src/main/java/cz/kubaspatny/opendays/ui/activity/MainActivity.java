@@ -1,10 +1,10 @@
-package cz.kubaspatny.opendays.activity;
+package cz.kubaspatny.opendays.ui.activity;
 
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import cz.kubaspatny.opendays.R;
-import cz.kubaspatny.opendays.fragment.GroupListFragment;
+import cz.kubaspatny.opendays.ui.fragment.GroupListFragment;
 
 public class MainActivity extends BaseActivity {
 

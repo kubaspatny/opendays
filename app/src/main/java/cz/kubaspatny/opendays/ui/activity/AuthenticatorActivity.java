@@ -1,4 +1,4 @@
-package cz.kubaspatny.opendays.activity;
+package cz.kubaspatny.opendays.ui.activity;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;

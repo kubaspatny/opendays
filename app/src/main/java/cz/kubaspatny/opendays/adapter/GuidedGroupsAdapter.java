@@ -18,7 +18,7 @@ import java.util.TimeZone;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.database.DataContract;
-import cz.kubaspatny.opendays.widget.CircleView;
+import cz.kubaspatny.opendays.ui.widget.CircleView;
 
 /**
  * Created by Kuba on 8/3/2015.

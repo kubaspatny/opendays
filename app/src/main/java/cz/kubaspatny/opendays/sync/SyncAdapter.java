@@ -17,11 +17,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.kubaspatny.opendays.activity.BaseActivity;
+import cz.kubaspatny.opendays.ui.activity.BaseActivity;
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
@@ -29,7 +28,6 @@ import cz.kubaspatny.opendays.domainobject.GroupDto;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.net.SyncEndpoint;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
-import cz.kubaspatny.opendays.oauth.AuthServer;
 
 /**
  * Created by Kuba on 11/3/2015.

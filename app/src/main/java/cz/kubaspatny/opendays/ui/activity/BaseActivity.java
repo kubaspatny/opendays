@@ -1,18 +1,13 @@
-package cz.kubaspatny.opendays.activity;
+package cz.kubaspatny.opendays.ui.activity;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
 import android.accounts.OnAccountsUpdateListener;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
