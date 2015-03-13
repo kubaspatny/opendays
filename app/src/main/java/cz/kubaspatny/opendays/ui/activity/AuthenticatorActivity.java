@@ -151,7 +151,8 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
         Log.d(TAG, "Allowing sync.");
         ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
-        ContentResolver.addPeriodicSync(account, AppConstants.AUTHORITY, new Bundle(), 20);
+        ContentResolver.removePeriodicSync(account, AppConstants.AUTHORITY, new Bundle());
+        ContentResolver.addPeriodicSync(account, AppConstants.AUTHORITY, new Bundle(), 240);
 
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);

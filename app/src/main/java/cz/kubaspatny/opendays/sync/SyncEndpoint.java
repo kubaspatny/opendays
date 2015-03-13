@@ -1,9 +1,7 @@
-package cz.kubaspatny.opendays.net;
+package cz.kubaspatny.opendays.sync;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -21,9 +19,7 @@ import java.util.List;
 import cz.kubaspatny.opendays.domainobject.ErrorMessage;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
 import cz.kubaspatny.opendays.exception.ErrorCodeException;
-import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.json.DateTimeSerializer;
-import cz.kubaspatny.opendays.oauth.AuthConstants;
 
 /**
  * Created by Kuba on 11/3/2015.

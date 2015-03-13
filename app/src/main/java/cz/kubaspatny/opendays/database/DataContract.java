@@ -1,5 +1,6 @@
 package cz.kubaspatny.opendays.database;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
@@ -13,6 +14,7 @@ public class DataContract {
     public static abstract class GuidedGroups implements BaseColumns {
 
         public static final String TABLE_NAME = "guided_groups";
+        public static final Uri CONTENT_URI = DbContentProvider.CONTENT_URI.buildUpon().path(TABLE_NAME).build();
 
         public static final String COLUMN_NAME_GROUP_ID = "groupid";
         public static final String COLUMN_NAME_GROUP_STARTING_POSITION = "group_starting_position";

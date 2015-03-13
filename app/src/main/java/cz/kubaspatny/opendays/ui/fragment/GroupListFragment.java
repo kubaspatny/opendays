@@ -77,14 +77,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onRefresh() {
-
-//        if(ConnectionUtils.isConnected(getActivity())){
-//            new LoadGroupsAsyncTask().execute();
-//        } else {
-//            swipeContainer.setRefreshing(false);
-//            Toast.makeText(getActivity(), "Check your internet connection.", Toast.LENGTH_SHORT).show();
-//        }
-
+        //TODO: request sync
     }
 
     @Override
@@ -95,7 +88,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP,
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR};
 
-        CursorLoader cursorLoader = new CursorLoader(getActivity(), DbContentProvider.CONTENT_URI, projection, null, null, null);
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), DbContentProvider.CONTENT_URI.buildUpon().path(DataContract.GuidedGroups.TABLE_NAME).build(), projection, null, null, null);
         return cursorLoader;
     }
 
@@ -116,62 +109,5 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         super.onDestroyView();
         getActivity().getSupportLoaderManager().destroyLoader(0);
     }
-
-//    private class LoadGroupsAsyncTask extends AsyncTask<Void, Void, Void> {
-//
-//        public final String DEBUG_TAG = LoadGroupsAsyncTask.class.getSimpleName();
-//        private Exception e;
-//        private Activity activity;
-//
-//        private LoadGroupsAsyncTask(Activity activity) {
-//            this.activity = activity;
-//        }
-//
-//        @Override
-//        protected Void doInBackground(Void... voids) {
-//
-//            try {
-//
-//                List<GroupDto> groups = AuthServer.getGroups(((BaseActivity)getActivity()).getAccountManager());
-//                if(groups != null) getActivity().getContentResolver().delete(DbContentProvider.CONTENT_URI, null, null); // delete previous groups
-//
-//                for(GroupDto g : groups){
-//
-//                    ContentValues values = new ContentValues();
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID, g.getId());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, g.getStartingPosition());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ACTIVE, g.isActive());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, g.getRoute().getId());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, g.getRoute().getName());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, g.getRoute().getHexColor());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_INFORMATION, g.getRoute().getInformation());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP, g.getRoute().getDate().toInstant().toString());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_ID, g.getRoute().getEvent().getId());
-//                    values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_NAME, g.getRoute().getEvent().getName());
-//                    getActivity().getContentResolver().insert(DbContentProvider.CONTENT_URI, values);
-//                }
-//
-//                return null;
-//
-//            } catch (LoginException e) {
-//                Log.d(DEBUG_TAG, "Couldn't obtain access token.");
-//            } catch (MalformedURLException e){
-//                this.e = e;
-//                Log.d(DEBUG_TAG, e.getLocalizedMessage());
-//            } catch(Exception e){
-//                this.e = e;
-//                String message = (e.getLocalizedMessage() == null) ? "Error downloading groups." : e.getLocalizedMessage();
-//                Log.d(DEBUG_TAG, message);
-//            }
-//
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Void notUsed) {
-//            if(e != null) Toast.makeText(activity, "Couldn't load data. Check your internet connection.", Toast.LENGTH_SHORT).show();
-//            swipeContainer.setRefreshing(false);
-//        }
-//    }
 
 }

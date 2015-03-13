@@ -73,13 +73,11 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
 
         // Watch to make sure the account still exists.
         if(requireLogin()) mAccountManager.addOnAccountsUpdatedListener(this, null, true);
-
     }
 
     @Override
     protected void onPause() {
         if(requireLogin()) mAccountManager.removeOnAccountsUpdatedListener(this);
-
         super.onPause();
     }
 

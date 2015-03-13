@@ -22,15 +22,15 @@ import static cz.kubaspatny.opendays.app.AppConstants.*;
 public class DbContentProvider extends ContentProvider {
 
     private DbHelper dbHelper;
-    private static final int ALL_GUIDEDGROUPS = 1;
-    private static final int SINGLE_GUIDEDGROUP = 2;
+    private static final int GUIDEDGROUPS = 100;
+    private static final int GUIDEDGROUP_ID = 101;
 
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + DataContract.GuidedGroups.TABLE_NAME);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        uriMatcher.addURI(AUTHORITY, DataContract.GuidedGroups.TABLE_NAME, ALL_GUIDEDGROUPS);
-        uriMatcher.addURI(AUTHORITY, DataContract.GuidedGroups.TABLE_NAME + "/#", SINGLE_GUIDEDGROUP);
+        uriMatcher.addURI(AUTHORITY, DataContract.GuidedGroups.TABLE_NAME, GUIDEDGROUPS);
+        uriMatcher.addURI(AUTHORITY, DataContract.GuidedGroups.TABLE_NAME + "/#", GUIDEDGROUP_ID);
     }
 
     @Override
@@ -51,9 +51,9 @@ public class DbContentProvider extends ContentProvider {
     public String getType(Uri uri) {
 
         switch(uriMatcher.match(uri)){
-            case ALL_GUIDEDGROUPS:
+            case GUIDEDGROUPS:
                 return "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + DataContract.GuidedGroups.TABLE_NAME;
-            case SINGLE_GUIDEDGROUP:
+            case GUIDEDGROUP_ID:
                 return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.GuidedGroups.TABLE_NAME;
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
@@ -68,7 +68,7 @@ public class DbContentProvider extends ContentProvider {
 
         long id;
         switch (uriMatcher.match(uri)){
-            case ALL_GUIDEDGROUPS:
+            case GUIDEDGROUPS:
                 id = database.insert(DataContract.GuidedGroups.TABLE_NAME, null, contentValues);
                 break;
             default:
@@ -88,10 +88,10 @@ public class DbContentProvider extends ContentProvider {
         queryBuilder.setTables(DataContract.GuidedGroups.TABLE_NAME);
 
         switch(uriMatcher.match(uri)){
-            case ALL_GUIDEDGROUPS:
+            case GUIDEDGROUPS:
                 // no additional arguments needed
                 break;
-            case SINGLE_GUIDEDGROUP:
+            case GUIDEDGROUP_ID:
                 String id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.GuidedGroups._ID + "=" + id);
                 break;
@@ -109,10 +109,10 @@ public class DbContentProvider extends ContentProvider {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         switch (uriMatcher.match(uri)){
-            case ALL_GUIDEDGROUPS:
+            case GUIDEDGROUPS:
                 // no additional arguments needed
                 break;
-            case SINGLE_GUIDEDGROUP:
+            case GUIDEDGROUP_ID:
                 String id = uri.getPathSegments().get(1);
                 selection = DataContract.GuidedGroups._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
@@ -136,10 +136,10 @@ public class DbContentProvider extends ContentProvider {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
 
         switch (uriMatcher.match(uri)){
-            case ALL_GUIDEDGROUPS:
+            case GUIDEDGROUPS:
                 // no additional arguments needed
                 break;
-            case SINGLE_GUIDEDGROUP:
+            case GUIDEDGROUP_ID:
                 String id = uri.getPathSegments().get(1);
                 selection = DataContract.GuidedGroups._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
