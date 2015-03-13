@@ -7,8 +7,10 @@ import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -43,10 +45,6 @@ public class SyncHelper {
             bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
             bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
 
-//            if (userDataSyncOnly) {
-//                b.putBoolean(SyncAdapter.EXTRA_SYNC_USER_DATA_ONLY, true);
-//            }
-
             ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
             ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
 
@@ -63,6 +61,10 @@ public class SyncHelper {
 
     public void performSync(SyncResult syncResult, Account account, Bundle extras) {
 
+        Intent intent = new Intent(AppConstants.KEY_SYNC_STATUS);
+        intent.putExtra(AppConstants.KEY_SYNC_STATUS_CODE, AppConstants.SYNC_STATUS_CODE_START);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+
         final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         Log.d(TAG, "Performing sync for account: " + account);
 
@@ -73,6 +75,10 @@ public class SyncHelper {
         } catch (Throwable throwable) {
             throwable.printStackTrace();
             syncResult.stats.numIoExceptions++;
+        } finally {
+            intent = new Intent(AppConstants.KEY_SYNC_STATUS);
+            intent.putExtra(AppConstants.KEY_SYNC_STATUS_CODE, AppConstants.SYNC_STATUS_CODE_END);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
         }
 
     }

@@ -1,11 +1,16 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,10 +21,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import cz.kubaspatny.opendays.R;
+import cz.kubaspatny.opendays.app.AppConstants;
+import cz.kubaspatny.opendays.sync.SyncHelper;
 import cz.kubaspatny.opendays.ui.activity.BaseActivity;
 import cz.kubaspatny.opendays.adapter.GuidedGroupsAdapter;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
+import cz.kubaspatny.opendays.util.AccountUtil;
 
 public class GroupListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -29,6 +37,23 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
     private SwipeRefreshLayout swipeContainer;
     private LinearLayout emptyView;
     private GuidedGroupsAdapter cursorAdapter;
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int sync_code = intent.getIntExtra(AppConstants.KEY_SYNC_STATUS_CODE, -1);
+            switch(sync_code){
+                case AppConstants.SYNC_STATUS_CODE_START: // TODO: remove for PROD build
+                    swipeContainer.setRefreshing(true);
+                    return;
+                case AppConstants.SYNC_STATUS_CODE_END:
+                    swipeContainer.setRefreshing(false);
+                    return;
+                default:
+                    return;
+            }
+        }
+    };
 
     public static GroupListFragment newInstance() {
         GroupListFragment fragment = new GroupListFragment();
@@ -76,8 +101,21 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, new IntentFilter(AppConstants.KEY_SYNC_STATUS));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+    }
+
+    @Override
     public void onRefresh() {
         //TODO: request sync
+        SyncHelper.requestManualSync(AccountUtil.getAccount(getActivity()));
     }
 
     @Override

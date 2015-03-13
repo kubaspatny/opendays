@@ -18,6 +18,17 @@ import cz.kubaspatny.opendays.oauth.AuthConstants;
  */
 public class AccountUtil {
 
+    public static Account getAccount(final Context context){
+        AccountManager accountManager = AccountManager.get(context);
+        Account[] accounts = accountManager.getAccountsByType(AuthConstants.ACCOUNT_TYPE);
+
+        if(accounts.length == 0){
+            return null;
+        } else {
+            return accounts[0];
+        }
+    }
+
     public static String getAccessToken(Context context, Account account) throws LoginException, NetworkErrorException, IOException, AuthenticatorException, OperationCanceledException {
 
         AccountManager accountManager = AccountManager.get(context);
