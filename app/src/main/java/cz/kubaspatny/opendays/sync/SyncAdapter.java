@@ -28,6 +28,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(TAG, "Sync for account: " + account.name);
 
         new SyncHelper(mContext).performSync(syncResult, account, extras);
+
     }
 
 }

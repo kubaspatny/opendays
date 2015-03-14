@@ -18,5 +18,6 @@ public class AuthConstants {
      */
     public static final String AUTHTOKEN_TYPE_FULL_ACCESS = "Full access";
     public static final String AUTHTOKEN_TYPE_FULL_ACCESS_LABEL = "Full access to an Open Days account";
+    public static final String REFRESH_TOKEN = "cz.opendays.account_type.refresh_token";
 
 }

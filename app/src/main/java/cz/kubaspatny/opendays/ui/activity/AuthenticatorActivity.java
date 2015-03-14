@@ -143,16 +143,17 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
             // (Not setting the auth token will cause another call to the server to authenticate the user)
             mAccountManager.addAccountExplicitly(account, accountPassword, null);
             mAccountManager.setAuthToken(account, authtokenType, authtoken);
+            mAccountManager.setUserData(account, AuthConstants.REFRESH_TOKEN, accountPassword);
         } else {
             Log.d(TAG, "finishLogin -> setPassword");
             mAccountManager.setPassword(account, accountPassword);
+            mAccountManager.setUserData(account, AuthConstants.REFRESH_TOKEN, accountPassword);
         }
 
         Log.d(TAG, "Allowing sync.");
         ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
-        ContentResolver.removePeriodicSync(account, AppConstants.AUTHORITY, new Bundle());
-        ContentResolver.addPeriodicSync(account, AppConstants.AUTHORITY, new Bundle(), 240);
+        ContentResolver.addPeriodicSync(account, AppConstants.AUTHORITY, Bundle.EMPTY, 60);
 
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);

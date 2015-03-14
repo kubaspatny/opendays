@@ -2,6 +2,8 @@ package cz.kubaspatny.opendays.database;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.provider.ContactsContract;
+import android.text.TextUtils;
 
 /**
  * Created by Kuba on 8/3/2015.
@@ -27,6 +29,16 @@ public class DataContract {
         public static final String COLUMN_NAME_EVENT_ID = "eventid";
         public static final String COLUMN_NAME_EVENT_NAME = "event_name";
 
+    }
+
+    public static Uri addCallerIsSyncAdapterParameter(Uri uri) {
+        return uri.buildUpon().appendQueryParameter(
+                ContactsContract.CALLER_IS_SYNCADAPTER, "true").build();
+    }
+
+    public static boolean hasCallerIsSyncAdapterParameter(Uri uri) {
+        return TextUtils.equals("true",
+                uri.getQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER));
     }
 
 }

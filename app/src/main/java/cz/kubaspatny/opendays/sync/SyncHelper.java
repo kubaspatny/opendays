@@ -38,22 +38,25 @@ public class SyncHelper {
         mContext = context;
     }
 
-    public static void requestManualSync(Account account) {
+    public static void requestManualSync(Context context, Account account) {
         if (account != null) {
             Log.d(TAG, "requestManualSync > requesting sync for " + account.name);
             Bundle bundle = new Bundle();
             bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
             bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
 
-            ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
+            // If refresh token expired, the automatic sync was disabled.
+            // Enable it now to show the error message again.
+            Log.d(TAG, "Enabling sync.");
             ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
+            ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
 
             boolean pending = ContentResolver.isSyncPending(account, AppConstants.AUTHORITY);
             boolean active = ContentResolver.isSyncActive(account, AppConstants.AUTHORITY);
 
             if (pending || active) ContentResolver.cancelSync(account, AppConstants.AUTHORITY);
 
-            ContentResolver.requestSync(account, AppConstants.AUTHORITY, bundle);
+            context.getContentResolver().requestSync(account, AppConstants.AUTHORITY, bundle);
         } else {
             Log.d(TAG, "requestManualSync > cannot request sync without account!");
         }
@@ -71,14 +74,18 @@ public class SyncHelper {
         try {
             doSync(account);
         } catch (LoginException | AuthenticatorException ex) {
+            Log.d(TAG, "Login exception.");
             syncResult.stats.numAuthExceptions++;
+
         } catch (Throwable throwable) {
+            Log.d(TAG, "Throwable exception.");
             throwable.printStackTrace();
             syncResult.stats.numIoExceptions++;
         } finally {
             intent = new Intent(AppConstants.KEY_SYNC_STATUS);
             intent.putExtra(AppConstants.KEY_SYNC_STATUS_CODE, AppConstants.SYNC_STATUS_CODE_END);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+            // TODO: if the activity is paused -> then goes active -> still showing progressbar
         }
 
     }

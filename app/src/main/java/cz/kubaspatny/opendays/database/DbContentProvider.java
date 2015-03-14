@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -11,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -75,7 +77,7 @@ public class DbContentProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        notifyChange(uri);
         return Uri.parse(CONTENT_URI + "/" + id);
 
     }
@@ -125,7 +127,7 @@ public class DbContentProvider extends ContentProvider {
                 selection,
                 selectionArgs);
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        notifyChange(uri);
         return deletedRows;
 
     }
@@ -151,7 +153,7 @@ public class DbContentProvider extends ContentProvider {
         int updatedRows = database.update(DataContract.GuidedGroups.TABLE_NAME,
                 contentValues, selection, selectionArgs);
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        notifyChange(uri);
         return updatedRows;
 
     }
@@ -178,6 +180,24 @@ public class DbContentProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void notifyChange(Uri uri) {
+        // We only notify changes if the caller is not the sync adapter.
+        // The sync adapter has the responsibility of notifying changes (it can do so
+        // more intelligently than we can -- for example, doing it only once at the end
+        // of the sync instead of issuing thousands of notifications for each record).
+
+        boolean syncToNetwork = !DataContract.hasCallerIsSyncAdapterParameter(uri);
+        getContext().getContentResolver().notifyChange(uri, null, syncToNetwork);
+
+//        if (!DataContract.hasCallerIsSyncAdapterParameter(uri)) {
+//            Context context = getContext();
+//            context.getContentResolver().notifyChange(uri, null);
+//            Log.d("DbContentProvider", "notifyChange > NOTIFIED.");
+//        } else {
+//            Log.d("DbContentProvider", "notifyChange > DID NOT NOTIFY.");
+//        }
     }
 
 }

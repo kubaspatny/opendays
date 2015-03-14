@@ -66,7 +66,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
         String authToken = accountManager.peekAuthToken(account, authTokenType);
 
         if (TextUtils.isEmpty(authToken)) {
-            final String refreshToken = accountManager.getPassword(account);
+            final String refreshToken = accountManager.getUserData(account, AuthConstants.REFRESH_TOKEN);
             if (refreshToken != null) {
                 try {
                     Log.d(TAG, "Obtaining access token using existing refresh token.");
@@ -76,7 +76,8 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
                         Log.d(TAG, "Received access & refresh token!");
 
                         if(accessToken.getRefreshToken() != null && !TextUtils.isEmpty(accessToken.getRefreshToken().getValue())){
-                            accountManager.setPassword(account, accessToken.getRefreshToken().getValue());
+//                            accountManager.setPassword(account, accessToken.getRefreshToken().getValue());
+                            accountManager.setUserData(account, AuthConstants.REFRESH_TOKEN, accessToken.getRefreshToken().getValue());
                         }
 
                         authToken = accessToken.getValue();
@@ -107,9 +108,7 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
         // need to re-prompt them for their credentials. We do that by creating
         // an intent to display our AuthenticatorActivity.
         Log.d(TAG, "Disabling sync.");
-        ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, false); // turn off sync till user logs back in
-        ContentResolver.removePeriodicSync(account, AppConstants.AUTHORITY, new Bundle());
-        ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 0);
+        disableSync(account);
 
         final Intent intent = new Intent(mContext, AuthenticatorActivity.class);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
@@ -121,6 +120,16 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
         bundle.putParcelable(AccountManager.KEY_INTENT, intent);
         return bundle;
 
+    }
+
+    private static void disableSync(Account account){
+        boolean pending = ContentResolver.isSyncPending(account, AppConstants.AUTHORITY);
+        boolean active = ContentResolver.isSyncActive(account, AppConstants.AUTHORITY);
+
+        if (pending || active) ContentResolver.cancelSync(account, AppConstants.AUTHORITY);
+        ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, false);
+        ContentResolver.removePeriodicSync(account, AppConstants.AUTHORITY, Bundle.EMPTY);
+        ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 0);
     }
 
     @Override

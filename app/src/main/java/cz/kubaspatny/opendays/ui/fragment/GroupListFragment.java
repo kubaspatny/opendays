@@ -115,7 +115,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onRefresh() {
         //TODO: request sync
-        SyncHelper.requestManualSync(AccountUtil.getAccount(getActivity()));
+        SyncHelper.requestManualSync(getActivity(), AccountUtil.getAccount(getActivity()));
     }
 
     @Override

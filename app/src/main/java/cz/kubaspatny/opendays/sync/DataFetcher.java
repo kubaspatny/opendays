@@ -12,6 +12,7 @@ import java.util.List;
 
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
+import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
 import cz.kubaspatny.opendays.util.AccountUtil;
 
@@ -37,7 +38,8 @@ public class DataFetcher {
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
         if(groups != null){
-            batch.add(ContentProviderOperation.newDelete(DataContract.GuidedGroups.CONTENT_URI).build());
+            batch.add(ContentProviderOperation.newDelete(
+                    DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).build());
 
             for(GroupDto g : groups){
                 ContentValues values = new ContentValues();
@@ -51,7 +53,8 @@ public class DataFetcher {
                 values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP, g.getRoute().getDate().toInstant().toString());
                 values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_ID, g.getRoute().getEvent().getId());
                 values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_NAME, g.getRoute().getEvent().getName());
-                batch.add(ContentProviderOperation.newInsert(DataContract.GuidedGroups.CONTENT_URI).withValues(values).build());
+                batch.add(ContentProviderOperation.newInsert(
+                        DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).withValues(values).build());
             }
 
             mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
