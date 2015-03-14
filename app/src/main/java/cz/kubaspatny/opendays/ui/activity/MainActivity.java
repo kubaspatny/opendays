@@ -1,44 +1,79 @@
 package cz.kubaspatny.opendays.ui.activity;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import cz.kubaspatny.opendays.R;
-import cz.kubaspatny.opendays.ui.fragment.GroupListFragment;
 
-public class MainActivity extends BaseActivity {
+import cz.kubaspatny.opendays.R;
+import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerCallbacks;
+import cz.kubaspatny.opendays.ui.fragment.GroupListFragment;
+import cz.kubaspatny.opendays.ui.fragment.ManagedStationsListFragment;
+import cz.kubaspatny.opendays.ui.fragment.NavigationDrawerFragment;
+
+public class MainActivity extends BaseActivity implements NavigationDrawerCallbacks {
+
+    private Toolbar mToolbar;
+    private NavigationDrawerFragment mNavigationDrawerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_guided_groups);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new GroupListFragment())
-                    .commit();
-        }
+        setContentView(R.layout.activity_drawer);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_drawer);
+        mNavigationDrawerFragment.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer), mToolbar);
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_guided_groups, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onNavigationDrawerItemSelected(int position) {
+
+        Fragment fragment;
+
+        switch (position){
+            case 0:
+                fragment = new GroupListFragment();
+                break;
+            default:
+                fragment = ManagedStationsListFragment.newInstance("", "");
+        }
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mNavigationDrawerFragment.isDrawerOpen())
+            mNavigationDrawerFragment.closeDrawer();
+        else
+            super.onBackPressed();
+    }
+
 
 }

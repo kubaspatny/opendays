@@ -4,4 +4,10 @@
     <color name="colorPrimaryDark">@color/blue_800</color>
     <color name="colorAccent">@color/blue_A700</color>
 
+    <color name="drawerBackground">#F2F2F2</color>
+    <color name="windowBackground">@color/grey_100</color>
+    <color name="textPrimaryColor">@color/grey_900</color>
+    <color name="navigationColor">#000000</color>
+    <color name="selected_gray">#ffdbdbdb</color>
+
 </resources>

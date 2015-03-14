@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:fitsSystemWindows="true"
+    android:background="@color/drawerBackground">
+
+    <ListView
+        android:id="@+id/drawerListBottom"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"/>
+
+    <ListView
+        android:id="@+id/drawerList"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:layout_above="@id/drawerListBottom"/>
+
+
+</RelativeLayout>
