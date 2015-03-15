@@ -43,7 +43,7 @@ public class GuideActivity extends BaseActivity {
         int routeColorDark = ColorUtil.darken(routeColor, 0.1f);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
-        mToolbar.setBackgroundColor(routeColor); // TODO
+        mToolbar.setBackgroundColor(routeColor);
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -59,7 +59,7 @@ public class GuideActivity extends BaseActivity {
         mViewPager.setAdapter(mViewPagerAdapter);
 
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
-        mSlidingTabLayout.setBackgroundColor(routeColor); // TODO
+        mSlidingTabLayout.setBackgroundColor(routeColor);
         mSlidingTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
         mSlidingTabLayout.setSelectedIndicatorColors(Color.WHITE);
         mSlidingTabLayout.setDistributeEvenly(true);
