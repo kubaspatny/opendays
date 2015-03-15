@@ -205,58 +205,69 @@ public class DbContentProvider extends ContentProvider {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         String id;
+        String tableName;
 
         switch (uriMatcher.match(uri)){
             case GUIDEDGROUPS:
                 // no additional arguments needed
+                tableName = DataContract.GuidedGroups.TABLE_NAME;
                 break;
             case GUIDEDGROUP_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.GuidedGroups._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.GuidedGroups.TABLE_NAME;
                 break;
 
             case ROUTES:
                 // no additional arguments needed
+                tableName = DataContract.Route.TABLE_NAME;
                 break;
             case ROUTE_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.Route._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.Route.TABLE_NAME;
                 break;
 
             case STATIONS:
                 // no additional arguments needed
+                tableName = DataContract.Station.TABLE_NAME;
                 break;
             case STATION_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.Station._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.Station.TABLE_NAME;
                 break;
 
             case GROUPLOCATIONS:
                 // no additional arguments needed
+                tableName = DataContract.GroupLocations.TABLE_NAME;
                 break;
             case GROUPLOCATION_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.GroupLocations._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.GroupLocations.TABLE_NAME;
                 break;
 
             case LOCATIONUPDATES:
                 // no additional arguments needed
+                tableName = DataContract.LocationUpdates.TABLE_NAME;
                 break;
             case LOCATIONUPDATE_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.LocationUpdates._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.LocationUpdates.TABLE_NAME;
                 break;
 
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
 
-        int deletedRows = database.delete(DataContract.GuidedGroups.TABLE_NAME,
+        int deletedRows = database.delete(tableName,
                 selection,
                 selectionArgs);
 
@@ -270,58 +281,69 @@ public class DbContentProvider extends ContentProvider {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         String id;
+        String tableName;
 
         switch (uriMatcher.match(uri)){
             case GUIDEDGROUPS:
                 // no additional arguments needed
+                tableName = DataContract.GuidedGroups.TABLE_NAME;
                 break;
             case GUIDEDGROUP_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.GuidedGroups._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.GuidedGroups.TABLE_NAME;
                 break;
 
             case ROUTES:
                 // no additional arguments needed
+                tableName = DataContract.Route.TABLE_NAME;
                 break;
             case ROUTE_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.Route._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.Route.TABLE_NAME;
                 break;
 
             case STATIONS:
                 // no additional arguments needed
+                tableName = DataContract.Station.TABLE_NAME;
                 break;
             case STATION_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.Station._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.Station.TABLE_NAME;
                 break;
 
             case GROUPLOCATIONS:
                 // no additional arguments needed
+                tableName = DataContract.GroupLocations.TABLE_NAME;
                 break;
             case GROUPLOCATION_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.GroupLocations._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.GroupLocations.TABLE_NAME;
                 break;
 
             case LOCATIONUPDATES:
                 // no additional arguments needed
+                tableName = DataContract.LocationUpdates.TABLE_NAME;
                 break;
             case LOCATIONUPDATE_ID:
                 id = uri.getPathSegments().get(1);
                 selection = DataContract.LocationUpdates._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.LocationUpdates.TABLE_NAME;
                 break;
 
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
 
-        int updatedRows = database.update(DataContract.GuidedGroups.TABLE_NAME,
+        int updatedRows = database.update(tableName,
                 contentValues, selection, selectionArgs);
 
         notifyChange(uri);

@@ -1,5 +1,7 @@
 package cz.kubaspatny.opendays.domainobject;
 
+import android.content.ContentValues;
+
 import java.util.List;
 
 /**
@@ -79,4 +81,5 @@ public class GroupDto extends BaseDto {
     public void setActive(boolean active) {
         this.active = active;
     }
+
 }

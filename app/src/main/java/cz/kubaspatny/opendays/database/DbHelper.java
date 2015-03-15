@@ -69,6 +69,7 @@ public class DbHelper extends SQLiteOpenHelper {
                     GroupLocations.COLUMN_NAME_ROUTE_ID + INT_TYPE + COMMA_SEP +
                     GroupLocations.COLUMN_NAME_STATION_ID + INT_TYPE + COMMA_SEP +
                     GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE + TEXT_TYPE + COMMA_SEP +
+                    GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + TEXT_TYPE + COMMA_SEP +
                     GroupLocations.COLUMN_NAME_GROUP_ID + INT_TYPE + COMMA_SEP +
                     GroupLocations.COLUMN_NAME_GROUP_GUIDE + TEXT_TYPE + COMMA_SEP +
                     GroupLocations.COLUMN_NAME_GROUP_STATUS + TEXT_TYPE + COMMA_SEP +

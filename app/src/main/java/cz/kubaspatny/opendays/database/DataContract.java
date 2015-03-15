@@ -78,10 +78,11 @@ public class DataContract {
         public static final String COLUMN_NAME_ROUTE_ID = "routeid";
         public static final String COLUMN_NAME_STATION_ID = "stationid";
         public static final String COLUMN_NAME_LOCATION_UPDATE_TYPE = "location_update_type"; // CHECKIN, CHECKOUT, SKIP
+        public static final String COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP = "location_update_timestamp";
         public static final String COLUMN_NAME_GROUP_ID = "groupid";
         public static final String COLUMN_NAME_GROUP_GUIDE = "group_guide";
         public static final String COLUMN_NAME_GROUP_STATUS = "group_status";
-        public static final String COLUMN_NAME_GROUP_SEQ_POSITION = "group_status";
+        public static final String COLUMN_NAME_GROUP_SEQ_POSITION = "group_seq_position";
 
     }
 
