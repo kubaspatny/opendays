@@ -1,4 +1,4 @@
-package cz.kubaspatny.opendays.net;
+package cz.kubaspatny.opendays.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

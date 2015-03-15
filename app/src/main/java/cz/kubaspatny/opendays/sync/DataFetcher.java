@@ -14,6 +14,7 @@ import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.util.AccountUtil;
 
 /**
@@ -60,7 +61,22 @@ public class DataFetcher {
             mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
 
         }
+    }
+
+    public void loadRoute(String routeId) throws Exception {
+        Log.d(TAG, "loadRoute(" + routeId + ")");
+
+        Account account = AccountUtil.getAccount(mContext);
+
+        RouteDto route = SyncEndpoint.getRoute(account, AccountUtil.getAccessToken(mContext, account), routeId);
+        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+
+        // TODO: finish this
+
+
+
 
     }
+
 
 }

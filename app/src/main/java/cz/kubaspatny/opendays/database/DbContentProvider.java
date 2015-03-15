@@ -27,12 +27,38 @@ public class DbContentProvider extends ContentProvider {
     private static final int GUIDEDGROUPS = 100;
     private static final int GUIDEDGROUP_ID = 101;
 
+    private static final int ROUTES = 200;
+    private static final int ROUTE_ID = 201;
+
+    private static final int STATIONS = 300;
+    private static final int STATION_ID = 301;
+
+    private static final int GROUPLOCATIONS = 400;
+    private static final int GROUPLOCATION_ID = 401;
+
+    private static final int LOCATIONUPDATES = 500;
+    private static final int LOCATIONUPDATE_ID = 501;
+
+
+
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
         uriMatcher.addURI(AUTHORITY, DataContract.GuidedGroups.TABLE_NAME, GUIDEDGROUPS);
         uriMatcher.addURI(AUTHORITY, DataContract.GuidedGroups.TABLE_NAME + "/#", GUIDEDGROUP_ID);
+
+        uriMatcher.addURI(AUTHORITY, DataContract.Route.TABLE_NAME, ROUTES);
+        uriMatcher.addURI(AUTHORITY, DataContract.Route.TABLE_NAME + "/#", ROUTE_ID);
+
+        uriMatcher.addURI(AUTHORITY, DataContract.Station.TABLE_NAME, STATIONS);
+        uriMatcher.addURI(AUTHORITY, DataContract.Station.TABLE_NAME + "/#", STATION_ID);
+
+        uriMatcher.addURI(AUTHORITY, DataContract.GroupLocations.TABLE_NAME, GROUPLOCATIONS);
+        uriMatcher.addURI(AUTHORITY, DataContract.GroupLocations.TABLE_NAME + "/#", GROUPLOCATION_ID);
+
+        uriMatcher.addURI(AUTHORITY, DataContract.LocationUpdates.TABLE_NAME, LOCATIONUPDATES);
+        uriMatcher.addURI(AUTHORITY, DataContract.LocationUpdates.TABLE_NAME + "/#", LOCATIONUPDATE_ID);
     }
 
     @Override
@@ -57,6 +83,27 @@ public class DbContentProvider extends ContentProvider {
                 return "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + DataContract.GuidedGroups.TABLE_NAME;
             case GUIDEDGROUP_ID:
                 return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.GuidedGroups.TABLE_NAME;
+
+            case ROUTES:
+                return "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + DataContract.Route.TABLE_NAME;
+            case ROUTE_ID:
+                return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.Route.TABLE_NAME;
+
+            case STATIONS:
+                return "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + DataContract.Station.TABLE_NAME;
+            case STATION_ID:
+                return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.Station.TABLE_NAME;
+
+            case GROUPLOCATIONS:
+                return "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + DataContract.GroupLocations.TABLE_NAME;
+            case GROUPLOCATION_ID:
+                return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.GroupLocations.TABLE_NAME;
+
+            case LOCATIONUPDATES:
+                return "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + DataContract.LocationUpdates.TABLE_NAME;
+            case LOCATIONUPDATE_ID:
+                return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.LocationUpdates.TABLE_NAME;
+
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
@@ -72,6 +119,18 @@ public class DbContentProvider extends ContentProvider {
         switch (uriMatcher.match(uri)){
             case GUIDEDGROUPS:
                 id = database.insert(DataContract.GuidedGroups.TABLE_NAME, null, contentValues);
+                break;
+            case ROUTES:
+                id = database.insert(DataContract.Route.TABLE_NAME, null, contentValues);
+                break;
+            case STATIONS:
+                id = database.insert(DataContract.Station.TABLE_NAME, null, contentValues);
+                break;
+            case GROUPLOCATIONS:
+                id = database.insert(DataContract.GroupLocations.TABLE_NAME, null, contentValues);
+                break;
+            case LOCATIONUPDATES:
+                id = database.insert(DataContract.LocationUpdates.TABLE_NAME, null, contentValues);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
@@ -89,14 +148,49 @@ public class DbContentProvider extends ContentProvider {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(DataContract.GuidedGroups.TABLE_NAME);
 
+        String id;
+
         switch(uriMatcher.match(uri)){
             case GUIDEDGROUPS:
                 // no additional arguments needed
                 break;
             case GUIDEDGROUP_ID:
-                String id = uri.getPathSegments().get(1);
+                id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.GuidedGroups._ID + "=" + id);
                 break;
+
+            case ROUTES:
+                // no additional arguments needed
+                break;
+            case ROUTE_ID:
+                id = uri.getPathSegments().get(1);
+                queryBuilder.appendWhere(DataContract.Route._ID + "=" + id);
+                break;
+
+            case STATIONS:
+                // no additional arguments needed
+                break;
+            case STATION_ID:
+                id = uri.getPathSegments().get(1);
+                queryBuilder.appendWhere(DataContract.Station._ID + "=" + id);
+                break;
+
+            case GROUPLOCATIONS:
+                // no additional arguments needed
+                break;
+            case GROUPLOCATION_ID:
+                id = uri.getPathSegments().get(1);
+                queryBuilder.appendWhere(DataContract.GroupLocations._ID + "=" + id);
+                break;
+
+            case LOCATIONUPDATES:
+                // no additional arguments needed
+                break;
+            case LOCATIONUPDATE_ID:
+                id = uri.getPathSegments().get(1);
+                queryBuilder.appendWhere(DataContract.LocationUpdates._ID + "=" + id);
+                break;
+
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
@@ -110,15 +204,54 @@ public class DbContentProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
+        String id;
+
         switch (uriMatcher.match(uri)){
             case GUIDEDGROUPS:
                 // no additional arguments needed
                 break;
             case GUIDEDGROUP_ID:
-                String id = uri.getPathSegments().get(1);
+                id = uri.getPathSegments().get(1);
                 selection = DataContract.GuidedGroups._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
                 break;
+
+            case ROUTES:
+                // no additional arguments needed
+                break;
+            case ROUTE_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.Route._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                break;
+
+            case STATIONS:
+                // no additional arguments needed
+                break;
+            case STATION_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.Station._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                break;
+
+            case GROUPLOCATIONS:
+                // no additional arguments needed
+                break;
+            case GROUPLOCATION_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.GroupLocations._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                break;
+
+            case LOCATIONUPDATES:
+                // no additional arguments needed
+                break;
+            case LOCATIONUPDATE_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.LocationUpdates._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                break;
+
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
@@ -136,16 +269,54 @@ public class DbContentProvider extends ContentProvider {
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
+        String id;
 
         switch (uriMatcher.match(uri)){
             case GUIDEDGROUPS:
                 // no additional arguments needed
                 break;
             case GUIDEDGROUP_ID:
-                String id = uri.getPathSegments().get(1);
+                id = uri.getPathSegments().get(1);
                 selection = DataContract.GuidedGroups._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
                 break;
+
+            case ROUTES:
+                // no additional arguments needed
+                break;
+            case ROUTE_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.Route._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                break;
+
+            case STATIONS:
+                // no additional arguments needed
+                break;
+            case STATION_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.Station._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                break;
+
+            case GROUPLOCATIONS:
+                // no additional arguments needed
+                break;
+            case GROUPLOCATION_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.GroupLocations._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                break;
+
+            case LOCATIONUPDATES:
+                // no additional arguments needed
+                break;
+            case LOCATIONUPDATE_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.LocationUpdates._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                break;
+
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
@@ -191,13 +362,6 @@ public class DbContentProvider extends ContentProvider {
         boolean syncToNetwork = !DataContract.hasCallerIsSyncAdapterParameter(uri);
         getContext().getContentResolver().notifyChange(uri, null, syncToNetwork);
 
-//        if (!DataContract.hasCallerIsSyncAdapterParameter(uri)) {
-//            Context context = getContext();
-//            context.getContentResolver().notifyChange(uri, null);
-//            Log.d("DbContentProvider", "notifyChange > NOTIFIED.");
-//        } else {
-//            Log.d("DbContentProvider", "notifyChange > DID NOT NOTIFY.");
-//        }
     }
 
 }

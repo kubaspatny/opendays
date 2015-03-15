@@ -1,11 +1,8 @@
 package cz.kubaspatny.opendays.sync;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
@@ -13,17 +10,9 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import cz.kubaspatny.opendays.app.AppConstants;
-import cz.kubaspatny.opendays.database.DataContract;
-import cz.kubaspatny.opendays.database.DbContentProvider;
-import cz.kubaspatny.opendays.domainobject.GroupDto;
 import cz.kubaspatny.opendays.exception.LoginException;
-import cz.kubaspatny.opendays.net.ConnectionUtils;
-import cz.kubaspatny.opendays.util.AccountUtil;
+import cz.kubaspatny.opendays.util.ConnectionUtils;
 
 /**
  * Created by Kuba on 13/3/2015.

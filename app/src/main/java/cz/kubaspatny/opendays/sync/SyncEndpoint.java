@@ -20,6 +20,7 @@ import java.util.List;
 
 import cz.kubaspatny.opendays.domainobject.ErrorMessage;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.exception.ErrorCodeException;
 import cz.kubaspatny.opendays.json.DateTimeSerializer;
 
@@ -67,6 +68,46 @@ public class SyncEndpoint {
         Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
         return Arrays.asList(gson.fromJson(json, GroupDto[].class));
     }
+
+    public static RouteDto getRoute(Account account, String accessToken, String routeId) throws Exception {
+
+        String url = "http://resttime-kubaspatny.rhcloud.com/api/v1/route/" + routeId;
+        String json;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.code() != 200){
+                Log.d(TAG + ".getRoute", "Response code " + response.code());
+                ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
+                Log.d(TAG, "Error loading route! " + errorMessage.getMessage());
+
+                throw new ErrorCodeException("Error loading route! " + response.body().string(), response.code());
+            }
+
+            json = response.body().string();
+
+        } catch (UnknownHostException e) {
+            throw new NetworkErrorException(e.getLocalizedMessage());
+        } catch (ErrorCodeException e) {
+            throw e;
+        } catch (Exception e){
+            Log.d(TAG, e.getMessage());
+            throw new Exception(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+
+        Log.d(TAG, "Parsing json.");
+        Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
+        return gson.fromJson(json, RouteDto.class);
+
+    }
+
 
     public static void registerDevice(Account account, String accessToken, String registrationId) throws Exception {
 
