@@ -107,11 +107,13 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
                 Cursor cursor = cursorAdapter.getCursor();
                 cursor.moveToPosition(position);
                 String routeName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME));
+                String routeColor = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR));
 
                 Log.d(TAG, "Clicked on: " + routeName);
 
                 Intent i = new Intent(getActivity(), GuideActivity.class);
                 i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, routeName);
+                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, routeColor);
                 startActivity(i);
 
             }

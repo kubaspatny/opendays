@@ -1,24 +1,25 @@
 package cz.kubaspatny.opendays.ui.activity;
 
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.ui.fragment.ManagedStationsListFragment;
 import cz.kubaspatny.opendays.ui.layout.SlidingTabLayout;
+import cz.kubaspatny.opendays.util.ColorUtil;
 
 public class GuideActivity extends BaseActivity {
 
@@ -35,13 +36,19 @@ public class GuideActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guide);
 
+        String routeColorString = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR);
+        int routeColor = Color.parseColor(routeColorString);
+        int routeColorDark = ColorUtil.darken(routeColor, 0.1f);
+
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+        mToolbar.setBackgroundColor(routeColor); // TODO
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //TODO: How to update the title as well..
         String title = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME);
+
         if(title != null && !TextUtils.isEmpty(title)) getSupportActionBar().setTitle(title);
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
@@ -49,12 +56,17 @@ public class GuideActivity extends BaseActivity {
         mViewPager.setAdapter(mViewPagerAdapter);
 
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
+        mSlidingTabLayout.setBackgroundColor(routeColor); // TODO
         mSlidingTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
-        mSlidingTabLayout.setSelectedIndicatorColors(getResources().getColor(R.color.light_blue_A400));
+        mSlidingTabLayout.setSelectedIndicatorColors(Color.WHITE);
         mSlidingTabLayout.setDistributeEvenly(true);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             mSlidingTabLayout.setElevation(dpToPx(R.dimen.toolbar_elevation));
+
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(routeColorDark);
         }
 
         mSlidingTabLayout.setViewPager(mViewPager);
