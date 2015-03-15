@@ -43,8 +43,6 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base);
-
         mAccountManager = AccountManager.get(this);
     }
 

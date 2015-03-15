@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
@@ -27,6 +28,7 @@ import cz.kubaspatny.opendays.ui.activity.BaseActivity;
 import cz.kubaspatny.opendays.adapter.GuidedGroupsAdapter;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
+import cz.kubaspatny.opendays.ui.activity.GuideActivity;
 import cz.kubaspatny.opendays.util.AccountUtil;
 
 public class GroupListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -93,9 +95,29 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
             }
         });
 
+
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
         cursorAdapter = new GuidedGroupsAdapter(getActivity(), null, 0);
         listView.setAdapter(cursorAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor = cursorAdapter.getCursor();
+                cursor.moveToPosition(position);
+                String routeName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME));
+
+                Log.d(TAG, "Clicked on: " + routeName);
+
+                Intent i = new Intent(getActivity(), GuideActivity.class);
+                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, routeName);
+                startActivity(i);
+
+            }
+
+        });
+
         return result;
 
     }
