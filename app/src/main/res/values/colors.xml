@@ -10,4 +10,6 @@
     <color name="navigationColor">#000000</color>
     <color name="selected_gray">#ffdbdbdb</color>
 
+    <color name="black_semi_transparent">#B2000000</color>
+
 </resources>

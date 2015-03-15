@@ -1,6 +1,7 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +29,8 @@ import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
 import cz.kubaspatny.opendays.domainobject.StationDto;
 import cz.kubaspatny.opendays.domainobject.StationWrapper;
 import cz.kubaspatny.opendays.domainobject.UserDto;
+import cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton;
+import cz.kubaspatny.opendays.ui.widget.fab.FloatingActionsMenu;
 import cz.kubaspatny.opendays.util.TimeUtil;
 
 /**
@@ -75,8 +79,27 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         mLoadingView = fragmentView.findViewById(R.id.route_guide_stations_loading);
         mEmptyView = fragmentView.findViewById(R.id.empty_state);
         mListView = (ListView) fragmentView.findViewById(R.id.route_guide_stations);
-
         mListView.setEmptyView(mEmptyView);
+
+        final FloatingActionsMenu fam = (FloatingActionsMenu) fragmentView.findViewById(R.id.FAM);
+        FloatingActionButton addGroupSizeButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_groupsize);
+        addGroupSizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "Adding group size.", Toast.LENGTH_SHORT).show();
+                fam.collapse();
+            }
+        });
+
+        FloatingActionButton addLocationUpdateButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_locationupdate);
+        addLocationUpdateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "Adding location update.", Toast.LENGTH_SHORT).show();
+                fam.collapse();
+            }
+        });
+
 
         mLoadingView.setVisibility(View.VISIBLE);
         mListView.setVisibility(View.GONE);
