@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:minHeight="72dp">
+
+    <RelativeLayout
+        android:id="@+id/textview_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp">
+
+        <TextView
+            android:id="@+id/stationName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            tools:text="Station 001" />
+
+        <TextView
+            android:id="@+id/stationLocation"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            tools:text="K-123"/>
+
+        <TextView
+            android:id="@+id/stationTimeLimit"
+            android:layout_below="@id/stationName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            tools:text="Time limit: 9 minutes" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relocation_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:background="@color/grey_400"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_centerHorizontal="true"
+            android:id="@+id/relocationTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_700"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            tools:text="2-minute walk" />
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

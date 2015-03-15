@@ -1,0 +1,67 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:id="@+id/guided_groups_containter">
+
+    <RelativeLayout
+        android:id="@+id/route_guide_stations_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.ProgressBar.Small"
+            android:layout_marginBottom="8dp"
+            />
+
+        <TextView
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loading" />
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/route_guide_stations"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:drawSelectorOnTop="true"
+        />
+
+    <LinearLayout
+        android:id="@+id/empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:clickable="true"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/empty_state_logo"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:background="@drawable/ic_launcher"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="-8dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/route_guide_empty_state_label"
+            android:textColor="@color/grey_600"
+            android:textSize="20dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

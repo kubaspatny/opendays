@@ -34,6 +34,18 @@ public class LocationUpdateDto extends BaseDto {
         this.type = type;
     }
 
+    public void setType(String type){
+
+        if("CHECKIN".equals(type)){
+            setType(LocationUpdateType.CHECKIN);
+        } else if("CHECKOUT".equals(type)){
+            setType(LocationUpdateType.CHECKOUT);
+        } else if("SKIP".equals(type)){
+            setType(LocationUpdateType.SKIP);
+        }
+
+    }
+
     public StationDto getStation() {
         return station;
     }

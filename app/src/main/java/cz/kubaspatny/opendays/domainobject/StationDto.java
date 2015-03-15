@@ -18,6 +18,15 @@ public class StationDto extends BaseDto {
     private RouteDto route;
     private List<LocationUpdateDto> locationUpdates;
 
+    public StationDto() {
+    }
+
+    public StationDto(Long id) {
+        this.id = id;
+    }
+
+
+
     public String getName() {
         return name;
     }
@@ -48,6 +57,10 @@ public class StationDto extends BaseDto {
 
     public void setClosed(boolean closed) {
         this.closed = closed;
+    }
+
+    public void setClosed(String status){
+        setClosed(Boolean.parseBoolean(status));
     }
 
     public int getTimeLimit() {

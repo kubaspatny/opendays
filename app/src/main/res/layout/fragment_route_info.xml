@@ -1,0 +1,120 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cz.kubaspatny.opendays.ui.fragment.RouteInfoFragment"
+    android:padding="16dp">
+
+    <RelativeLayout
+        android:id="@+id/information_error"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:textSize="24sp"
+            tools:text="Error loading info."/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/information_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.ProgressBar.Small"
+            android:layout_marginBottom="8dp"
+            />
+
+        <TextView
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loading" />
+
+    </RelativeLayout>
+    
+    <ScrollView
+        android:id="@+id/information_container"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textSize="24sp"
+                android:text="@string/eventInfo"
+                tools:text="Event information"/>
+
+            <TextView
+                android:id="@+id/eventInformation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="16sp"
+                tools:text="@string/lipsum1"/>
+            
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textSize="24sp"
+                android:text="@string/routeInfo"
+                tools:text="Route information"/>
+
+            <TextView
+                android:id="@+id/routeInformation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="16sp"
+                android:text="@string/lipsum2"/>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textSize="24sp"
+                android:text="@string/routeTime"
+                tools:text="Route time"/>
+
+            <TextView
+                android:id="@+id/routeTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="16sp"
+                tools:text="24.12.2016 17:30"/>
+            
+        </LinearLayout>
+    
+    </ScrollView>
+
+</FrameLayout>

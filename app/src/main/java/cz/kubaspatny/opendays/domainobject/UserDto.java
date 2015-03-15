@@ -11,6 +11,13 @@ public class UserDto extends BaseDto {
     private String lastName;
     private String organization;
 
+    public UserDto() {
+    }
+
+    public UserDto(String username) {
+        this.username = username;
+    }
+
     public String getUsername() {
         return username;
     }

@@ -77,6 +77,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         swipeContainer = (SwipeRefreshLayout) result.findViewById(R.id.swipe_container);
         emptyView = (LinearLayout) result.findViewById(R.id.empty_state);
         listView.setEmptyView(emptyView);
+
         swipeContainer.setOnRefreshListener(this);
         swipeContainer.setColorSchemeResources(
                 R.color.blue_600,
@@ -108,12 +109,14 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
                 cursor.moveToPosition(position);
                 String routeName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME));
                 String routeColor = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR));
+                String routeId = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID));
 
                 Log.d(TAG, "Clicked on: " + routeName);
 
                 Intent i = new Intent(getActivity(), GuideActivity.class);
                 i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, routeName);
                 i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, routeColor);
+                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, routeId);
                 startActivity(i);
 
             }
@@ -146,6 +149,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
         String[] projection = {DataContract.GuidedGroups._ID,
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME,
+                DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID,
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP,
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR};
 

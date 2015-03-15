@@ -82,4 +82,8 @@ public class GroupDto extends BaseDto {
         this.active = active;
     }
 
+    public void setActive(String status){
+        setActive(Boolean.parseBoolean(status));
+    }
+
 }

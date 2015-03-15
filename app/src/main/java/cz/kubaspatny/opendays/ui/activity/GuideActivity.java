@@ -18,6 +18,8 @@ import android.view.WindowManager;
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.ui.fragment.ManagedStationsListFragment;
+import cz.kubaspatny.opendays.ui.fragment.RouteGuideFragment;
+import cz.kubaspatny.opendays.ui.fragment.RouteInfoFragment;
 import cz.kubaspatny.opendays.ui.layout.SlidingTabLayout;
 import cz.kubaspatny.opendays.util.ColorUtil;
 
@@ -48,11 +50,12 @@ public class GuideActivity extends BaseActivity {
 
         //TODO: How to update the title as well..
         String title = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME);
+        String routeId = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID);
 
         if(title != null && !TextUtils.isEmpty(title)) getSupportActionBar().setTitle(title);
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
-        mViewPagerAdapter = new RouteViewPagerAdapter(getSupportFragmentManager());
+        mViewPagerAdapter = new RouteViewPagerAdapter(getSupportFragmentManager(), routeId);
         mViewPager.setAdapter(mViewPagerAdapter);
 
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
@@ -98,22 +101,39 @@ public class GuideActivity extends BaseActivity {
 
     private class RouteViewPagerAdapter extends FragmentPagerAdapter {
 
-        public RouteViewPagerAdapter(FragmentManager fm) {
+        private String mRouteId;
+
+        public RouteViewPagerAdapter(FragmentManager fm, String routeId) {
             super(fm);
+            mRouteId = routeId;
         }
 
         @Override
         public Fragment getItem(int position) {
-            ManagedStationsListFragment frag = ManagedStationsListFragment.newInstance("", "");
-            Bundle args = new Bundle();
+
+            Fragment fragment;
+
+            switch (position){
+                case 0:
+                    fragment = RouteInfoFragment.newInstance(mRouteId);
+                    break;
+                case 1:
+                    fragment = RouteGuideFragment.newInstance(mRouteId);
+                    break;
+                default:
+                    fragment = ManagedStationsListFragment.newInstance("", "");
+            }
+
+//            Bundle args = new Bundle();
 //            args.putInt(ARG_CONFERENCE_DAY_INDEX, position);
-            frag.setArguments(args);
-            return frag;
+//            frag.setArguments(args);
+
+            return fragment;
         }
 
         @Override
         public int getCount() {
-            return 3; // TODO
+            return 2; // TODO
         }
 
         @Override
@@ -123,9 +143,7 @@ public class GuideActivity extends BaseActivity {
             switch(position){
                 case 0: title = "INFO";
                     break;
-                case 1: title = "MY GROUP";
-                    break;
-                case 2: title = "ROUTE";
+                case 1: title = "ROUTE";
                     break;
                 default: title = "ERROR";
             }

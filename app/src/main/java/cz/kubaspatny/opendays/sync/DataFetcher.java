@@ -115,7 +115,7 @@ public class DataFetcher {
             values.put(DataContract.Station.COLUMN_NAME_ROUTE_ID, route.getId());
             values.put(DataContract.Station.COLUMN_NAME_STATION_ID, s.getId());
             values.put(DataContract.Station.COLUMN_NAME_STATION_NAME, s.getName());
-            values.put(DataContract.Station.COLUMN_NAME_STATION_LOCATION, s.getName());
+            values.put(DataContract.Station.COLUMN_NAME_STATION_LOCATION, s.getLocation());
             values.put(DataContract.Station.COLUMN_NAME_STATION_SEQ_POSITION, s.getSequencePosition());
             values.put(DataContract.Station.COLUMN_NAME_STATION_TIME_LIMIT, s.getTimeLimit());
             values.put(DataContract.Station.COLUMN_NAME_STATION_TIME_RELOCATION, s.getRelocationTime());
@@ -134,7 +134,6 @@ public class DataFetcher {
                 values.put(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE, g.getLatestLocationUpdate().getType().toString());
                 values.put(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP, g.getLatestLocationUpdate().getTimestamp().toInstant().toString());
             }
-
 
             values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID, g.getId());
             values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE, g.getGuide().getUsername());

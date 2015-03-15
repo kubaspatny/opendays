@@ -19,5 +19,11 @@
     <string name="drawer_open">Drawer open</string>
     <string name="drawer_close">Drawer closed</string>
     <string name="title_activity_guide">GuideActivity</string>
+    <string name="lipsum2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at fermentum nisi. Morbi at tincidunt metus, in rutrum purus. Nam varius porta blandit. Aenean accumsan metus eros, ac malesuada felis sagittis dictum. Praesent viverra ultrices blandit. Fusce aliquet tellus a leo posuere lobortis. Curabitur at auctor ligula. Phasellus vestibulum commodo orci quis fermentum. Sed suscipit non ipsum sit amet laoreet.</string>
+    <string name="lipsum1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce egestas convallis sem ornare gravida. Curabitur gravida tincidunt viverra. Sed consequat ante nec orci faucibus, sed lobortis purus tristique. Fusce condimentum augue quis accumsan sagittis.</string>
+    <string name="eventInfo">Event information</string>
+    <string name="routeInfo">Route information</string>
+    <string name="routeTime">Route time</string>
+    <string name="route_guide_empty_state_label">No stations found</string>
 
 </resources>

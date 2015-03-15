@@ -146,54 +146,66 @@ public class DbContentProvider extends ContentProvider {
 
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        queryBuilder.setTables(DataContract.GuidedGroups.TABLE_NAME);
 
         String id;
+        String tableName;
 
         switch(uriMatcher.match(uri)){
             case GUIDEDGROUPS:
                 // no additional arguments needed
+                tableName = DataContract.GuidedGroups.TABLE_NAME;
                 break;
             case GUIDEDGROUP_ID:
                 id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.GuidedGroups._ID + "=" + id);
+                tableName = DataContract.GuidedGroups.TABLE_NAME;
                 break;
 
             case ROUTES:
                 // no additional arguments needed
+                tableName = DataContract.Route.TABLE_NAME;
                 break;
             case ROUTE_ID:
                 id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.Route._ID + "=" + id);
+                tableName = DataContract.Route.TABLE_NAME;
                 break;
 
             case STATIONS:
                 // no additional arguments needed
+                tableName = DataContract.Station.TABLE_NAME;
                 break;
             case STATION_ID:
                 id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.Station._ID + "=" + id);
+                tableName = DataContract.Station.TABLE_NAME;
                 break;
 
             case GROUPLOCATIONS:
                 // no additional arguments needed
+                tableName = DataContract.GroupLocations.TABLE_NAME;
                 break;
             case GROUPLOCATION_ID:
                 id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.GroupLocations._ID + "=" + id);
+                tableName = DataContract.GroupLocations.TABLE_NAME;
                 break;
 
             case LOCATIONUPDATES:
                 // no additional arguments needed
+                tableName = DataContract.LocationUpdates.TABLE_NAME;
                 break;
             case LOCATIONUPDATE_ID:
                 id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.LocationUpdates._ID + "=" + id);
+                tableName = DataContract.LocationUpdates.TABLE_NAME;
                 break;
 
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
+
+        queryBuilder.setTables(tableName);
 
         Cursor cursor = queryBuilder.query(database, projection, selection, selectionArgs, null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
