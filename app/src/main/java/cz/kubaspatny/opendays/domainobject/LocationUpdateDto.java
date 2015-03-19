@@ -1,5 +1,7 @@
 package cz.kubaspatny.opendays.domainobject;
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.Expose;
 
 import org.joda.time.DateTime;
@@ -10,7 +12,22 @@ import org.joda.time.DateTime;
 public class LocationUpdateDto extends BaseDto {
 
     public enum LocationUpdateType {
-        CHECKIN, CHECKOUT, SKIP;
+        CHECKIN, CHECKOUT, SKIP, EMPTY;
+
+        public static LocationUpdateType parseLocationUpdateType(String type){
+            if(type == null || TextUtils.isEmpty(type)) return null;
+
+            if(type.toUpperCase().equals(CHECKIN.name())){
+                return CHECKIN;
+            } else if(type.toUpperCase().equals(CHECKOUT.name())){
+                return CHECKOUT;
+            } else if(type.toUpperCase().equals(SKIP.name())){
+                return SKIP;
+            }
+
+            return null;
+        }
+
     }
 
     private DateTime timestamp;
@@ -44,6 +61,10 @@ public class LocationUpdateDto extends BaseDto {
             setType(LocationUpdateType.SKIP);
         }
 
+    }
+
+    public boolean isEmpty(){
+        return type == LocationUpdateType.EMPTY;
     }
 
     public StationDto getStation() {

@@ -4,7 +4,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:padding="16dp"
+    >
 
     <TextView
         android:id="@+id/group_guide"
@@ -13,15 +14,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:text="kubasp"/>
+        android:text="kubasp"
+        android:background="@drawable/group_background"/>
 
     <TextView
         android:id="@+id/group_time"
+        android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:text="9:21"/>
+        android:text="9:21"
+        />
 
 </RelativeLayout>

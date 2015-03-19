@@ -18,6 +18,13 @@ public class GroupDto extends BaseDto {
     private List<LocationUpdateDto> locationUpdates;
     private boolean active;
 
+    public GroupDto() {
+    }
+
+    public GroupDto(Long id) {
+        this.id = id;
+    }
+
     public RouteDto getRoute() {
         return route;
     }

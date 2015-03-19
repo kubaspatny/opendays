@@ -25,8 +25,6 @@ public class StationDto extends BaseDto {
         this.id = id;
     }
 
-
-
     public String getName() {
         return name;
     }

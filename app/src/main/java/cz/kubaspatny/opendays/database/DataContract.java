@@ -91,10 +91,11 @@ public class DataContract {
         public static final String TABLE_NAME = "locationupdates";
         public static final Uri CONTENT_URI = DbContentProvider.CONTENT_URI.buildUpon().path(TABLE_NAME).build();
 
-        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
+        public static final String COLUMN_NAME_ROUTE_ID = "routeid";
+        public static final String COLUMN_NAME_GROUP_ID = "groupid";
         public static final String COLUMN_NAME_STATION_ID = "stationid";
         public static final String COLUMN_NAME_LOCATION_UPDATE_TYPE = "location_update_type"; // CHECKIN, CHECKOUT, SKIP
-        public static final String COLUMN_NAME_GROUP_ID = "groupid";
+        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
 
     }
 

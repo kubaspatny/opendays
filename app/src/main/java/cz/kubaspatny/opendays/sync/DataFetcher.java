@@ -5,6 +5,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -14,9 +15,11 @@ import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
 import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.domainobject.StationDto;
 import cz.kubaspatny.opendays.util.AccountUtil;
+import cz.kubaspatny.opendays.util.TimeUtil;
 
 /**
  * Created by Kuba on 13/3/2015.
@@ -63,34 +66,33 @@ public class DataFetcher {
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
 
         for(GroupDto g : groups){
-            loadRoute(g.getRoute().getId().toString());
+            loadRoute(g.getRoute().getId(), g.getId());
         }
 
     }
 
-    public void loadRoute(String routeId) throws Exception {
+    public void loadRoute(Long routeId, Long groupId) throws Exception {
         Log.d(TAG, "loadRoute(" + routeId + ")");
 
         Account account = AccountUtil.getAccount(mContext);
-        RouteDto route = SyncEndpoint.getRoute(account, AccountUtil.getAccessToken(mContext, account), routeId);
-        List<GroupDto> groups = SyncEndpoint.getRouteGroups(account, AccountUtil.getAccessToken(mContext, account), routeId);
+        RouteDto route = SyncEndpoint.getRoute(account, AccountUtil.getAccessToken(mContext, account), routeId.toString());
+        List<GroupDto> groups = SyncEndpoint.getRouteGroups(account, AccountUtil.getAccessToken(mContext, account), routeId.toString());
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
         if(route == null) return;
 
         batch.add(ContentProviderOperation.newDelete(
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.Route.CONTENT_URI))
-                .withSelection(DataContract.Route.COLUMN_NAME_ROUTE_ID + "=?", new String[]{routeId}).build());
+                .withSelection(DataContract.Route.COLUMN_NAME_ROUTE_ID + "=?", new String[]{routeId.toString()}).build());
 
         batch.add(ContentProviderOperation.newDelete(
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.Station.CONTENT_URI))
-                .withSelection(DataContract.Station.COLUMN_NAME_ROUTE_ID + "=?", new String[]{routeId}).build());
+                .withSelection(DataContract.Station.COLUMN_NAME_ROUTE_ID + "=?", new String[]{routeId.toString()}).build());
 
         batch.add(ContentProviderOperation.newDelete(
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI))
-                .withSelection(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID + "=?", new String[]{routeId}).build());
-
-        // TODO if there's route 'Where ROUTE_ID = 123' -> update.. otherwise insert
+                .withSelection(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID + "=? AND " +
+                        DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + " !=?", new String[]{routeId.toString(), groupId.toString()}).build());
 
         // ROUTE TABLE
         ContentValues values = new ContentValues();
@@ -107,8 +109,6 @@ public class DataFetcher {
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.Route.CONTENT_URI)).withValues(values).build());
 
         // STATION TABLE
-        // TODO: get stations 'where routeId = 123' -> update if possible
-        //                                          -> otherwise add or delete
         // TODO: add custom ordering parameter ((s.getPosition - user.startPos) % station.size) + 1
         for(StationDto s : route.getStations()){ // TODO: what if there are no stations?? NPE?
             values = new ContentValues();
@@ -140,8 +140,100 @@ public class DataFetcher {
             values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_STATUS, g.isActive());
             values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION, g.getStartingPosition());
 
-            batch.add(ContentProviderOperation.newInsert(
-                    DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI)).withValues(values).build());
+            if(g.getId().equals(groupId)){
+
+                if(routeId == 190){
+                    Log.d(TAG, "Group ids are equal");
+                }
+
+                Cursor countCursor = mContentResolver.query(DataContract.GroupLocations.CONTENT_URI,
+                        new String[]{DataContract.GroupLocations.COLUMN_NAME_GROUP_ID},
+                        DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + " =?",
+                        new String[]{groupId.toString()},
+                        null);
+
+                int count = countCursor.getCount();
+                countCursor.close();
+
+                if(count > 0){ // update
+
+                    if(routeId == 190){
+                        Log.d(TAG, "count > 0");
+                    }
+
+                    String timestamp = g.getLatestLocationUpdate()==null ? "0" : g.getLatestLocationUpdate().getTimestamp().toInstant().toString();
+
+                    batch.add(ContentProviderOperation.newUpdate(
+                            DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI))
+                            .withValues(values)
+                            .withSelection(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + "=? AND ("
+                                    + DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " IS NULL OR "
+                                    + DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " <?)", new String[]{groupId.toString(), timestamp})
+                            .build());
+                } else { // insert
+
+                    if(routeId == 190){
+                        Log.d(TAG, "count <= 0");
+                    }
+
+                    batch.add(ContentProviderOperation.newInsert(
+                            DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI)).withValues(values).build());
+                }
+
+            } else {
+
+                if(routeId == 190){
+                    Log.d(TAG, "Group ids are not equal: " + g.getId() + " != " + groupId);
+                }
+
+                batch.add(ContentProviderOperation.newInsert(
+                        DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI)).withValues(values).build());
+            }
+
+        }
+
+        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
+
+    }
+
+    public void uploadLocationUpdates() throws Exception {
+
+        String[] projection = {DataContract.LocationUpdates._ID,
+                DataContract.LocationUpdates.COLUMN_NAME_GROUP_ID,
+                DataContract.LocationUpdates.COLUMN_NAME_TIMESTAMP,
+                DataContract.LocationUpdates.COLUMN_NAME_LOCATION_UPDATE_TYPE,
+                DataContract.LocationUpdates.COLUMN_NAME_STATION_ID};
+
+        Cursor cursor = mContentResolver.query(DataContract.LocationUpdates.CONTENT_URI, projection, null, null, null);
+        cursor.moveToFirst();
+
+        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+        Account account = AccountUtil.getAccount(mContext);
+
+        while(cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
+            // upload
+
+            LocationUpdateDto update = new LocationUpdateDto();
+            update.setTimestamp(TimeUtil.parseTimestamp(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.LocationUpdates.COLUMN_NAME_TIMESTAMP))));
+            update.setType(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.LocationUpdates.COLUMN_NAME_LOCATION_UPDATE_TYPE)));
+            update.setGroup(new GroupDto(
+                    cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.LocationUpdates.COLUMN_NAME_GROUP_ID))
+                    ));
+            update.setStation(new StationDto(
+                    cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.LocationUpdates.COLUMN_NAME_STATION_ID))
+            ));
+
+            try {
+                SyncEndpoint.uploadLocationUpdates(account, AccountUtil.getAccessToken(mContext, account), update);
+                batch.add(ContentProviderOperation.newDelete(DataContract.addCallerIsSyncAdapterParameter(DataContract.LocationUpdates.CONTENT_URI))
+                        .withSelection(DataContract.LocationUpdates._ID + "=?", new String[]{cursor.getString(cursor.getColumnIndexOrThrow(DataContract.LocationUpdates._ID))})
+                        .build());
+            } catch (Exception e){
+                // do nothing
+                // Location update will be send with another sync
+            } finally {
+                cursor.moveToNext();
+            }
 
         }
 

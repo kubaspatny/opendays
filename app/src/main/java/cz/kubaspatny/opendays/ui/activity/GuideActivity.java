@@ -51,11 +51,12 @@ public class GuideActivity extends BaseActivity {
         //TODO: How to update the title as well..
         String title = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME);
         String routeId = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID);
+        String groupId = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID);
 
         if(title != null && !TextUtils.isEmpty(title)) getSupportActionBar().setTitle(title);
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
-        mViewPagerAdapter = new RouteViewPagerAdapter(getSupportFragmentManager(), routeId);
+        mViewPagerAdapter = new RouteViewPagerAdapter(getSupportFragmentManager(), routeId, groupId);
         mViewPager.setAdapter(mViewPagerAdapter);
 
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
@@ -102,10 +103,12 @@ public class GuideActivity extends BaseActivity {
     private class RouteViewPagerAdapter extends FragmentPagerAdapter {
 
         private String mRouteId;
+        private String mGroupId;
 
-        public RouteViewPagerAdapter(FragmentManager fm, String routeId) {
+        public RouteViewPagerAdapter(FragmentManager fm, String routeId, String groupId) {
             super(fm);
             mRouteId = routeId;
+            mGroupId = groupId;
         }
 
         @Override
@@ -118,22 +121,18 @@ public class GuideActivity extends BaseActivity {
                     fragment = RouteInfoFragment.newInstance(mRouteId);
                     break;
                 case 1:
-                    fragment = RouteGuideFragment.newInstance(mRouteId);
+                    fragment = RouteGuideFragment.newInstance(mRouteId, mGroupId);
                     break;
                 default:
                     fragment = ManagedStationsListFragment.newInstance("", "");
             }
-
-//            Bundle args = new Bundle();
-//            args.putInt(ARG_CONFERENCE_DAY_INDEX, position);
-//            frag.setArguments(args);
 
             return fragment;
         }
 
         @Override
         public int getCount() {
-            return 2; // TODO
+            return 2;
         }
 
         @Override

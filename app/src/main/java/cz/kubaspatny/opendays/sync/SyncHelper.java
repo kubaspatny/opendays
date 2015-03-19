@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import java.security.spec.ECField;
+
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.util.ConnectionUtils;
@@ -58,10 +60,18 @@ public class SyncHelper {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
 
         final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
+        final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
         Log.d(TAG, "Performing sync for account: " + account);
 
         try {
-            doSync(account);
+
+            if(uploadOnly){
+                // upload
+                doUploadSync();
+            } else {
+                doSync(account);
+            }
+
         } catch (LoginException | AuthenticatorException ex) {
             Log.d(TAG, "Login exception.");
             syncResult.stats.numAuthExceptions++;
@@ -79,13 +89,24 @@ public class SyncHelper {
 
     }
 
-    private void doSync(Account account) throws Exception {
+    private void doSync(Account account) throws Exception { // TODO: get rid of account
         if(!ConnectionUtils.isConnected(mContext)) {
             Log.d(TAG, "doSync: Not connected to internet. Cannot sync.");
             return;
         }
 
         new DataFetcher(mContext).loadGuidedGroups(account);
+    }
+
+    private void doUploadSync() throws Exception {
+        if(!ConnectionUtils.isConnected(mContext)) {
+            Log.d(TAG, "doUploadSync: Not connected to internet. Cannot sync.");
+            return;
+        }
+
+        Log.d(TAG, "Performing doUploadSync");
+
+        new DataFetcher(mContext).uploadLocationUpdates();
     }
 
 }

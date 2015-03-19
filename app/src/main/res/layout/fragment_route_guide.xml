@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/grey_100"
             fab:fab_colorPressed="@color/grey_200"
-            fab:fab_icon="@drawable/abc_btn_check_material"
+            fab:fab_icon="@drawable/ic_group"
             fab:fab_size="mini"
             fab:fab_title="Add group size"
             />
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/grey_100"
             fab:fab_colorPressed="@color/grey_200"
-            fab:fab_icon="@drawable/abc_btn_check_material"
+            fab:fab_icon="@drawable/ic_place"
             fab:fab_size="mini"
             fab:fab_title="Add location update"
             />

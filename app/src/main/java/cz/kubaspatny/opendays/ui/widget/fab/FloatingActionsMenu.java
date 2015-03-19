@@ -248,7 +248,7 @@ public class FloatingActionsMenu extends ViewGroup {
                     mTouchDelegateGroup.clearTouchDelegates();
                 }
                 int addButtonY = expandUp ? b - t - mAddButton.getMeasuredHeight() : 0;
-// Ensure mAddButton is centered on the line where the buttons should be
+                // Ensure mAddButton is centered on the line where the buttons should be
                 int buttonsHorizontalCenter = mLabelsPosition == LABELS_ON_LEFT_SIDE
                         ? r - l - mMaxButtonWidth / 2
                         : mMaxButtonWidth / 2;

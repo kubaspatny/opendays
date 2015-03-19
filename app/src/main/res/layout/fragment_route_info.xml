@@ -60,8 +60,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:textSize="24sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="20sp"
                 android:text="@string/eventInfo"
                 tools:text="Event information"/>
 
@@ -69,8 +69,8 @@
                 android:id="@+id/eventInformation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textSize="16sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textSize="14sp"
                 tools:text="@string/lipsum1"/>
             
             <Space
@@ -80,8 +80,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:textSize="24sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="20sp"
                 android:text="@string/routeInfo"
                 tools:text="Route information"/>
 
@@ -89,8 +89,8 @@
                 android:id="@+id/routeInformation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textSize="16sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textSize="14sp"
                 android:text="@string/lipsum2"/>
 
             <Space
@@ -100,8 +100,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:textSize="24sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="20sp"
                 android:text="@string/routeTime"
                 tools:text="Route time"/>
 
@@ -109,8 +109,8 @@
                 android:id="@+id/routeTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textSize="16sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textSize="14sp"
                 tools:text="24.12.2016 17:30"/>
             
         </LinearLayout>

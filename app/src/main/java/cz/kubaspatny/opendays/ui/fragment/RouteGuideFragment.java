@@ -1,9 +1,16 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
+import android.app.AlertDialog;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -15,6 +22,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,10 +31,12 @@ import java.util.List;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.adapter.RouteGuideArrayAdapter;
+import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
 import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
+import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.domainobject.StationDto;
 import cz.kubaspatny.opendays.domainobject.StationWrapper;
 import cz.kubaspatny.opendays.domainobject.UserDto;
@@ -43,20 +54,24 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
     private final static String TAG = RouteGuideFragment.class.getSimpleName();
     private final static String ARG_ROUTE_ID = "RouteInfoFragment.routeId";
+    private final static String ARG_GROUP_ID = "RouteInfoFragment.groupId";
     private final static int STATION_LOADER = 10;
     private final static int GROUPS_LOADER = 11;
+    private final static int LATEST_LOCATION_LOADER = 12;
 
     private String mRouteId;
+    private String mGroupId;
     private ListView mListView;
     private View mEmptyView;
     private View mLoadingView;
     private RouteGuideArrayAdapter adapter;
 
 
-    public static RouteGuideFragment newInstance(String routeId) {
+    public static RouteGuideFragment newInstance(String routeId, String groupId) {
         RouteGuideFragment fragment = new RouteGuideFragment();
         Bundle args = new Bundle();
         args.putString(ARG_ROUTE_ID, routeId);
+        args.putString(ARG_GROUP_ID, groupId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,6 +85,8 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mRouteId = getArguments().getString(ARG_ROUTE_ID);
+            mGroupId = getArguments().getString(ARG_GROUP_ID);
+            Log.d(TAG, "Guiding group: " + mGroupId);
         }
     }
 
@@ -86,7 +103,14 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         addGroupSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "Adding group size.", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
+
+                builder.setTitle("Set group size")
+                        .setMessage("[number picker here]")
+                        .setPositiveButton("OK", null)
+                        .setNegativeButton("CANCEL", null)
+                        .show();
+
                 fam.collapse();
             }
         });
@@ -95,7 +119,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         addLocationUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "Adding location update.", Toast.LENGTH_SHORT).show();
+                showLocationUpdateDialog();
                 fam.collapse();
             }
         });
@@ -106,6 +130,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
         getActivity().getSupportLoaderManager().initLoader(STATION_LOADER, null, this);
         getActivity().getSupportLoaderManager().initLoader(GROUPS_LOADER, null, this);
+        getActivity().getSupportLoaderManager().initLoader(LATEST_LOCATION_LOADER, null, this);
         adapter = new RouteGuideArrayAdapter(getActivity(), new ArrayList<StationWrapper>());
         mListView.setAdapter(adapter);
 
@@ -115,8 +140,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        Log.d(TAG, "onCreateLoader:" + id);
 
         if(id == STATION_LOADER){
             String[] projection = {DataContract.Station._ID,
@@ -160,6 +183,34 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
             return cursorLoader;
 
+        } else if(id == LATEST_LOCATION_LOADER){
+
+            String[] projection = {DataContract.GroupLocations._ID,
+                    DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID,
+                    DataContract.GroupLocations.COLUMN_NAME_STATION_ID,
+                    DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE,
+                    DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP,
+                    DataContract.GroupLocations.COLUMN_NAME_GROUP_ID,
+                    DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE,
+                    DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION
+
+                    // TODO: when there's no update -> local, nor remote -> where to get starting position
+                    // TODO: set to only return the latest (desc by timestamp)
+                    // TODO: where group id == my id (where to get that)?? -> from intent?
+
+            };
+
+            CursorLoader cursorLoader = new CursorLoader(getActivity(),
+                    DbContentProvider.CONTENT_URI.buildUpon().path(DataContract.GroupLocations.TABLE_NAME).build(),
+                    projection,
+                    DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + "=?",
+                    new String[]{mGroupId},
+                    DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " desc LIMIT 1"); // " desc LIMIT 1"
+
+            return cursorLoader;
+
+
+
         } else {
             return null;
         }
@@ -168,12 +219,19 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        Log.d(TAG, "onLoadFinished:" + loader.getId());
-
-        if(loader.getId() == STATION_LOADER){
-            processStations(data);
-        } else if (loader.getId() == GROUPS_LOADER){
-            processGroups(data);
+        switch(loader.getId()){
+            case STATION_LOADER:
+                processStations(data);
+                Log.d(TAG, "Finished load: STATION_LOADER");
+                break;
+            case GROUPS_LOADER:
+                Log.d(TAG, "Finished load: GROUPS_LOADER");
+                processGroups(data);
+                break;
+            case LATEST_LOCATION_LOADER:
+                Log.d(TAG, "Finished load: LATEST_LOCATION_LOADER");
+                processLatestLocation(data);
+                break;
         }
 
     }
@@ -189,16 +247,16 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         super.onDestroyView();
         getActivity().getSupportLoaderManager().destroyLoader(STATION_LOADER);
         getActivity().getSupportLoaderManager().destroyLoader(GROUPS_LOADER);
+        getActivity().getSupportLoaderManager().destroyLoader(LATEST_LOCATION_LOADER);
     }
 
     private List<StationDto> stations = null;
     private HashMap<Long, List<GroupDto>> groups = null;
+    private LocationUpdateDto latestLocation = null;
 
     private void processStations(final Cursor cursor){
 
         //TODO: add expection handling
-
-        Log.d(TAG, "processStations");
 
         new AsyncTask<Void, Void, Void>(){
 
@@ -237,8 +295,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     }
 
     private void processGroups(final Cursor cursor){
-
-        Log.d(TAG, "processStations");
 
         new AsyncTask<Void, Void, Void>(){
 
@@ -296,8 +352,42 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         }.execute();
     }
 
+    private void processLatestLocation(Cursor cursor){
+
+        cursor.moveToFirst();
+
+        if(cursor.isBeforeFirst() || cursor.isAfterLast() || cursor.getCount() == 0) return;
+
+        Long group = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID));
+        String guide = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE));
+        int seq_position = cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION));
+        Long route = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID));
+        Long station = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_STATION_ID));
+        String time = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP));
+        String type = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE));
+
+        LocationUpdateDto locationUpdateDto = new LocationUpdateDto();
+        GroupDto groupDto = new GroupDto(group);
+        groupDto.setRoute(new RouteDto(route));
+        groupDto.setGuide(new UserDto(guide));
+        groupDto.setStartingPosition(seq_position);
+        locationUpdateDto.setGroup(groupDto);
+
+        if(time == null || type == null){
+            locationUpdateDto.setType(LocationUpdateDto.LocationUpdateType.EMPTY);
+        } else {
+            locationUpdateDto.setType(LocationUpdateDto.LocationUpdateType.parseLocationUpdateType(type));
+            locationUpdateDto.setStation(new StationDto(station));
+            locationUpdateDto.setTimestamp(TimeUtil.parseTimestamp(time));
+        }
+
+        latestLocation = locationUpdateDto;
+        loadData();
+
+    }
+
     private void loadData(){
-        if(stations == null || groups == null) return;
+        if(stations == null || groups == null || latestLocation == null) return;
 
         // TODO: do in async task!!!
         List<StationWrapper> stationWrappers = new ArrayList<>();
@@ -325,10 +415,135 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         mLoadingView.setVisibility(View.GONE);
         mListView.setVisibility(View.VISIBLE);
 
-        Log.d(TAG, "loadData: set visibility");
+        // TODO: enable FAM if disabled
 
-        stations = null;
-        groups = null;
+    }
+
+    private void showLocationUpdateDialog(){
+
+        Long routeId = Long.parseLong(mRouteId);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final LocationUpdateDto updateDto = new LocationUpdateDto();
+        updateDto.setGroup(latestLocation.getGroup());
+
+        if(!latestLocation.isEmpty()){
+            int index = adapter.getPosition(new StationWrapper(latestLocation.getStation(), null));
+            LocationUpdateDto.LocationUpdateType type = latestLocation.getType();
+            Log.d(TAG, "Currently at: " + adapter.getItem(index).station.getName());
+
+            if(type == LocationUpdateDto.LocationUpdateType.CHECKIN){
+                updateDto.setStation(new StationDto(adapter.getItem(index).station.getId()));
+                updateDto.setType(LocationUpdateDto.LocationUpdateType.CHECKOUT);
+
+                builder.setTitle(adapter.getItem(index).station.getName());
+                builder.setPositiveButton("CHECK OUT", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendLocationUpdate(updateDto);
+                    }
+                });
+
+            } else if(type == LocationUpdateDto.LocationUpdateType.CHECKOUT || type == LocationUpdateDto.LocationUpdateType.SKIP){
+                if(index + 1 >= adapter.getCount()){
+                    Log.d(TAG, "No stations left!");
+                    builder.setTitle("No stations left");
+                    builder.setMessage("This dialog shouldn't have been shown!");
+                } else {
+                    Log.d(TAG, "Next station: " + adapter.getItem(index + 1).station.getName());
+
+                    updateDto.setStation(new StationDto(adapter.getItem(index + 1).station.getId()));
+
+                    builder.setTitle(adapter.getItem(index + 1).station.getName());
+                    builder.setPositiveButton("CHECK IN", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            updateDto.setType(LocationUpdateDto.LocationUpdateType.CHECKIN);
+                            sendLocationUpdate(updateDto);
+                        }
+                    });
+
+                    builder.setNegativeButton("SKIP", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            updateDto.setType(LocationUpdateDto.LocationUpdateType.SKIP);
+                            sendLocationUpdate(updateDto);
+                        }
+                    });
+                }
+            }
+        } else {
+            Log.d(TAG, "No location updates yet. The first location: " + adapter.getItem(0).station.getName());
+            builder.setTitle(adapter.getItem(0).station.getName());
+            builder.setPositiveButton("CHECK IN", null);
+            builder.setNegativeButton("SKIP", null);
+
+            updateDto.setStation(new StationDto(adapter.getItem(0).station.getId()));
+
+            builder.setTitle(adapter.getItem(0).station.getName());
+            builder.setPositiveButton("CHECK IN", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Log.d(TAG, "Clicked CHECK IN");
+                    updateDto.setType(LocationUpdateDto.LocationUpdateType.CHECKIN);
+                    sendLocationUpdate(updateDto);
+                }
+            });
+
+            builder.setNegativeButton("SKIP", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Log.d(TAG, "Clicked SKIP");
+                    updateDto.setType(LocationUpdateDto.LocationUpdateType.SKIP);
+                    sendLocationUpdate(updateDto);
+                }
+            });
+        }
+
+        builder.show();
+
+    }
+
+    private void sendLocationUpdate(LocationUpdateDto update){
+
+        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+
+        ContentValues values = new ContentValues();
+        values.put(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID, update.getGroup().getRoute().getId());
+
+        values.put(DataContract.GroupLocations.COLUMN_NAME_STATION_ID, update.getStation().getId());
+        values.put(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE, update.getType().toString());
+        values.put(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP, DateTime.now().toInstant().toString());
+
+        values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID, update.getGroup().getId());
+        values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE, update.getGroup().getGuide().getUsername());
+        values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_STATUS, true);
+        values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION, update.getGroup().getStartingPosition());
+
+        batch.add(ContentProviderOperation.newUpdate(
+                DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI))
+                .withValues(values)
+                .withSelection(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + "=? AND ("
+                        + DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " IS NULL OR "
+                        + DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " <?)", new String[]{update.getGroup().getId().toString(), DateTime.now().toInstant().toString()})
+                .build());
+
+        values = new ContentValues();
+        values.put(DataContract.LocationUpdates.COLUMN_NAME_ROUTE_ID, update.getGroup().getRoute().getId());
+        values.put(DataContract.LocationUpdates.COLUMN_NAME_STATION_ID, update.getStation().getId());
+        values.put(DataContract.LocationUpdates.COLUMN_NAME_GROUP_ID, update.getGroup().getId());
+        values.put(DataContract.LocationUpdates.COLUMN_NAME_LOCATION_UPDATE_TYPE, update.getType().toString());
+        values.put(DataContract.LocationUpdates.COLUMN_NAME_TIMESTAMP, DateTime.now().toInstant().toString());
+
+        batch.add(ContentProviderOperation.newInsert(DataContract.LocationUpdates.CONTENT_URI)
+                .withValues(values).build());
+
+        try {
+            getActivity().getContentResolver().applyBatch(AppConstants.AUTHORITY, batch);
+        } catch (Exception e){
+            Toast.makeText(getActivity(), "Couldn't add a location update.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
 
     }
 

@@ -18,4 +18,16 @@ public class StationWrapper {
         this.groups = groups;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StationWrapper that = (StationWrapper) o;
+
+        if (station != null ? !station.equals(that.station) : that.station != null) return false;
+
+        return true;
+    }
+
 }

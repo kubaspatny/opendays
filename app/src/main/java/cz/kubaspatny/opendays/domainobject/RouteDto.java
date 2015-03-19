@@ -17,6 +17,13 @@ public class RouteDto extends BaseDto {
     private List<UserDto> stationManagers;
     private List<GroupDto> groups;
 
+    public RouteDto() {
+    }
+
+    public RouteDto(Long id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
