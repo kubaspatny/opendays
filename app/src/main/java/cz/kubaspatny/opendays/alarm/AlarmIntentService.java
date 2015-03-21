@@ -32,10 +32,18 @@ public class AlarmIntentService extends IntentService {
         Bundle extras = intent.getExtras();
 
         if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
-            Log.d("AlarmIntentService", "Intent msg: " + extras.getString("msg"));
-            sendNotification(extras.getString("msg"));
-        } else {
-            Log.d("AlarmIntentService", "Intent were empty.");
+            sendNotification(extras.getString(AlarmUtil.MESSAGE));
+
+
+            if(extras.getBoolean(AlarmUtil.REPEAT, false)){
+                AlarmUtil.setAlarm(this,
+                        extras.getInt(AlarmUtil.ID),
+                        extras.getInt(AlarmUtil.SECONDS),
+                        extras.getString(AlarmUtil.STATION),
+                        "Time is up! Leave ASAP!",
+                        false);
+            }
+
         }
 
         // Release the wake lock provided by the WakefulBroadcastReceiver.

@@ -13,17 +13,24 @@ import android.util.Log;
  */
 public class AlarmUtil {
 
-    public static void setAlarm(Context context, int id, int seconds, String message){
+    public final static String MESSAGE = "cz.kubaspatny.opendays.alarm.AlarmUtil.message";
+    public final static String SECONDS = "cz.kubaspatny.opendays.alarm.AlarmUtil.seconds";
+    public final static String REPEAT = "cz.kubaspatny.opendays.alarm.AlarmUtil.repeat";
+    public final static String STATION = "cz.kubaspatny.opendays.alarm.AlarmUtil.station";
+    public final static String ID = "cz.kubaspatny.opendays.alarm.AlarmUtil.id";
 
-        Log.d("Alarm util", "Setting alarm with message [" + message + "] in " + seconds + " seconds.");
+    public static void setAlarm(Context context, int id, int seconds, String station, String message, boolean repeat){
 
         if(seconds <= 0) return;
 
         AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent alarmIntent;
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-        Log.d("AlarmUtil", "putting intent extra msg=" + message);
-        intent.putExtra("msg", message);
+        intent.putExtra(MESSAGE, message);
+        intent.putExtra(REPEAT, repeat);
+        intent.putExtra(SECONDS, seconds);
+        intent.putExtra(STATION, station);
+        intent.putExtra(ID, id);
         alarmIntent = PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if(Build.VERSION.SDK_INT >= 19){

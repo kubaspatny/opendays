@@ -119,18 +119,11 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
                 builder.setTitle("Set group size")
                         .setMessage("[number picker here]")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                AlarmUtil.cancelAlarm(getActivity(), 1234);
-                            }
-                        })
+                        .setPositiveButton("OK", null)
                         .setNegativeButton("CANCEL", null)
                         .show();
 
                 fam.collapse();
-
-                AlarmUtil.setAlarm(getActivity(), 1234, 10, "Ehh.. go!");
 
             }
         });
@@ -493,7 +486,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                             AlarmUtil.setAlarm(getActivity(),
                                     groupId,
                                     adapter.getItem(index + 1).station.getTimeLimit() * 60 / 2,
-                                    "Your time is 1/2 gone!");
+                                    adapter.getItem(index + 1).station.getName(),
+                                    "Your time is 1/2 gone!",
+                                    true);
                         }
                     });
 
@@ -521,7 +516,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     AlarmUtil.setAlarm(getActivity(),
                             groupId,
                             adapter.getItem(0).station.getTimeLimit() * 60 / 2,
-                            "Your time is 1/2 gone!");
+                            adapter.getItem(0).station.getName(),
+                            "Your time is 1/2 gone!",
+                            true);
                 }
             });
 
