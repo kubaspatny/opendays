@@ -1,6 +1,7 @@
 package cz.kubaspatny.opendays.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -72,7 +75,18 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         for(GroupDto g : stationWrapper.groups){
             View groupRow = inflater.inflate(R.layout.group, parent, false);
             ((TextView)groupRow.findViewById(R.id.group_guide)).setText(g.getGuide().getUsername());
-            ((TextView)groupRow.findViewById(R.id.group_time)).setText(g.getLatestLocationUpdate().getTimestamp().toString("HH:mm"));
+
+            DateTime updateTime = g.getLatestLocationUpdate().getTimestamp();
+            DateTime now = DateTime.now();
+            long difSec = (now.getMillis() - updateTime.getMillis()) / 1000;
+
+            long hours = (difSec / 3600);
+            long minutes = (difSec % 3600) / 60;
+            long seconds = difSec % 60;
+
+
+            ((TextView)groupRow.findViewById(R.id.group_time)).setText(formatTime(hours, minutes, seconds));
+
 
             if(g.getLatestLocationUpdate().getType() == LocationUpdateDto.LocationUpdateType.CHECKIN){
                 viewHolder.groupsAtStation.addView(groupRow);
@@ -90,5 +104,19 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
         return convertView;
     }
+
+    public static String formatTime(long hours, long minutes, long seconds){
+
+        if(hours >= 24) return "> 1 day";
+
+        DateTime time = new DateTime().withTime((int)hours, (int)minutes, (int)seconds, 0);
+        return time.toString("HH:mm:ss");
+
+    }
+
+    public void forceUpdate(){
+        notifyDataSetChanged();
+    }
+
 
 }

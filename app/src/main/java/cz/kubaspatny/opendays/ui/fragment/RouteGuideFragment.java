@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -24,8 +25,10 @@ import android.widget.Toast;
 
 import org.joda.time.DateTime;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -59,13 +62,15 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private final static int GROUPS_LOADER = 11;
     private final static int LATEST_LOCATION_LOADER = 12;
 
+    private final static int INTERVAL_TO_REDRAW_UI = 1000;
+
     private String mRouteId;
     private String mGroupId;
     private ListView mListView;
     private View mEmptyView;
     private View mLoadingView;
     private RouteGuideArrayAdapter adapter;
-
+    boolean mDestroyed = false;
 
     public static RouteGuideFragment newInstance(String routeId, String groupId) {
         RouteGuideFragment fragment = new RouteGuideFragment();
@@ -133,6 +138,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         getActivity().getSupportLoaderManager().initLoader(LATEST_LOCATION_LOADER, null, this);
         adapter = new RouteGuideArrayAdapter(getActivity(), new ArrayList<StationWrapper>());
         mListView.setAdapter(adapter);
+        setTimerToUpdateUI();
 
         return fragmentView;
 
@@ -248,6 +254,12 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         getActivity().getSupportLoaderManager().destroyLoader(STATION_LOADER);
         getActivity().getSupportLoaderManager().destroyLoader(GROUPS_LOADER);
         getActivity().getSupportLoaderManager().destroyLoader(LATEST_LOCATION_LOADER);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mDestroyed = true;
     }
 
     private List<StationDto> stations = null;
@@ -546,6 +558,50 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         }
 
     }
+
+    private void setTimerToUpdateUI() {
+        new UpdateUIRunnable(this, new Handler()).scheduleNextRun();
+    }
+
+    boolean hasBeenDestroyed() {
+        return mDestroyed;
+    }
+
+    static final class UpdateUIRunnable implements Runnable {
+
+        final WeakReference<RouteGuideFragment> weakRefToParent;
+        final Handler handler;
+
+        public UpdateUIRunnable(RouteGuideFragment fragment, Handler handler) {
+            weakRefToParent = new WeakReference<RouteGuideFragment>(fragment);
+            this.handler = handler;
+        }
+
+        public void scheduleNextRun() {
+            handler.postDelayed(this, INTERVAL_TO_REDRAW_UI);
+        }
+
+        @Override
+        public void run() {
+            RouteGuideFragment fragment = weakRefToParent.get();
+
+            if (fragment == null || fragment.hasBeenDestroyed()) {
+                Log.d("UIUpdateRunnable", "Killing updater -> fragment has been destroyed.");
+                return;
+            }
+
+            if (fragment.adapter != null) {
+                try {
+                    fragment.adapter.forceUpdate();
+                } finally {
+                    // schedule again
+                    this.scheduleNextRun();
+                }
+            }
+        }
+    }
+
+
 
 
 
