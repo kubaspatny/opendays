@@ -86,7 +86,10 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".alarm.AlarmBroadcastReceiver"/>
+
         <service android:name="cz.kubaspatny.opendays.gcm.GcmIntentService" />
+        <service android:name="cz.kubaspatny.opendays.alarm.AlarmIntentService" />
 
         <activity
             android:name="cz.kubaspatny.opendays.ui.activity.GuideActivity"

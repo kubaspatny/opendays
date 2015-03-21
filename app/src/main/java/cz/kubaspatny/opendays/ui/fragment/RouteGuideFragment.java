@@ -1,10 +1,14 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -12,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -34,6 +39,8 @@ import java.util.List;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.adapter.RouteGuideArrayAdapter;
+import cz.kubaspatny.opendays.alarm.AlarmBroadcastReceiver;
+import cz.kubaspatny.opendays.alarm.AlarmUtil;
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
@@ -112,11 +119,19 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
                 builder.setTitle("Set group size")
                         .setMessage("[number picker here]")
-                        .setPositiveButton("OK", null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                AlarmUtil.cancelAlarm(getActivity(), 1234);
+                            }
+                        })
                         .setNegativeButton("CANCEL", null)
                         .show();
 
                 fam.collapse();
+
+                AlarmUtil.setAlarm(getActivity(), 1234, 10, "Ehh.. go!");
+
             }
         });
 
@@ -434,13 +449,15 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private void showLocationUpdateDialog(){
 
         Long routeId = Long.parseLong(mRouteId);
+        final int groupId = (int) Long.parseLong(mGroupId);
+        int stationLimit = -1;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LocationUpdateDto updateDto = new LocationUpdateDto();
         updateDto.setGroup(latestLocation.getGroup());
 
         if(!latestLocation.isEmpty()){
-            int index = adapter.getPosition(new StationWrapper(latestLocation.getStation(), null));
+            final int index = adapter.getPosition(new StationWrapper(latestLocation.getStation(), null));
             LocationUpdateDto.LocationUpdateType type = latestLocation.getType();
             Log.d(TAG, "Currently at: " + adapter.getItem(index).station.getName());
 
@@ -453,6 +470,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         sendLocationUpdate(updateDto);
+                        AlarmUtil.cancelAlarm(getActivity(), groupId);
                     }
                 });
 
@@ -472,6 +490,10 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                         public void onClick(DialogInterface dialog, int which) {
                             updateDto.setType(LocationUpdateDto.LocationUpdateType.CHECKIN);
                             sendLocationUpdate(updateDto);
+                            AlarmUtil.setAlarm(getActivity(),
+                                    groupId,
+                                    adapter.getItem(index + 1).station.getTimeLimit() * 60 / 2,
+                                    "Your time is 1/2 gone!");
                         }
                     });
 
@@ -486,10 +508,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             }
         } else {
             Log.d(TAG, "No location updates yet. The first location: " + adapter.getItem(0).station.getName());
-            builder.setTitle(adapter.getItem(0).station.getName());
-            builder.setPositiveButton("CHECK IN", null);
-            builder.setNegativeButton("SKIP", null);
-
             updateDto.setStation(new StationDto(adapter.getItem(0).station.getId()));
 
             builder.setTitle(adapter.getItem(0).station.getName());
@@ -499,6 +517,11 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     Log.d(TAG, "Clicked CHECK IN");
                     updateDto.setType(LocationUpdateDto.LocationUpdateType.CHECKIN);
                     sendLocationUpdate(updateDto);
+
+                    AlarmUtil.setAlarm(getActivity(),
+                            groupId,
+                            adapter.getItem(0).station.getTimeLimit() * 60 / 2,
+                            "Your time is 1/2 gone!");
                 }
             });
 
