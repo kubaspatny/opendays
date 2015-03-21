@@ -142,10 +142,6 @@ public class DataFetcher {
 
             if(g.getId().equals(groupId)){
 
-                if(routeId == 190){
-                    Log.d(TAG, "Group ids are equal");
-                }
-
                 Cursor countCursor = mContentResolver.query(DataContract.GroupLocations.CONTENT_URI,
                         new String[]{DataContract.GroupLocations.COLUMN_NAME_GROUP_ID},
                         DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + " =?",
@@ -156,11 +152,6 @@ public class DataFetcher {
                 countCursor.close();
 
                 if(count > 0){ // update
-
-                    if(routeId == 190){
-                        Log.d(TAG, "count > 0");
-                    }
-
                     String timestamp = g.getLatestLocationUpdate()==null ? "0" : g.getLatestLocationUpdate().getTimestamp().toInstant().toString();
 
                     batch.add(ContentProviderOperation.newUpdate(
@@ -171,21 +162,11 @@ public class DataFetcher {
                                     + DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " <?)", new String[]{groupId.toString(), timestamp})
                             .build());
                 } else { // insert
-
-                    if(routeId == 190){
-                        Log.d(TAG, "count <= 0");
-                    }
-
                     batch.add(ContentProviderOperation.newInsert(
                             DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI)).withValues(values).build());
                 }
 
             } else {
-
-                if(routeId == 190){
-                    Log.d(TAG, "Group ids are not equal: " + g.getId() + " != " + groupId);
-                }
-
                 batch.add(ContentProviderOperation.newInsert(
                         DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI)).withValues(values).build());
             }
