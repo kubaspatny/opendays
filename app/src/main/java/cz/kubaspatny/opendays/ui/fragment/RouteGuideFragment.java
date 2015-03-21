@@ -428,6 +428,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
         }
 
+        adapter.setNotifyOnChange(false);
         adapter.clear();
         adapter.addAll(stationWrappers);
         adapter.notifyDataSetChanged();
