@@ -1,22 +1,13 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.RemoteException;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -33,13 +24,11 @@ import org.joda.time.DateTime;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.adapter.RouteGuideArrayAdapter;
-import cz.kubaspatny.opendays.alarm.AlarmBroadcastReceiver;
 import cz.kubaspatny.opendays.alarm.AlarmUtil;
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
@@ -76,6 +65,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private ListView mListView;
     private View mEmptyView;
     private View mLoadingView;
+    private FloatingActionsMenu mFam;
     private RouteGuideArrayAdapter adapter;
     boolean mDestroyed = false;
 
@@ -109,8 +99,10 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         mEmptyView = fragmentView.findViewById(R.id.empty_state);
         mListView = (ListView) fragmentView.findViewById(R.id.route_guide_stations);
         mListView.setEmptyView(mEmptyView);
+        View footer = inflater.inflate(R.layout.list_empty_space_footer, mListView, false);
+        mListView.addFooterView(footer);
 
-        final FloatingActionsMenu fam = (FloatingActionsMenu) fragmentView.findViewById(R.id.FAM);
+        mFam = (FloatingActionsMenu) fragmentView.findViewById(R.id.FAM);
         FloatingActionButton addGroupSizeButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_groupsize);
         addGroupSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,7 +115,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                         .setNegativeButton("CANCEL", null)
                         .show();
 
-                fam.collapse();
+                mFam.collapse();
 
             }
         });
@@ -133,13 +125,14 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             @Override
             public void onClick(View v) {
                 showLocationUpdateDialog();
-                fam.collapse();
+                mFam.collapse();
             }
         });
 
 
         mLoadingView.setVisibility(View.VISIBLE);
         mListView.setVisibility(View.GONE);
+
 
         getActivity().getSupportLoaderManager().initLoader(STATION_LOADER, null, this);
         getActivity().getSupportLoaderManager().initLoader(GROUPS_LOADER, null, this);
@@ -209,8 +202,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION
 
                     // TODO: when there's no update -> local, nor remote -> where to get starting position
-                    // TODO: set to only return the latest (desc by timestamp)
-                    // TODO: where group id == my id (where to get that)?? -> from intent?
 
             };
 
@@ -222,9 +213,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " desc LIMIT 1"); // " desc LIMIT 1"
 
             return cursorLoader;
-
-
-
         } else {
             return null;
         }
@@ -275,8 +263,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private LocationUpdateDto latestLocation = null;
 
     private void processStations(final Cursor cursor){
-
-        //TODO: add expection handling
+        //TODO: add exception handling
 
         new AsyncTask<Void, Void, Void>(){
 
@@ -315,7 +302,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     }
 
     private void processGroups(final Cursor cursor){
-
         new AsyncTask<Void, Void, Void>(){
 
             @Override
@@ -435,9 +421,27 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
         mLoadingView.setVisibility(View.GONE);
         mListView.setVisibility(View.VISIBLE);
+        if(isGuideDone()){
+            mFam.setVisibility(View.GONE);
+        } else {
+            mFam.setVisibility(View.VISIBLE);
+        }
 
-        // TODO: enable FAM if disabled
+    }
 
+    private boolean isGuideDone(){
+        if(adapter.getCount() == 0) return true;
+
+        if(!latestLocation.isEmpty()) {
+            final int index = adapter.getPosition(new StationWrapper(latestLocation.getStation(), null));
+            LocationUpdateDto.LocationUpdateType type = latestLocation.getType();
+
+            if ((type == LocationUpdateDto.LocationUpdateType.CHECKOUT || type == LocationUpdateDto.LocationUpdateType.SKIP) && (index + 1 >= adapter.getCount())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void showLocationUpdateDialog(){
@@ -621,9 +625,5 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             }
         }
     }
-
-
-
-
 
 }

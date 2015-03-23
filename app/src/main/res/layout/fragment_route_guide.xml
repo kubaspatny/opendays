@@ -37,6 +37,7 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:drawSelectorOnTop="true"
+        android:footerDividersEnabled="false"
         />
 
     <LinearLayout
