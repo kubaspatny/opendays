@@ -41,6 +41,7 @@ import cz.kubaspatny.opendays.domainobject.StationWrapper;
 import cz.kubaspatny.opendays.domainobject.UserDto;
 import cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton;
 import cz.kubaspatny.opendays.ui.widget.fab.FloatingActionsMenu;
+import cz.kubaspatny.opendays.util.StationComparator;
 import cz.kubaspatny.opendays.util.TimeUtil;
 
 /**
@@ -54,6 +55,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private final static String TAG = RouteGuideFragment.class.getSimpleName();
     private final static String ARG_ROUTE_ID = "RouteInfoFragment.routeId";
     private final static String ARG_GROUP_ID = "RouteInfoFragment.groupId";
+    private final static String ARG_GROUP_START_POS = "RouteInfoFragment.groupStartingPosition";
     private final static int STATION_LOADER = 10;
     private final static int GROUPS_LOADER = 11;
     private final static int LATEST_LOCATION_LOADER = 12;
@@ -62,6 +64,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
     private String mRouteId;
     private String mGroupId;
+    private int mGroupStartingPosition;
+
+
     private ListView mListView;
     private View mEmptyView;
     private View mLoadingView;
@@ -69,11 +74,12 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private RouteGuideArrayAdapter adapter;
     boolean mDestroyed = false;
 
-    public static RouteGuideFragment newInstance(String routeId, String groupId) {
+    public static RouteGuideFragment newInstance(String routeId, String groupId, int groupStartingPosition) {
         RouteGuideFragment fragment = new RouteGuideFragment();
         Bundle args = new Bundle();
         args.putString(ARG_ROUTE_ID, routeId);
         args.putString(ARG_GROUP_ID, groupId);
+        args.putInt(ARG_GROUP_START_POS, groupStartingPosition);
         fragment.setArguments(args);
         return fragment;
     }
@@ -88,7 +94,8 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         if (getArguments() != null) {
             mRouteId = getArguments().getString(ARG_ROUTE_ID);
             mGroupId = getArguments().getString(ARG_GROUP_ID);
-            Log.d(TAG, "Guiding group: " + mGroupId);
+            mGroupStartingPosition = getArguments().getInt(ARG_GROUP_START_POS);
+            Log.d(TAG, "Guiding group: " + mGroupId + ", starting at: " + mGroupStartingPosition);
         }
     }
 
@@ -223,8 +230,8 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
         switch(loader.getId()){
             case STATION_LOADER:
-                processStations(data);
                 Log.d(TAG, "Finished load: STATION_LOADER");
+                processStations(data);
                 break;
             case GROUPS_LOADER:
                 Log.d(TAG, "Finished load: GROUPS_LOADER");
@@ -288,6 +295,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
                 }
 
+                Collections.sort(stationsList, new StationComparator(mGroupStartingPosition, stationsList.size()));
                 stations = stationsList;
                 return null;
             }

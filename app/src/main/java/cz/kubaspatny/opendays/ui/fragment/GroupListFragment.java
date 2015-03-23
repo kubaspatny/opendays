@@ -111,6 +111,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
                 String routeColor = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR));
                 String routeId = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID));
                 String groupId = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID));
+                int groupStartingPosition = cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION));
 
                 Log.d(TAG, "Clicked on: " + routeName);
 
@@ -119,6 +120,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
                 i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, routeColor);
                 i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, routeId);
                 i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID, groupId);
+                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, groupStartingPosition);
                 startActivity(i);
 
             }
@@ -153,6 +155,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME,
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID,
                 DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID,
+                DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION,
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP,
                 DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR};
 

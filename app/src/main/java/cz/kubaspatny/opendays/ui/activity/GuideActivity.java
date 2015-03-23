@@ -52,11 +52,12 @@ public class GuideActivity extends BaseActivity {
         String title = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME);
         String routeId = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID);
         String groupId = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID);
+        int groupStartingPosition = getIntent().getIntExtra(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, 1);
 
         if(title != null && !TextUtils.isEmpty(title)) getSupportActionBar().setTitle(title);
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
-        mViewPagerAdapter = new RouteViewPagerAdapter(getSupportFragmentManager(), routeId, groupId);
+        mViewPagerAdapter = new RouteViewPagerAdapter(getSupportFragmentManager(), routeId, groupId, groupStartingPosition);
         mViewPager.setAdapter(mViewPagerAdapter);
 
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
@@ -104,11 +105,13 @@ public class GuideActivity extends BaseActivity {
 
         private String mRouteId;
         private String mGroupId;
+        private int mGroupStartingPosition;
 
-        public RouteViewPagerAdapter(FragmentManager fm, String routeId, String groupId) {
+        public RouteViewPagerAdapter(FragmentManager fm, String routeId, String groupId, int groupStartingPosition) {
             super(fm);
             mRouteId = routeId;
             mGroupId = groupId;
+            mGroupStartingPosition = groupStartingPosition;
         }
 
         @Override
@@ -121,7 +124,7 @@ public class GuideActivity extends BaseActivity {
                     fragment = RouteInfoFragment.newInstance(mRouteId);
                     break;
                 case 1:
-                    fragment = RouteGuideFragment.newInstance(mRouteId, mGroupId);
+                    fragment = RouteGuideFragment.newInstance(mRouteId, mGroupId, mGroupStartingPosition);
                     break;
                 default:
                     fragment = ManagedStationsListFragment.newInstance("", "");
