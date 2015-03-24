@@ -81,6 +81,17 @@
         fab:fab_labelStyle="@style/menu_labels_style">
 
         <cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton
+            android:id="@+id/fab_starting_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/grey_100"
+            fab:fab_colorPressed="@color/grey_200"
+            fab:fab_icon="@drawable/ic_home"
+            fab:fab_size="mini"
+            fab:fab_title="Change starting position"
+            />
+
+        <cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton
             android:id="@+id/fab_groupsize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cz.kubaspatny.opendays.ui.fragment.RouteInfoFragment"
-    android:padding="16dp">
+    tools:context="cz.kubaspatny.opendays.ui.fragment.RouteInfoFragment">
 
     <RelativeLayout
         android:id="@+id/information_error"
@@ -55,7 +54,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
                 android:layout_width="wrap_content"

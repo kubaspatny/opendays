@@ -61,10 +61,13 @@
 
         <TextView
             android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
             android:id="@+id/relocationTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_700"
+            android:textColor="@color/grey_600"
+            android:drawableLeft="@drawable/ic_walk_grey600_24dp"
+            android:drawablePadding="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             tools:text="2-minute walk" />
 

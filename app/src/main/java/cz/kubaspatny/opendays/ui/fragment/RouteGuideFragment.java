@@ -66,11 +66,11 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private String mGroupId;
     private int mGroupStartingPosition;
 
-
     private ListView mListView;
     private View mEmptyView;
     private View mLoadingView;
     private FloatingActionsMenu mFam;
+    private FloatingActionButton mChangeStartPosButton;
     private RouteGuideArrayAdapter adapter;
     boolean mDestroyed = false;
 
@@ -136,6 +136,14 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             }
         });
 
+        mChangeStartPosButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_starting_position);
+        mChangeStartPosButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showStartLocationDialog();
+                mFam.collapse();
+            }
+        });
 
         mLoadingView.setVisibility(View.VISIBLE);
         mListView.setVisibility(View.GONE);
@@ -429,6 +437,13 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
         mLoadingView.setVisibility(View.GONE);
         mListView.setVisibility(View.VISIBLE);
+
+        if(!isGuideStarted()){
+            mChangeStartPosButton.setVisibility(View.VISIBLE);
+        } else {
+            mChangeStartPosButton.setVisibility(View.GONE);
+        }
+
         if(isGuideDone()){
             mFam.setVisibility(View.GONE);
         } else {
@@ -450,6 +465,40 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         }
 
         return false;
+    }
+
+    private boolean isGuideStarted(){
+        return !latestLocation.isEmpty();
+    }
+
+    private void showStartLocationDialog(){
+        int current = mGroupStartingPosition;
+        int count = adapter.getCount();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Change starting position");
+        String[] types = new String[stations.size()];
+        for(int i = 0; i < stations.size(); i++){
+            types[i] = stations.get(i).getSequencePosition() + " - " + stations.get(i).getName();
+        }
+
+        builder.setItems(types, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int selected) {
+
+                dialog.dismiss();
+                Toast.makeText(getActivity(), "Selected: " + stations.get(selected).getName(), Toast.LENGTH_SHORT).show();
+                mGroupStartingPosition = stations.get(selected).getSequencePosition();
+                Collections.sort(stations, new StationComparator(mGroupStartingPosition, stations.size()));
+                loadData();
+
+            }
+
+        });
+
+        builder.show();
+
     }
 
     private void showLocationUpdateDialog(){
@@ -634,4 +683,14 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if(getArguments() != null){
+            getArguments().putString(ARG_ROUTE_ID, mRouteId);
+            getArguments().putString(ARG_GROUP_ID, mGroupId);
+            getArguments().putInt(ARG_GROUP_START_POS, mGroupStartingPosition);
+        }
+    }
 }
