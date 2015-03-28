@@ -4,9 +4,12 @@ import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -14,6 +17,7 @@ import android.widget.TextView;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.app.AppConstants;
+import cz.kubaspatny.opendays.database.DbHelper;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
@@ -150,6 +154,20 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
             mAccountManager.setPassword(account, accountPassword);
             mAccountManager.setUserData(account, AuthConstants.REFRESH_TOKEN, accountPassword);
         }
+
+        SharedPreferences sp = getSharedPreferences(BaseActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        String lastUser = sp.getString(ARG_ACCOUNT_NAME, "");
+
+        // if the last user is not the same as now logged in user -> clear data
+        if(!TextUtils.isEmpty(lastUser) && !lastUser.equals(accountName)){
+            new DbHelper(this).clearUserData();
+            editor.putString(BaseActivity.PROPERTY_REG_ID, "");
+        }
+
+        editor.putString(ARG_ACCOUNT_NAME, accountName);
+        editor.commit();
+
 
         Log.d(TAG, "Allowing sync.");
         ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);

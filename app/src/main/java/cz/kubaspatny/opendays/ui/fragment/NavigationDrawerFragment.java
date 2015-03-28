@@ -22,6 +22,7 @@ import android.widget.ListView;
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.database.DbHelper;
 import cz.kubaspatny.opendays.sync.SyncHelper;
+import cz.kubaspatny.opendays.ui.activity.AuthenticatorActivity;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerAdapter;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerCallbacks;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerItem;
@@ -241,6 +242,12 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
                 new DbHelper(getActivity()).clearUserData();
                 ((BaseActivity)getActivity()).clearRegistrationId(getActivity());
                 AccountUtil.removeAccount(getActivity());
+
+                SharedPreferences sp = getActivity().getSharedPreferences(BaseActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putString(AuthenticatorActivity.ARG_ACCOUNT_NAME, "");
+                editor.commit();
+
             } catch (Exception e){
                 this.e = e;
             }

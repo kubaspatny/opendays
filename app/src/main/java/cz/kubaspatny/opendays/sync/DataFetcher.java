@@ -134,6 +134,10 @@ public class DataFetcher {
                     DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI))
                     .withSelection(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID + "=? AND " +
                             DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + " !=?", new String[]{routeId.toString(), groupId.toString()}).build());
+        } else {
+            batch.add(ContentProviderOperation.newDelete(
+                    DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI))
+                    .withSelection(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID + "=?", new String[]{routeId.toString()}).build());
         }
 
         // ROUTE TABLE
