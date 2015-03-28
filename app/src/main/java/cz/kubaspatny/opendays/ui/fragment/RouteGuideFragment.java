@@ -1,6 +1,8 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
+import android.accounts.NetworkErrorException;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 
 import org.joda.time.DateTime;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +42,13 @@ import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.domainobject.StationDto;
 import cz.kubaspatny.opendays.domainobject.StationWrapper;
 import cz.kubaspatny.opendays.domainobject.UserDto;
+import cz.kubaspatny.opendays.sync.DataFetcher;
+import cz.kubaspatny.opendays.sync.SyncHelper;
 import cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton;
 import cz.kubaspatny.opendays.ui.widget.fab.FloatingActionsMenu;
+import cz.kubaspatny.opendays.util.AccountUtil;
+import cz.kubaspatny.opendays.util.ConnectionUtils;
+import cz.kubaspatny.opendays.util.DbUtil;
 import cz.kubaspatny.opendays.util.StationComparator;
 import cz.kubaspatny.opendays.util.TimeUtil;
 
@@ -483,22 +491,69 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         }
 
         builder.setItems(types, new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int selected) {
-
                 dialog.dismiss();
-                Toast.makeText(getActivity(), "Selected: " + stations.get(selected).getName(), Toast.LENGTH_SHORT).show();
-                mGroupStartingPosition = stations.get(selected).getSequencePosition();
-                Collections.sort(stations, new StationComparator(mGroupStartingPosition, stations.size()));
-                loadData();
+
+                if(ConnectionUtils.isConnected(getActivity())){
+                    new UpdateStartPositionAsyncTask().execute(stations.get(selected).getSequencePosition());
+                } else {
+                    Toast.makeText(getActivity(), "No internet connection!", Toast.LENGTH_SHORT).show();
+                }
 
             }
-
         });
 
         builder.show();
 
+    }
+
+    private class UpdateStartPositionAsyncTask extends AsyncTask<Integer, Void, Void> {
+
+        Exception e = null;
+        ProgressDialog dialog;
+
+        @Override
+        protected Void doInBackground(Integer... params) {
+            try {
+                new DataFetcher(getActivity()).updateStartingPosition(mGroupId, params[0]);
+
+                mGroupStartingPosition = params[0];
+                DbUtil.updateStartLocation(getActivity(), mGroupId, mGroupStartingPosition);
+                Collections.sort(stations, new StationComparator(mGroupStartingPosition, stations.size()));
+
+            } catch (Exception e){
+                this.e = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = ProgressDialog.show(getActivity(), "Updating starting position", "Updating", true);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            dialog.dismiss();
+
+            if(e == null){
+                loadData();
+            } else {
+                Log.e(TAG, "Error updating starting position!", e);
+
+                if(e instanceof IOException){
+                    Toast.makeText(getActivity(), "No internet connection!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "Error updating starting position!", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        }
     }
 
     private void showLocationUpdateDialog(){
@@ -599,46 +654,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     }
 
     private void sendLocationUpdate(LocationUpdateDto update){
-
-        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-
-        ContentValues values = new ContentValues();
-        values.put(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID, update.getGroup().getRoute().getId());
-
-        values.put(DataContract.GroupLocations.COLUMN_NAME_STATION_ID, update.getStation().getId());
-        values.put(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE, update.getType().toString());
-        values.put(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP, DateTime.now().toInstant().toString());
-
-        values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID, update.getGroup().getId());
-        values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE, update.getGroup().getGuide().getUsername());
-        values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_STATUS, true);
-        values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION, update.getGroup().getStartingPosition());
-
-        batch.add(ContentProviderOperation.newUpdate(
-                DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI))
-                .withValues(values)
-                .withSelection(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + "=? AND ("
-                        + DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " IS NULL OR "
-                        + DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP + " <?)", new String[]{update.getGroup().getId().toString(), DateTime.now().toInstant().toString()})
-                .build());
-
-        values = new ContentValues();
-        values.put(DataContract.LocationUpdates.COLUMN_NAME_ROUTE_ID, update.getGroup().getRoute().getId());
-        values.put(DataContract.LocationUpdates.COLUMN_NAME_STATION_ID, update.getStation().getId());
-        values.put(DataContract.LocationUpdates.COLUMN_NAME_GROUP_ID, update.getGroup().getId());
-        values.put(DataContract.LocationUpdates.COLUMN_NAME_LOCATION_UPDATE_TYPE, update.getType().toString());
-        values.put(DataContract.LocationUpdates.COLUMN_NAME_TIMESTAMP, DateTime.now().toInstant().toString());
-
-        batch.add(ContentProviderOperation.newInsert(DataContract.LocationUpdates.CONTENT_URI)
-                .withValues(values).build());
-
-        try {
-            getActivity().getContentResolver().applyBatch(AppConstants.AUTHORITY, batch);
-        } catch (Exception e){
-            Toast.makeText(getActivity(), "Couldn't add a location update.", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-
+        DbUtil.sendLocationUpdate(getActivity(), update);
     }
 
     private void setTimerToUpdateUI() {

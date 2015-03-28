@@ -2,6 +2,7 @@ package cz.kubaspatny.opendays.sync;
 
 import android.accounts.Account;
 import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -53,6 +54,31 @@ public class SyncHelper {
         }
     }
 
+    public static void requestManualUploadSync(Context context, Account account) {
+        if (account != null) {
+            Log.d(TAG, "requestManualUploadSync > requesting sync for " + account.name);
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+            bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+            bundle.putBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, true);
+
+            // If refresh token expired, the automatic sync was disabled.
+            // Enable it now to show the error message again.
+            Log.d(TAG, "Enabling sync.");
+            ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
+            ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
+
+            boolean pending = ContentResolver.isSyncPending(account, AppConstants.AUTHORITY);
+            boolean active = ContentResolver.isSyncActive(account, AppConstants.AUTHORITY);
+
+            if (pending || active) ContentResolver.cancelSync(account, AppConstants.AUTHORITY);
+
+            context.getContentResolver().requestSync(account, AppConstants.AUTHORITY, bundle);
+        } else {
+            Log.d(TAG, "requestManualUploadSync > cannot request sync without account!");
+        }
+    }
+
     public void performSync(SyncResult syncResult, Account account, Bundle extras) {
 
         Intent intent = new Intent(AppConstants.KEY_SYNC_STATUS);
@@ -74,9 +100,10 @@ public class SyncHelper {
 
         } catch (LoginException | AuthenticatorException ex) {
             Log.d(TAG, "Login exception.");
-            syncResult.stats.numAuthExceptions++;
-
-        } catch (Throwable throwable) {
+//            syncResult.stats.numAuthExceptions++;
+        } catch(OperationCanceledException e) {
+            Log.d(TAG, "Previous sync canceled.");
+        } catch(Throwable throwable) {
             Log.d(TAG, "Throwable exception.");
             throwable.printStackTrace();
             syncResult.stats.numIoExceptions++;

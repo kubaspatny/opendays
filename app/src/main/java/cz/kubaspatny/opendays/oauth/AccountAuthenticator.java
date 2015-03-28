@@ -76,7 +76,6 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
                         Log.d(TAG, "Received access & refresh token!");
 
                         if(accessToken.getRefreshToken() != null && !TextUtils.isEmpty(accessToken.getRefreshToken().getValue())){
-//                            accountManager.setPassword(account, accessToken.getRefreshToken().getValue());
                             accountManager.setUserData(account, AuthConstants.REFRESH_TOKEN, accessToken.getRefreshToken().getValue());
                         }
 

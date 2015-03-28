@@ -20,10 +20,13 @@ import java.util.List;
 
 import cz.kubaspatny.opendays.domainobject.ErrorMessage;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.domainobject.GroupStartingPosition;
 import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
 import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.exception.ErrorCodeException;
 import cz.kubaspatny.opendays.json.DateTimeSerializer;
+
+import static cz.kubaspatny.opendays.app.AppConstants.*;
 
 /**
  * Created by Kuba on 11/3/2015.
@@ -34,7 +37,7 @@ public class SyncEndpoint {
 
     public static List<GroupDto> getGroups(Account account, String accessToken, int page, int pageSize) throws Exception {
 
-        String url = "http://resttime-kubaspatny.rhcloud.com/api/v1/user/" + account.name + "/groups?page=" + page + "&pageSize=" + pageSize;
+        String url = HOST + API_V1 + "user/" + account.name + "/groups?page=" + page + "&pageSize=" + pageSize;
         String json;
 
         OkHttpClient client = new OkHttpClient();
@@ -72,7 +75,7 @@ public class SyncEndpoint {
 
     public static RouteDto getRoute(Account account, String accessToken, String routeId) throws Exception {
 
-        String url = "http://resttime-kubaspatny.rhcloud.com/api/v1/route/" + routeId;
+        String url = HOST + API_V1 + "route/" + routeId;
         String json;
 
         OkHttpClient client = new OkHttpClient();
@@ -111,7 +114,7 @@ public class SyncEndpoint {
 
     public static List<GroupDto> getRouteGroups(Account account, String accessToken, String routeId) throws Exception {
 
-        String url = "http://resttime-kubaspatny.rhcloud.com/api/v1/route/" + routeId + "/groups";
+        String url = HOST + API_V1 + "route/" + routeId + "/groups";
         String json;
 
         OkHttpClient client = new OkHttpClient();
@@ -151,7 +154,7 @@ public class SyncEndpoint {
     // TODO: make methods in syncendpoint return http codes
     public static void registerDevice(Account account, String accessToken, String registrationId) throws Exception {
 
-        String url = "http://resttime-kubaspatny.rhcloud.com/api/v1/gcm/android-device";
+        String url = HOST + API_V1 + "gcm/android-device";
         MediaType mediaType = MediaType.parse("text/plain; charset=utf-8");
         RequestBody body = RequestBody.create(mediaType, registrationId);
 
@@ -186,7 +189,7 @@ public class SyncEndpoint {
 
     public static void uploadLocationUpdates(Account account, String accessToken, LocationUpdateDto updateDto) throws Exception {
 
-        String url = "http://resttime-kubaspatny.rhcloud.com/api/v1/group/locationUpdate";
+        String url = HOST + API_V1 + "group/locationUpdate";
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
 
         Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
@@ -216,6 +219,38 @@ public class SyncEndpoint {
             throw new Exception(e.getClass().getSimpleName() + ": " + e.getMessage());
         }
 
+    }
+
+    public static void updateStartingPosition(Account account, String accessToken, GroupStartingPosition startingPosition) throws Exception {
+        String url = HOST + API_V1 + "group/startingPosition";
+        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+
+        Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
+        RequestBody body = RequestBody.create(mediaType, gson.toJson(startingPosition));
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .post(body)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.code() != 200){
+                ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
+                throw new ErrorCodeException("Error updating starting position! " + response.body().string(), response.code());
+            }
+
+        } catch (UnknownHostException e) {
+            throw new NetworkErrorException(e.getLocalizedMessage());
+        } catch (ErrorCodeException e) {
+            throw e;
+        } catch (Exception e){
+            Log.d(TAG, e.getMessage());
+            throw new Exception(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
     }
 
 }

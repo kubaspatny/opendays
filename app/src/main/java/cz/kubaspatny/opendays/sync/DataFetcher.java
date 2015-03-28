@@ -15,6 +15,7 @@ import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.domainobject.GroupStartingPosition;
 import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
 import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.domainobject.StationDto;
@@ -65,7 +66,7 @@ public class DataFetcher {
 
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
 
-        for(GroupDto g : groups){
+        for(GroupDto g : groups){ // TODO: loadRoute only if g.getDate <= 1 day || lastBigSync >= 4 hours
             loadRoute(g.getRoute().getId(), g.getId());
         }
 
@@ -222,5 +223,17 @@ public class DataFetcher {
 
     }
 
+    public void updateStartingPosition(String groupId, int startingPosition) throws Exception {
+
+        GroupStartingPosition g = new GroupStartingPosition();
+        g.setGroupId(Long.parseLong(groupId));
+        g.setStartingPosition(startingPosition);
+
+        Account account = AccountUtil.getAccount(mContext);
+        SyncEndpoint.updateStartingPosition(account,
+                AccountUtil.getAccessToken(mContext, account),
+                g);
+
+    }
 
 }

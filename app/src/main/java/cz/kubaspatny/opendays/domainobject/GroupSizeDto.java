@@ -7,6 +7,7 @@ import org.joda.time.DateTime;
  */
 public class GroupSizeDto extends BaseDto {
 
+    private Long groupId;
     private DateTime timestamp;
     private int size;
 
@@ -24,6 +25,14 @@ public class GroupSizeDto extends BaseDto {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 
 }

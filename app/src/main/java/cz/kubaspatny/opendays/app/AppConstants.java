@@ -7,6 +7,9 @@ public class AppConstants {
 
     public static final String AUTHORITY = "cz.kubaspatny.opendays.provider";
 
+    public static final String HOST = "http://resttime-kubaspatny.rhcloud.com/";
+    public static final String API_V1 = "api/v1/";
+
     public static final String KEY_SYNC_STATUS = "cz.kubaspatny.opendays.sync_status";
     public static final String KEY_SYNC_STATUS_CODE = "cz.kubaspatny.opendays.sync_status_code";
     public static final int SYNC_STATUS_CODE_START = 1;
