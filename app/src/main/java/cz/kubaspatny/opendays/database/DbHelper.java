@@ -90,6 +90,16 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_DELETE_LOCATIONUPDATES = "DROP TABLE IF EXISTS " + LocationUpdates.TABLE_NAME;
 
+    private static final String SQL_CREATE_GROUPSIZES =
+            "CREATE TABLE " + GroupSizes.TABLE_NAME + " (" +
+                    GroupSizes._ID + " INTEGER PRIMARY KEY," +
+                    GroupSizes.COLUMN_NAME_TIMESTAMP + TEXT_TYPE + COMMA_SEP +
+                    GroupSizes.COLUMN_NAME_GROUP_ID + INT_TYPE + COMMA_SEP +
+                    GroupSizes.COLUMN_NAME_GROUP_SIZE + INT_TYPE +
+                    " )";
+
+    private static final String SQL_DELETE_GROUPSIZES = "DROP TABLE IF EXISTS " + GroupSizes.TABLE_NAME;
+
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -100,6 +110,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_STATION);
         db.execSQL(SQL_CREATE_GROUPLOCATIONS);
         db.execSQL(SQL_CREATE_LOCATIONUPDATES);
+        db.execSQL(SQL_CREATE_GROUPSIZES);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -110,6 +121,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_STATION);
         db.execSQL(SQL_DELETE_GROUPLOCATIONS);
         db.execSQL(SQL_DELETE_LOCATIONUPDATES);
+        db.execSQL(SQL_DELETE_GROUPSIZES);
         onCreate(db);
     }
 

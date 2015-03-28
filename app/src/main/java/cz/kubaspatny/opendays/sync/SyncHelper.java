@@ -100,7 +100,6 @@ public class SyncHelper {
 
         } catch (LoginException | AuthenticatorException ex) {
             Log.d(TAG, "Login exception.");
-//            syncResult.stats.numAuthExceptions++;
         } catch(OperationCanceledException e) {
             Log.d(TAG, "Previous sync canceled.");
         } catch(Throwable throwable) {

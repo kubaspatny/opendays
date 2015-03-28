@@ -99,6 +99,17 @@ public class DataContract {
 
     }
 
+    public static abstract class GroupSizes implements BaseColumns {
+
+        public static final String TABLE_NAME = "groupsizes";
+        public static final Uri CONTENT_URI = DbContentProvider.CONTENT_URI.buildUpon().path(TABLE_NAME).build();
+
+        public static final String COLUMN_NAME_GROUP_ID = "groupid";
+        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
+        public static final String COLUMN_NAME_GROUP_SIZE = "groupsize";
+
+    }
+
     public static Uri addCallerIsSyncAdapterParameter(Uri uri) {
         return uri.buildUpon().appendQueryParameter(
                 ContactsContract.CALLER_IS_SYNCADAPTER, "true").build();

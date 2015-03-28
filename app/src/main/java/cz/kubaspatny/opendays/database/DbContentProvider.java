@@ -39,6 +39,9 @@ public class DbContentProvider extends ContentProvider {
     private static final int LOCATIONUPDATES = 500;
     private static final int LOCATIONUPDATE_ID = 501;
 
+    private static final int GROUPSIZES = 600;
+    private static final int GROUPSIZE_ID = 601;
+
 
 
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
@@ -59,6 +62,9 @@ public class DbContentProvider extends ContentProvider {
 
         uriMatcher.addURI(AUTHORITY, DataContract.LocationUpdates.TABLE_NAME, LOCATIONUPDATES);
         uriMatcher.addURI(AUTHORITY, DataContract.LocationUpdates.TABLE_NAME + "/#", LOCATIONUPDATE_ID);
+
+        uriMatcher.addURI(AUTHORITY, DataContract.GroupSizes.TABLE_NAME, GROUPSIZES);
+        uriMatcher.addURI(AUTHORITY, DataContract.GroupSizes.TABLE_NAME + "/#", GROUPSIZE_ID);
     }
 
     @Override
@@ -104,6 +110,11 @@ public class DbContentProvider extends ContentProvider {
             case LOCATIONUPDATE_ID:
                 return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.LocationUpdates.TABLE_NAME;
 
+            case GROUPSIZES:
+                return "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + DataContract.GroupSizes.TABLE_NAME;
+            case GROUPSIZE_ID:
+                return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.GroupSizes.TABLE_NAME;
+
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
@@ -131,6 +142,9 @@ public class DbContentProvider extends ContentProvider {
                 break;
             case LOCATIONUPDATES:
                 id = database.insert(DataContract.LocationUpdates.TABLE_NAME, null, contentValues);
+                break;
+            case GROUPSIZES:
+                id = database.insert(DataContract.GroupSizes.TABLE_NAME, null, contentValues);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
@@ -199,6 +213,16 @@ public class DbContentProvider extends ContentProvider {
                 id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.LocationUpdates._ID + "=" + id);
                 tableName = DataContract.LocationUpdates.TABLE_NAME;
+                break;
+
+            case GROUPSIZES:
+                // no additional arguments needed
+                tableName = DataContract.GroupSizes.TABLE_NAME;
+                break;
+            case GROUPSIZE_ID:
+                id = uri.getPathSegments().get(1);
+                queryBuilder.appendWhere(DataContract.GroupSizes._ID + "=" + id);
+                tableName = DataContract.GroupSizes.TABLE_NAME;
                 break;
 
             default:
@@ -275,6 +299,17 @@ public class DbContentProvider extends ContentProvider {
                 tableName = DataContract.LocationUpdates.TABLE_NAME;
                 break;
 
+            case GROUPSIZES:
+                // no additional arguments needed
+                tableName = DataContract.GroupSizes.TABLE_NAME;
+                break;
+            case GROUPSIZE_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.GroupSizes._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.GroupSizes.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
@@ -349,6 +384,17 @@ public class DbContentProvider extends ContentProvider {
                 selection = DataContract.LocationUpdates._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
                 tableName = DataContract.LocationUpdates.TABLE_NAME;
+                break;
+
+            case GROUPSIZES:
+                // no additional arguments needed
+                tableName = DataContract.GroupSizes.TABLE_NAME;
+                break;
+            case GROUPSIZE_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.GroupSizes._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.GroupSizes.TABLE_NAME;
                 break;
 
             default:
