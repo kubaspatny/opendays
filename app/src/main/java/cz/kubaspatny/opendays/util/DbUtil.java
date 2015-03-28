@@ -61,6 +61,26 @@ public class DbUtil {
         }
     }
 
+    public static void addGroupSize(Context context, String groupId, int size){
+        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+
+        ContentValues values = new ContentValues();
+        values.put(DataContract.GroupSizes.COLUMN_NAME_GROUP_ID, groupId);
+        values.put(DataContract.GroupSizes.COLUMN_NAME_GROUP_SIZE, size);
+        values.put(DataContract.GroupSizes.COLUMN_NAME_TIMESTAMP, DateTime.now().toInstant().toString());
+
+        batch.add(ContentProviderOperation.newInsert(DataContract.GroupSizes.CONTENT_URI)
+                .withValues(values).build());
+
+        try {
+            context.getContentResolver().applyBatch(AppConstants.AUTHORITY, batch);
+            SyncHelper.requestManualUploadSync(context, AccountUtil.getAccount(context));
+        } catch (Exception e){
+            Toast.makeText(context, "Couldn't add a group size.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
     public static void updateStartLocation(Context context, String groupId, int startingPosition){
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();

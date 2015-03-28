@@ -15,6 +15,7 @@ import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.domainobject.GroupSizeDto;
 import cz.kubaspatny.opendays.domainobject.GroupStartingPosition;
 import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
 import cz.kubaspatny.opendays.domainobject.RouteDto;
@@ -213,6 +214,44 @@ public class DataFetcher {
             } catch (Exception e){
                 // do nothing
                 // Location update will be send with another sync
+            } finally {
+                cursor.moveToNext();
+            }
+
+        }
+
+        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
+
+    }
+
+    public void uploadGroupSizes() throws Exception {
+
+        String[] projection = {DataContract.GroupSizes._ID,
+                DataContract.GroupSizes.COLUMN_NAME_GROUP_ID,
+                DataContract.GroupSizes.COLUMN_NAME_TIMESTAMP,
+                DataContract.GroupSizes.COLUMN_NAME_GROUP_SIZE};
+
+        Cursor cursor = mContentResolver.query(DataContract.GroupSizes.CONTENT_URI, projection, null, null, null);
+        cursor.moveToFirst();
+
+        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+        Account account = AccountUtil.getAccount(mContext);
+
+        while(cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
+
+            GroupSizeDto size = new GroupSizeDto();
+            size.setTimestamp(TimeUtil.parseTimestamp(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupSizes.COLUMN_NAME_TIMESTAMP))));
+            size.setGroupId(cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupSizes.COLUMN_NAME_GROUP_ID)));
+            size.setSize(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.GroupSizes.COLUMN_NAME_GROUP_SIZE)));
+
+            try {
+                SyncEndpoint.uploadGroupSize(account, AccountUtil.getAccessToken(mContext, account), size);
+                batch.add(ContentProviderOperation.newDelete(DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupSizes.CONTENT_URI))
+                        .withSelection(DataContract.LocationUpdates._ID + "=?", new String[]{cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupSizes._ID))})
+                        .build());
+            } catch (Exception e){
+                // do nothing
+                // Size will be send with another sync
             } finally {
                 cursor.moveToNext();
             }

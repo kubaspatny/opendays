@@ -132,7 +132,10 @@ public class SyncHelper {
 
         Log.d(TAG, "Performing doUploadSync");
 
-        new DataFetcher(mContext).uploadLocationUpdates();
+        DataFetcher fetcher = new DataFetcher(mContext);
+        fetcher.uploadLocationUpdates();
+        fetcher.uploadGroupSizes();
+
     }
 
 }

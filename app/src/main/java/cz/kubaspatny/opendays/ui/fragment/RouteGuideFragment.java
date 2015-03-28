@@ -1,10 +1,7 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
-import android.accounts.NetworkErrorException;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -19,9 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -33,7 +30,6 @@ import java.util.List;
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.adapter.RouteGuideArrayAdapter;
 import cz.kubaspatny.opendays.alarm.AlarmUtil;
-import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
@@ -43,10 +39,8 @@ import cz.kubaspatny.opendays.domainobject.StationDto;
 import cz.kubaspatny.opendays.domainobject.StationWrapper;
 import cz.kubaspatny.opendays.domainobject.UserDto;
 import cz.kubaspatny.opendays.sync.DataFetcher;
-import cz.kubaspatny.opendays.sync.SyncHelper;
 import cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton;
 import cz.kubaspatny.opendays.ui.widget.fab.FloatingActionsMenu;
-import cz.kubaspatny.opendays.util.AccountUtil;
 import cz.kubaspatny.opendays.util.ConnectionUtils;
 import cz.kubaspatny.opendays.util.DbUtil;
 import cz.kubaspatny.opendays.util.StationComparator;
@@ -99,6 +93,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         if (getArguments() != null) {
             mRouteId = getArguments().getString(ARG_ROUTE_ID);
             mGroupId = getArguments().getString(ARG_GROUP_ID);
@@ -122,16 +117,8 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         addGroupSizeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
-
-                builder.setTitle("Set group size")
-                        .setMessage("[number picker here]")
-                        .setPositiveButton("OK", null)
-                        .setNegativeButton("CANCEL", null)
-                        .show();
-
+                showAddGroupSizeDialog();
                 mFam.collapse();
-
             }
         });
 
@@ -651,6 +638,41 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
         builder.show();
 
+    }
+
+    private void showAddGroupSizeDialog(){
+
+        RelativeLayout linearLayout = new RelativeLayout(getActivity());
+        final NumberPicker numberPicker = new NumberPicker(getActivity());
+        numberPicker.setMinValue(1);
+        numberPicker.setMaxValue(100);
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(50, 50);
+        RelativeLayout.LayoutParams numberPickerParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        numberPickerParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+
+        linearLayout.setLayoutParams(params);
+        linearLayout.addView(numberPicker, numberPickerParams);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        alertDialogBuilder.setTitle("Select group size");
+        alertDialogBuilder.setView(linearLayout);
+        alertDialogBuilder.setPositiveButton("Set",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                DbUtil.addGroupSize(getActivity(), mGroupId, numberPicker.getValue());
+                            }
+                        });
+
+        alertDialogBuilder.setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     private void sendLocationUpdate(LocationUpdateDto update){

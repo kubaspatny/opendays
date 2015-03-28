@@ -20,6 +20,7 @@ import java.util.List;
 
 import cz.kubaspatny.opendays.domainobject.ErrorMessage;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
+import cz.kubaspatny.opendays.domainobject.GroupSizeDto;
 import cz.kubaspatny.opendays.domainobject.GroupStartingPosition;
 import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
 import cz.kubaspatny.opendays.domainobject.RouteDto;
@@ -208,6 +209,40 @@ public class SyncEndpoint {
             if(response.code() != 200){
                 ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
                 throw new ErrorCodeException("Error uploading location update! " + response.body().string(), response.code());
+            }
+
+        } catch (UnknownHostException e) {
+            throw new NetworkErrorException(e.getLocalizedMessage());
+        } catch (ErrorCodeException e) {
+            throw e;
+        } catch (Exception e){
+            Log.d(TAG, e.getMessage());
+            throw new Exception(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+
+    }
+
+    public static void uploadGroupSize(Account account, String accessToken, GroupSizeDto sizeDto) throws Exception {
+
+        String url = HOST + API_V1 + "group/groupSize";
+        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+
+        Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
+        RequestBody body = RequestBody.create(mediaType, gson.toJson(sizeDto));
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .post(body)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.code() != 200){
+                ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
+                throw new ErrorCodeException("Error uploading group size! " + response.body().string(), response.code());
             }
 
         } catch (UnknownHostException e) {
