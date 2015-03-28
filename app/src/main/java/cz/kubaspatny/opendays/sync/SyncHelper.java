@@ -31,6 +31,27 @@ public class SyncHelper {
         mContext = context;
     }
 
+    public static void cancelSync(Context context, Account account){
+        if (account != null) {
+            boolean pending = ContentResolver.isSyncPending(account, AppConstants.AUTHORITY);
+            boolean active = ContentResolver.isSyncActive(account, AppConstants.AUTHORITY);
+
+            if (pending || active) ContentResolver.cancelSync(account, AppConstants.AUTHORITY);
+        }
+    }
+
+    public static void disableSync(Context context, Account account){
+        Log.d(TAG, "Disabling sync.");
+        ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 0);
+        ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, false);
+    }
+
+    public static void enableSync(Context context, Account account){
+        Log.d(TAG, "Enabling sync.");
+        ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
+    }
+
     public static void requestManualSync(Context context, Account account) {
         if (account != null) {
             Log.d(TAG, "requestManualSync > requesting sync for " + account.name);
@@ -40,14 +61,8 @@ public class SyncHelper {
 
             // If refresh token expired, the automatic sync was disabled.
             // Enable it now to show the error message again.
-            Log.d(TAG, "Enabling sync.");
-            ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
-            ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
-
-            boolean pending = ContentResolver.isSyncPending(account, AppConstants.AUTHORITY);
-            boolean active = ContentResolver.isSyncActive(account, AppConstants.AUTHORITY);
-
-            if (pending || active) ContentResolver.cancelSync(account, AppConstants.AUTHORITY);
+            enableSync(context, account);
+            cancelSync(context, account);
 
             context.getContentResolver().requestSync(account, AppConstants.AUTHORITY, bundle);
         } else {

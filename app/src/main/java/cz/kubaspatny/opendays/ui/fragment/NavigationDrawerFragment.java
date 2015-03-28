@@ -1,15 +1,18 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +20,13 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import cz.kubaspatny.opendays.R;
+import cz.kubaspatny.opendays.database.DbHelper;
+import cz.kubaspatny.opendays.sync.SyncHelper;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerAdapter;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerCallbacks;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerItem;
 import cz.kubaspatny.opendays.ui.activity.BaseActivity;
+import cz.kubaspatny.opendays.util.AccountUtil;
 
 import static cz.kubaspatny.opendays.util.ToastUtil.*;
 
@@ -77,7 +83,7 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         mDrawerListBottom.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                success(getActivity(), "You have been successfully logged out.");
+                new LogOutTask().execute();
             }
         });
 
@@ -219,6 +225,48 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
 
     public void setDrawerLayout(DrawerLayout drawerLayout) {
         mDrawerLayout = drawerLayout;
+    }
+
+    private class LogOutTask extends AsyncTask<Void, Void, Void> {
+
+        Exception e = null;
+        ProgressDialog dialog;
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                SyncHelper.cancelSync(getActivity(), AccountUtil.getAccount(getActivity()));
+                SyncHelper.disableSync(getActivity(), AccountUtil.getAccount(getActivity()));
+
+                new DbHelper(getActivity()).clearUserData();
+                ((BaseActivity)getActivity()).clearRegistrationId(getActivity());
+                AccountUtil.removeAccount(getActivity());
+            } catch (Exception e){
+                this.e = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = ProgressDialog.show(getActivity(), "Logging out", "Clearing user data", true);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            dialog.dismiss();
+
+            if(e == null){
+                success(getActivity(), "You have been successfully logged out!");
+            } else {
+                Log.e("NavigationDrawerFragment", "Error logging out!", e);
+                error(getActivity(), "Logout attempt failed!");
+            }
+        }
     }
 
 }

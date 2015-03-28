@@ -143,4 +143,8 @@ public class DbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
+    public void clearUserData(){
+        onUpgrade(getWritableDatabase(), 0, 0);
+    }
+
 }

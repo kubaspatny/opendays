@@ -29,6 +29,11 @@ public class AccountUtil {
         }
     }
 
+    public static void removeAccount(final Context context){
+        AccountManager accountManager = AccountManager.get(context);
+        accountManager.removeAccount(getAccount(context), null, null);
+    }
+
     public static String getAccessToken(Context context, Account account) throws LoginException, NetworkErrorException, IOException, AuthenticatorException, OperationCanceledException {
 
         AccountManager accountManager = AccountManager.get(context);

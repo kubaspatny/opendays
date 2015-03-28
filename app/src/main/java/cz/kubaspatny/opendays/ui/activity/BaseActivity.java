@@ -251,5 +251,13 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
         editor.commit();
     }
 
+    public void clearRegistrationId(Context context){
+        final SharedPreferences prefs = getGCMPreferences(context);
+        Log.i(TAG, "Clearing regId.");
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PROPERTY_REG_ID, "");
+        editor.commit();
+    }
+
 
 }
