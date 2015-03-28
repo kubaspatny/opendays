@@ -78,7 +78,8 @@
         fab:fab_addButtonColorNormal="@color/red_400"
         fab:fab_addButtonColorPressed="@color/red_400"
         fab:fab_addButtonPlusIconColor="@color/grey_100"
-        fab:fab_labelStyle="@style/menu_labels_style">
+        fab:fab_labelStyle="@style/menu_labels_style"
+        android:visibility="gone">
 
         <cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton
             android:id="@+id/fab_starting_position"

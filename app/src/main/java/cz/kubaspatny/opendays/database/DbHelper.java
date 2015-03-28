@@ -33,6 +33,17 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_DELETE_GUIDEDGROUPS = "DROP TABLE IF EXISTS " + GuidedGroups.TABLE_NAME;
 
+    private static final String SQL_CREATE_MANAGED_ROUTES =
+            "CREATE TABLE " + ManagedRoutes.TABLE_NAME + " (" +
+                    ManagedRoutes._ID + " INTEGER PRIMARY KEY," +
+                    ManagedRoutes.COLUMN_NAME_ROUTE_ID + INT_TYPE + COMMA_SEP +
+                    ManagedRoutes.COLUMN_NAME_ROUTE_NAME + TEXT_TYPE + COMMA_SEP +
+                    ManagedRoutes.COLUMN_NAME_ROUTE_COLOR + TEXT_TYPE + COMMA_SEP +
+                    ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP + TEXT_TYPE +
+                    " )";
+
+    private static final String SQL_DELETE_MANAGED_ROUTES = "DROP TABLE IF EXISTS " + ManagedRoutes.TABLE_NAME;
+
     private static final String SQL_CREATE_ROUTE =
             "CREATE TABLE " + Route.TABLE_NAME + " (" +
                     Route._ID + " INTEGER PRIMARY KEY," +
@@ -111,6 +122,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_GROUPLOCATIONS);
         db.execSQL(SQL_CREATE_LOCATIONUPDATES);
         db.execSQL(SQL_CREATE_GROUPSIZES);
+        db.execSQL(SQL_CREATE_MANAGED_ROUTES);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -122,6 +134,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_GROUPLOCATIONS);
         db.execSQL(SQL_DELETE_LOCATIONUPDATES);
         db.execSQL(SQL_DELETE_GROUPSIZES);
+        db.execSQL(SQL_DELETE_MANAGED_ROUTES);
         onCreate(db);
     }
 

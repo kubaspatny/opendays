@@ -55,10 +55,13 @@ public class MainActivity extends BaseActivity implements NavigationDrawerCallba
 
         switch (position){
             case 0:
-                fragment = new GroupListFragment();
+                fragment = GroupListFragment.newInstance();
+                break;
+            case 1:
+                fragment = ManagedStationsListFragment.newInstance();
                 break;
             default:
-                fragment = ManagedStationsListFragment.newInstance("", "");
+                fragment = null; // TODO: Error fragment
         }
 
         getSupportFragmentManager().beginTransaction()

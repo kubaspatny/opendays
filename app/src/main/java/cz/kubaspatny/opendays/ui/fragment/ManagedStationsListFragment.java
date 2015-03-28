@@ -1,95 +1,177 @@
 package cz.kubaspatny.opendays.ui.fragment;
 
-import android.app.Activity;
-import android.net.Uri;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import cz.kubaspatny.opendays.R;
+import cz.kubaspatny.opendays.adapter.GuidedGroupsAdapter;
+import cz.kubaspatny.opendays.app.AppConstants;
+import cz.kubaspatny.opendays.database.DataContract;
+import cz.kubaspatny.opendays.database.DbContentProvider;
+import cz.kubaspatny.opendays.sync.SyncHelper;
+import cz.kubaspatny.opendays.ui.activity.GuideActivity;
+import cz.kubaspatny.opendays.util.AccountUtil;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ManagedStationsListFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ManagedStationsListFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ManagedStationsListFragment extends Fragment {
+public class ManagedStationsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    public final static String TAG = ManagedStationsListFragment.class.getSimpleName();
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private ListView listView;
+    private SwipeRefreshLayout swipeContainer;
+    private LinearLayout emptyView;
+    private GuidedGroupsAdapter cursorAdapter;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ManagedStationsListFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ManagedStationsListFragment newInstance(String param1, String param2) {
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int sync_code = intent.getIntExtra(AppConstants.KEY_SYNC_STATUS_CODE, -1);
+            switch(sync_code){
+                case AppConstants.SYNC_STATUS_CODE_START:
+                    swipeContainer.setRefreshing(true);
+                    return;
+                case AppConstants.SYNC_STATUS_CODE_END:
+                    swipeContainer.setRefreshing(false);
+                    return;
+                default:
+                    return;
+            }
+        }
+    };
+
+    public static ManagedStationsListFragment newInstance() {
         ManagedStationsListFragment fragment = new ManagedStationsListFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     public ManagedStationsListFragment() {
-        // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_managed_stations_list, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View result = inflater.inflate(R.layout.fragment_group_list, container, false);
+        listView = (ListView) result.findViewById(R.id.guided_groups_list);
+        swipeContainer = (SwipeRefreshLayout) result.findViewById(R.id.swipe_container);
+        emptyView = (LinearLayout) result.findViewById(R.id.empty_state);
+        listView.setEmptyView(emptyView);
+
+        swipeContainer.setOnRefreshListener(this);
+        swipeContainer.setColorSchemeResources(
+                R.color.blue_600,
+                R.color.red_600,
+                R.color.green_600);
+        swipeContainer.setEnabled(true);
+
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int topRowVerticalPosition = (listView == null || listView.getChildCount() == 0) ? 0 : listView.getChildAt(0).getTop();
+                swipeContainer.setEnabled(topRowVerticalPosition >= 0);
+            }
+        });
+
+        getActivity().getSupportLoaderManager().initLoader(0, null, this);
+        cursorAdapter = new GuidedGroupsAdapter(getActivity(), null, 0);
+        listView.setAdapter(cursorAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor = cursorAdapter.getCursor();
+                cursor.moveToPosition(position);
+                String routeName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_NAME));
+                String routeColor = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_COLOR));
+                String routeId = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID));
+
+                Log.d(TAG, "Clicked on: " + routeName);
+
+                Intent i = new Intent(getActivity(), GuideActivity.class);
+                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, routeName);
+                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, routeColor);
+                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, routeId);
+                i.putExtra(RouteGuideFragment.ARG_VIEW_ONLY, true);
+                startActivity(i);
+
+            }
+
+        });
+
+        return result;
+
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, new IntentFilter(AppConstants.KEY_SYNC_STATUS));
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+    @Override
+    public void onRefresh() {
+        SyncHelper.requestManualSync(getActivity(), AccountUtil.getAccount(getActivity()));
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        String[] projection = {DataContract.ManagedRoutes._ID,
+                DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_NAME,
+                DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID,
+                DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP,
+                DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_COLOR};
+
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), DbContentProvider.CONTENT_URI.buildUpon().path(DataContract.ManagedRoutes.TABLE_NAME).build(), projection, null, null, null);
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(TAG, "swapping cursor");
+        cursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // data is not available anymore, delete reference
+        cursorAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getActivity().getSupportLoaderManager().destroyLoader(0);
     }
 
 }

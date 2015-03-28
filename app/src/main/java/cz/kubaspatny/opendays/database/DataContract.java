@@ -32,6 +32,18 @@ public class DataContract {
 
     }
 
+    public static abstract class ManagedRoutes implements BaseColumns {
+
+        public static final String TABLE_NAME = "managed_routes";
+        public static final Uri CONTENT_URI = DbContentProvider.CONTENT_URI.buildUpon().path(TABLE_NAME).build();
+
+        public static final String COLUMN_NAME_ROUTE_ID = "routeid";
+        public static final String COLUMN_NAME_ROUTE_NAME = "route_name";
+        public static final String COLUMN_NAME_ROUTE_COLOR = "route_color";
+        public static final String COLUMN_NAME_ROUTE_TIMESTAMP = "route_timestamp";
+
+    }
+
     public static abstract class Route implements BaseColumns {
 
         public static final String TABLE_NAME = "route";

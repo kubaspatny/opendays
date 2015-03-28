@@ -12,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.security.spec.ECField;
+import java.util.Map;
 
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.exception.LoginException;
@@ -121,7 +122,19 @@ public class SyncHelper {
             return;
         }
 
-        new DataFetcher(mContext).loadGuidedGroups(account);
+        DataFetcher fetcher = new DataFetcher(mContext);
+        Map<Long, Long> routes = fetcher.loadGuidedGroups(account);
+        Map<Long, Long> routes2 = fetcher.loadManagedRoutes(account);
+
+        for(Long id : routes2.keySet()){
+            if(!routes.containsKey(id)){
+                routes.put(id, null);
+            }
+        }
+
+        for(Map.Entry<Long, Long> e : routes.entrySet()){
+            fetcher.loadRoute(e.getKey(), e.getValue());
+        }
     }
 
     private void doUploadSync() throws Exception {

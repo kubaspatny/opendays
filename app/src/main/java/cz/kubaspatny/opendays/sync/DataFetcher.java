@@ -9,7 +9,11 @@ import android.database.Cursor;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
@@ -38,13 +42,13 @@ public class DataFetcher {
         this.mContentResolver = mContext.getContentResolver();
     }
 
-    public void loadGuidedGroups(Account account) throws Exception{
+    public Map<Long, Long> loadGuidedGroups(Account account) throws Exception{
         Log.d(TAG, "loadGuidedGroups");
 
         List<GroupDto> groups = SyncEndpoint.getGroups(account, AccountUtil.getAccessToken(mContext, account), 0, 100); // TODO: Add parameters from bundle
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
-        if(groups == null) return;
+        if(groups == null) return new HashMap<>();
 
         batch.add(ContentProviderOperation.newDelete(
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).build());
@@ -67,10 +71,44 @@ public class DataFetcher {
 
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
 
+        HashMap<Long, Long> result = new HashMap<>();
+
         for(GroupDto g : groups){ // TODO: loadRoute only if g.getDate <= 1 day || lastBigSync >= 4 hours
-            loadRoute(g.getRoute().getId(), g.getId());
+            result.put(g.getRoute().getId(), g.getId());
         }
 
+        return result;
+
+    }
+
+    public Map<Long, Long> loadManagedRoutes(Account account) throws Exception{
+        Log.d(TAG, "loadGuidedGroups");
+
+        List<RouteDto> routes = SyncEndpoint.getManagedRoutes(account, AccountUtil.getAccessToken(mContext, account), 0, 100); // TODO: Add parameters from bundle
+        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+
+        if(routes == null) return new HashMap<>();
+
+        batch.add(ContentProviderOperation.newDelete(
+                DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).build());
+
+        for(RouteDto r : routes){
+            ContentValues values = new ContentValues();
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID, r.getId());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_NAME, r.getName());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_COLOR, r.getHexColor());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP, r.getDate().toInstant().toString());
+            batch.add(ContentProviderOperation.newInsert(
+                    DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).withValues(values).build());
+        }
+
+        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
+
+        Map<Long, Long> result = new HashMap<>();
+        for(RouteDto r : routes){
+            result.put(r.getId(), null);
+        }
+        return result;
     }
 
     public void loadRoute(Long routeId, Long groupId) throws Exception {
@@ -91,10 +129,12 @@ public class DataFetcher {
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.Station.CONTENT_URI))
                 .withSelection(DataContract.Station.COLUMN_NAME_ROUTE_ID + "=?", new String[]{routeId.toString()}).build());
 
-        batch.add(ContentProviderOperation.newDelete(
-                DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI))
-                .withSelection(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID + "=? AND " +
-                        DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + " !=?", new String[]{routeId.toString(), groupId.toString()}).build());
+        if(groupId != null){
+            batch.add(ContentProviderOperation.newDelete(
+                    DataContract.addCallerIsSyncAdapterParameter(DataContract.GroupLocations.CONTENT_URI))
+                    .withSelection(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID + "=? AND " +
+                            DataContract.GroupLocations.COLUMN_NAME_GROUP_ID + " !=?", new String[]{routeId.toString(), groupId.toString()}).build());
+        }
 
         // ROUTE TABLE
         ContentValues values = new ContentValues();
@@ -142,7 +182,7 @@ public class DataFetcher {
             values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_STATUS, g.isActive());
             values.put(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION, g.getStartingPosition());
 
-            if(g.getId().equals(groupId)){
+            if(groupId != null && g.getId().equals(groupId)){
 
                 Cursor countCursor = mContentResolver.query(DataContract.GroupLocations.CONTENT_URI,
                         new String[]{DataContract.GroupLocations.COLUMN_NAME_GROUP_ID},

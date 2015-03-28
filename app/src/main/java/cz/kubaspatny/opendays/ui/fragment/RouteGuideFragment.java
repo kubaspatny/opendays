@@ -58,6 +58,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private final static String ARG_ROUTE_ID = "RouteInfoFragment.routeId";
     private final static String ARG_GROUP_ID = "RouteInfoFragment.groupId";
     private final static String ARG_GROUP_START_POS = "RouteInfoFragment.groupStartingPosition";
+    public final static String ARG_VIEW_ONLY = "RouteInfoFragment.viewOnly";
     private final static int STATION_LOADER = 10;
     private final static int GROUPS_LOADER = 11;
     private final static int LATEST_LOCATION_LOADER = 12;
@@ -67,6 +68,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private String mRouteId;
     private String mGroupId;
     private int mGroupStartingPosition;
+    private boolean mViewOnly;
 
     private ListView mListView;
     private View mEmptyView;
@@ -82,6 +84,18 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         args.putString(ARG_ROUTE_ID, routeId);
         args.putString(ARG_GROUP_ID, groupId);
         args.putInt(ARG_GROUP_START_POS, groupStartingPosition);
+        args.putBoolean(ARG_VIEW_ONLY, false);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static RouteGuideFragment newInstance(String routeId){
+        RouteGuideFragment fragment = new RouteGuideFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_ROUTE_ID, routeId);
+        args.putString(ARG_GROUP_ID, 0 + "");
+        args.putInt(ARG_GROUP_START_POS, 1);
+        args.putBoolean(ARG_VIEW_ONLY, true);
         fragment.setArguments(args);
         return fragment;
     }
@@ -98,6 +112,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             mRouteId = getArguments().getString(ARG_ROUTE_ID);
             mGroupId = getArguments().getString(ARG_GROUP_ID);
             mGroupStartingPosition = getArguments().getInt(ARG_GROUP_START_POS);
+            mViewOnly = getArguments().getBoolean(ARG_VIEW_ONLY);
             Log.d(TAG, "Guiding group: " + mGroupId + ", starting at: " + mGroupStartingPosition);
         }
     }
@@ -109,44 +124,48 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         mEmptyView = fragmentView.findViewById(R.id.empty_state);
         mListView = (ListView) fragmentView.findViewById(R.id.route_guide_stations);
         mListView.setEmptyView(mEmptyView);
-        View footer = inflater.inflate(R.layout.list_empty_space_footer, mListView, false);
-        mListView.addFooterView(footer);
 
-        mFam = (FloatingActionsMenu) fragmentView.findViewById(R.id.FAM);
-        FloatingActionButton addGroupSizeButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_groupsize);
-        addGroupSizeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddGroupSizeDialog();
-                mFam.collapse();
-            }
-        });
+        if(!mViewOnly){
+            View footer = inflater.inflate(R.layout.list_empty_space_footer, mListView, false);
+            mListView.addFooterView(footer);
+            mFam = (FloatingActionsMenu) fragmentView.findViewById(R.id.FAM);
+            FloatingActionButton addGroupSizeButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_groupsize);
+            addGroupSizeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showAddGroupSizeDialog();
+                    mFam.collapse();
+                }
+            });
 
-        FloatingActionButton addLocationUpdateButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_locationupdate);
-        addLocationUpdateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showLocationUpdateDialog();
-                mFam.collapse();
-            }
-        });
+            FloatingActionButton addLocationUpdateButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_locationupdate);
+            addLocationUpdateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showLocationUpdateDialog();
+                    mFam.collapse();
+                }
+            });
 
-        mChangeStartPosButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_starting_position);
-        mChangeStartPosButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showStartLocationDialog();
-                mFam.collapse();
-            }
-        });
+            mChangeStartPosButton = (FloatingActionButton) fragmentView.findViewById(R.id.fab_starting_position);
+            mChangeStartPosButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showStartLocationDialog();
+                    mFam.collapse();
+                }
+            });
+
+            mFam.setVisibility(View.VISIBLE);
+        }
+
 
         mLoadingView.setVisibility(View.VISIBLE);
         mListView.setVisibility(View.GONE);
 
-
         getActivity().getSupportLoaderManager().initLoader(STATION_LOADER, null, this);
         getActivity().getSupportLoaderManager().initLoader(GROUPS_LOADER, null, this);
-        getActivity().getSupportLoaderManager().initLoader(LATEST_LOCATION_LOADER, null, this);
+        if(!mViewOnly) getActivity().getSupportLoaderManager().initLoader(LATEST_LOCATION_LOADER, null, this);
         adapter = new RouteGuideArrayAdapter(getActivity(), new ArrayList<StationWrapper>());
         mListView.setAdapter(adapter);
         setTimerToUpdateUI();
@@ -259,7 +278,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         super.onDestroyView();
         getActivity().getSupportLoaderManager().destroyLoader(STATION_LOADER);
         getActivity().getSupportLoaderManager().destroyLoader(GROUPS_LOADER);
-        getActivity().getSupportLoaderManager().destroyLoader(LATEST_LOCATION_LOADER);
+        if(!mViewOnly) getActivity().getSupportLoaderManager().destroyLoader(LATEST_LOCATION_LOADER);
     }
 
     @Override
@@ -404,7 +423,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     }
 
     private void loadData(){
-        if(stations == null || groups == null || latestLocation == null) return;
+        if(stations == null || groups == null || (!mViewOnly && latestLocation == null)) return;
 
         // TODO: do in async task!!!
         List<StationWrapper> stationWrappers = new ArrayList<>();
@@ -433,16 +452,18 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         mLoadingView.setVisibility(View.GONE);
         mListView.setVisibility(View.VISIBLE);
 
-        if(!isGuideStarted()){
-            mChangeStartPosButton.setVisibility(View.VISIBLE);
-        } else {
-            mChangeStartPosButton.setVisibility(View.GONE);
-        }
+        if(!mViewOnly){
+            if(!isGuideStarted()){
+                mChangeStartPosButton.setVisibility(View.VISIBLE);
+            } else {
+                mChangeStartPosButton.setVisibility(View.GONE);
+            }
 
-        if(isGuideDone()){
-            mFam.setVisibility(View.GONE);
-        } else {
-            mFam.setVisibility(View.VISIBLE);
+            if(isGuideDone()){
+                mFam.setVisibility(View.GONE);
+            } else {
+                mFam.setVisibility(View.VISIBLE);
+            }
         }
 
     }
@@ -729,6 +750,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             getArguments().putString(ARG_ROUTE_ID, mRouteId);
             getArguments().putString(ARG_GROUP_ID, mGroupId);
             getArguments().putInt(ARG_GROUP_START_POS, mGroupStartingPosition);
+            getArguments().putBoolean(ARG_VIEW_ONLY, mViewOnly);
         }
     }
 }

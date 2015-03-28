@@ -42,7 +42,8 @@ public class DbContentProvider extends ContentProvider {
     private static final int GROUPSIZES = 600;
     private static final int GROUPSIZE_ID = 601;
 
-
+    private static final int MANAGEDROUTES = 700;
+    private static final int MANAGEDROUTE_ID = 701;
 
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -65,6 +66,9 @@ public class DbContentProvider extends ContentProvider {
 
         uriMatcher.addURI(AUTHORITY, DataContract.GroupSizes.TABLE_NAME, GROUPSIZES);
         uriMatcher.addURI(AUTHORITY, DataContract.GroupSizes.TABLE_NAME + "/#", GROUPSIZE_ID);
+
+        uriMatcher.addURI(AUTHORITY, DataContract.ManagedRoutes.TABLE_NAME, MANAGEDROUTES);
+        uriMatcher.addURI(AUTHORITY, DataContract.ManagedRoutes.TABLE_NAME + "/#", MANAGEDROUTE_ID);
     }
 
     @Override
@@ -115,6 +119,11 @@ public class DbContentProvider extends ContentProvider {
             case GROUPSIZE_ID:
                 return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.GroupSizes.TABLE_NAME;
 
+            case MANAGEDROUTES:
+                return "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + DataContract.ManagedRoutes.TABLE_NAME;
+            case MANAGEDROUTE_ID:
+                return "vnd.android.cursor.item/vnd." + AUTHORITY + "." + DataContract.ManagedRoutes.TABLE_NAME;
+
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
@@ -145,6 +154,9 @@ public class DbContentProvider extends ContentProvider {
                 break;
             case GROUPSIZES:
                 id = database.insert(DataContract.GroupSizes.TABLE_NAME, null, contentValues);
+                break;
+            case MANAGEDROUTES:
+                id = database.insert(DataContract.ManagedRoutes.TABLE_NAME, null, contentValues);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
@@ -223,6 +235,16 @@ public class DbContentProvider extends ContentProvider {
                 id = uri.getPathSegments().get(1);
                 queryBuilder.appendWhere(DataContract.GroupSizes._ID + "=" + id);
                 tableName = DataContract.GroupSizes.TABLE_NAME;
+                break;
+
+            case MANAGEDROUTES:
+                // no additional arguments needed
+                tableName = DataContract.ManagedRoutes.TABLE_NAME;
+                break;
+            case MANAGEDROUTE_ID:
+                id = uri.getPathSegments().get(1);
+                queryBuilder.appendWhere(DataContract.ManagedRoutes._ID + "=" + id);
+                tableName = DataContract.ManagedRoutes.TABLE_NAME;
                 break;
 
             default:
@@ -310,6 +332,17 @@ public class DbContentProvider extends ContentProvider {
                 tableName = DataContract.GroupSizes.TABLE_NAME;
                 break;
 
+            case MANAGEDROUTES:
+                // no additional arguments needed
+                tableName = DataContract.ManagedRoutes.TABLE_NAME;
+                break;
+            case MANAGEDROUTE_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.ManagedRoutes._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.ManagedRoutes.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Unsupported Uri: " + uri);
         }
@@ -395,6 +428,17 @@ public class DbContentProvider extends ContentProvider {
                 selection = DataContract.GroupSizes._ID + "=" + id +
                         (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
                 tableName = DataContract.GroupSizes.TABLE_NAME;
+                break;
+
+            case MANAGEDROUTES:
+                // no additional arguments needed
+                tableName = DataContract.ManagedRoutes.TABLE_NAME;
+                break;
+            case MANAGEDROUTE_ID:
+                id = uri.getPathSegments().get(1);
+                selection = DataContract.ManagedRoutes._ID + "=" + id +
+                        (TextUtils.isEmpty(selection) ? "" : "AND (" + selection + ")");
+                tableName = DataContract.ManagedRoutes.TABLE_NAME;
                 break;
 
             default:

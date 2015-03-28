@@ -74,6 +74,44 @@ public class SyncEndpoint {
         return Arrays.asList(gson.fromJson(json, GroupDto[].class));
     }
 
+    public static List<RouteDto> getManagedRoutes(Account account, String accessToken, int page, int pageSize) throws Exception {
+
+        String url = HOST + API_V1 + "user/" + account.name + "/managedroutes?page=" + page + "&pageSize=" + pageSize;
+        String json;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.code() != 200){
+                Log.d(TAG + ".getManagedRoutes", "Response code " + response.code());
+                ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
+                Log.d(TAG, "Error loading managed routes! " + errorMessage.getMessage());
+
+                throw new ErrorCodeException("Error loading managed routes! " + response.body().string(), response.code());
+            }
+
+            json = response.body().string();
+
+        } catch (UnknownHostException e) {
+            throw new NetworkErrorException(e.getLocalizedMessage());
+        } catch (ErrorCodeException e) {
+            throw e;
+        } catch (Exception e){
+            Log.d(TAG, e.getMessage());
+            throw new Exception(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+
+        Log.d(TAG, "Parsing json.");
+        Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
+        return Arrays.asList(gson.fromJson(json, RouteDto[].class));
+    }
+
     public static RouteDto getRoute(Account account, String accessToken, String routeId) throws Exception {
 
         String url = HOST + API_V1 + "route/" + routeId;
