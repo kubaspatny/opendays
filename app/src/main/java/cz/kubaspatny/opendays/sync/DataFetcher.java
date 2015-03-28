@@ -151,13 +151,13 @@ public class DataFetcher {
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.Route.CONTENT_URI)).withValues(values).build());
 
         // STATION TABLE
-        // TODO: add custom ordering parameter ((s.getPosition - user.startPos) % station.size) + 1
-        for(StationDto s : route.getStations()){ // TODO: what if there are no stations?? NPE?
+        for(StationDto s : route.getStations()){
             values = new ContentValues();
             values.put(DataContract.Station.COLUMN_NAME_ROUTE_ID, route.getId());
             values.put(DataContract.Station.COLUMN_NAME_STATION_ID, s.getId());
             values.put(DataContract.Station.COLUMN_NAME_STATION_NAME, s.getName());
             values.put(DataContract.Station.COLUMN_NAME_STATION_LOCATION, s.getLocation());
+            values.put(DataContract.Station.COLUMN_NAME_STATION_INFORMATION, s.getInformation());
             values.put(DataContract.Station.COLUMN_NAME_STATION_SEQ_POSITION, s.getSequencePosition());
             values.put(DataContract.Station.COLUMN_NAME_STATION_TIME_LIMIT, s.getTimeLimit());
             values.put(DataContract.Station.COLUMN_NAME_STATION_TIME_RELOCATION, s.getRelocationTime());

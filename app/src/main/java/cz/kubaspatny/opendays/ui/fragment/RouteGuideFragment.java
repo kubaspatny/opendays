@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
@@ -169,6 +170,13 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         if(!mViewOnly) getActivity().getSupportLoaderManager().initLoader(LATEST_LOCATION_LOADER, null, this);
         adapter = new RouteGuideArrayAdapter(getActivity(), new ArrayList<StationWrapper>());
         mListView.setAdapter(adapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                StationWrapper stationWrapper = (StationWrapper) mListView.getItemAtPosition(position);
+                showStationInfoDialog(stationWrapper.station);
+            }
+        });
         setTimerToUpdateUI();
 
         return fragmentView;
@@ -184,6 +192,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     DataContract.Station.COLUMN_NAME_ROUTE_ID,
                     DataContract.Station.COLUMN_NAME_STATION_NAME,
                     DataContract.Station.COLUMN_NAME_STATION_LOCATION,
+                    DataContract.Station.COLUMN_NAME_STATION_INFORMATION,
                     DataContract.Station.COLUMN_NAME_STATION_STATUS,
                     DataContract.Station.COLUMN_NAME_STATION_TIME_LIMIT,
                     DataContract.Station.COLUMN_NAME_STATION_TIME_RELOCATION,
@@ -308,6 +317,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     s.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_ID)));
                     s.setName(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_NAME)));
                     s.setLocation(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_LOCATION)));
+                    s.setInformation(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_INFORMATION)));
                     s.setClosed(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_STATUS)));
                     s.setTimeLimit(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_TIME_LIMIT)));
                     s.setRelocationTime(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_TIME_RELOCATION)));
@@ -687,14 +697,21 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                         });
 
         alertDialogBuilder.setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                            }
-                        });
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
 
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+    }
+
+    private void showStationInfoDialog(StationDto station){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(station.getName());
+        builder.setMessage(station.getInformation());
+        builder.show();
     }
 
     private void sendLocationUpdate(LocationUpdateDto update){

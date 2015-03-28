@@ -66,6 +66,7 @@ public class DbHelper extends SQLiteOpenHelper {
                     Station.COLUMN_NAME_STATION_ID + INT_TYPE + COMMA_SEP +
                     Station.COLUMN_NAME_STATION_NAME + TEXT_TYPE + COMMA_SEP +
                     Station.COLUMN_NAME_STATION_LOCATION + TEXT_TYPE + COMMA_SEP +
+                    Station.COLUMN_NAME_STATION_INFORMATION + TEXT_TYPE + COMMA_SEP +
                     Station.COLUMN_NAME_STATION_SEQ_POSITION + INT_TYPE + COMMA_SEP +
                     Station.COLUMN_NAME_STATION_TIME_LIMIT + INT_TYPE + COMMA_SEP +
                     Station.COLUMN_NAME_STATION_TIME_RELOCATION + INT_TYPE + COMMA_SEP +

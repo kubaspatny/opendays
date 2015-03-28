@@ -71,6 +71,7 @@ public class DataContract {
         public static final String COLUMN_NAME_STATION_ID = "stationid";
         public static final String COLUMN_NAME_STATION_NAME = "station_name";
         public static final String COLUMN_NAME_STATION_LOCATION = "station_location";
+        public static final String COLUMN_NAME_STATION_INFORMATION = "station_information";
         public static final String COLUMN_NAME_STATION_SEQ_POSITION = "station_seq_position";
         public static final String COLUMN_NAME_STATION_TIME_LIMIT = "station_time_limit";
         public static final String COLUMN_NAME_STATION_TIME_RELOCATION = "station_time_relocation";
