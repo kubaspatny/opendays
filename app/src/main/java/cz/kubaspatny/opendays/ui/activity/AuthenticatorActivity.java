@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.app.AppConstants;
@@ -19,6 +18,8 @@ import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
 import cz.kubaspatny.opendays.oauth.AuthServer;
+
+import static cz.kubaspatny.opendays.util.ToastUtil.*;
 
 public class AuthenticatorActivity extends AccountAuthenticatorActivity {
 
@@ -114,7 +115,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
                         loginError.setVisibility(View.VISIBLE);
                     } else {
                         // display: Oops! Couldn't log in. Check your internet connection.
-                        Toast.makeText(AuthenticatorActivity.this, "Oops! Couldn't log in. Check internet connection.", Toast.LENGTH_LONG).show();
+                        error(AuthenticatorActivity.this, "Oops! Couldn't log in. Check internet connection.");
                         Log.d(TAG, "login > onPostExecute > " + error_code + " > " + intent.getStringExtra(KEY_ERROR_MESSAGE));
                     }
 

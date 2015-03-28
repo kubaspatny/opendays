@@ -15,13 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerAdapter;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerCallbacks;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerItem;
 import cz.kubaspatny.opendays.ui.activity.BaseActivity;
+
+import static cz.kubaspatny.opendays.util.ToastUtil.*;
 
 /**
  * Created by Kuba on 14/3/2015.
@@ -76,7 +77,7 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         mDrawerListBottom.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity(), "Logout", Toast.LENGTH_SHORT).show();
+                success(getActivity(), "You have been successfully logged out.");
             }
         });
 

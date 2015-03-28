@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -22,10 +21,11 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
 
-import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.gcm.GcmUtil;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
 import cz.kubaspatny.opendays.util.AccountUtil;
+
+import static cz.kubaspatny.opendays.util.ToastUtil.*;
 
 public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateListener {
 
@@ -190,6 +190,8 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
     private void registerInBackground(final Context context, final Account account) {
         new AsyncTask<Void, Void, String>() {
 
+            Exception e = null;
+
             @Override
             protected String doInBackground(Void... params) {
                 String msg = "";
@@ -204,14 +206,16 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
                     GcmUtil.registerDevice(context, account, regid);
 
                     storeRegistrationId(context, regid);
-                } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
+                } catch (IOException e) {
+                    this.e = e;
+                    msg = "Error :" + e.getMessage();
 
                     // TODO:
                     // If there is an error, don't just keep trying to register.
                     // Require the user to click a button again, or perform
                     // exponential back-off.
                 } catch (Exception e){
+                    this.e = e;
                     msg = "Error registering for GCM.";
                 }
 
@@ -220,7 +224,11 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
 
             @Override
             protected void onPostExecute(String msg) {
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                if(e == null){
+                    success(context, msg);
+                } else {
+                    error(context, msg);
+                }
             }
 
         }.execute(null, null, null);

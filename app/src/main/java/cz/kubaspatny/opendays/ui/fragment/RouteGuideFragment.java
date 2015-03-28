@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -45,6 +44,8 @@ import cz.kubaspatny.opendays.util.ConnectionUtils;
 import cz.kubaspatny.opendays.util.DbUtil;
 import cz.kubaspatny.opendays.util.StationComparator;
 import cz.kubaspatny.opendays.util.TimeUtil;
+
+import static cz.kubaspatny.opendays.util.ToastUtil.*;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -506,7 +507,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                 if(ConnectionUtils.isConnected(getActivity())){
                     new UpdateStartPositionAsyncTask().execute(stations.get(selected).getSequencePosition());
                 } else {
-                    Toast.makeText(getActivity(), "No internet connection!", Toast.LENGTH_SHORT).show();
+                    error(getActivity(), "No internet connection!");
                 }
 
             }
@@ -555,9 +556,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                 Log.e(TAG, "Error updating starting position!", e);
 
                 if(e instanceof IOException){
-                    Toast.makeText(getActivity(), "No internet connection!", Toast.LENGTH_SHORT).show();
+                    error(getActivity(), "No internet connection!");
                 } else {
-                    Toast.makeText(getActivity(), "Error updating starting position!", Toast.LENGTH_SHORT).show();
+                    error(getActivity(), "Error updating starting position!");
                 }
 
             }
