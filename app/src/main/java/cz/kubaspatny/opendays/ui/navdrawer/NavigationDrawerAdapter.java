@@ -16,6 +16,7 @@ public class NavigationDrawerAdapter extends ArrayAdapter<NavigationDrawerItem> 
 
     private Activity context;
     private NavigationDrawerItem[] items;
+    private int selected = -1;
 
     class ViewHolder {
         public TextView text;
@@ -41,10 +42,20 @@ public class NavigationDrawerAdapter extends ArrayAdapter<NavigationDrawerItem> 
         ViewHolder holder = (ViewHolder) convertView.getTag();
         NavigationDrawerItem item = items[position];
         holder.text.setText(item.getText());
+        if(position == selected){
+            holder.text.setTextColor(context.getResources().getColor(R.color.pink_A200));
+        } else {
+            holder.text.setTextColor(context.getResources().getColor(R.color.black));
+        }
         holder.text.setCompoundDrawablesWithIntrinsicBounds(item.getDrawable(), null, null, null);
 
         return convertView;
 
+    }
+
+    public void select(int selected){
+        this.selected = selected;
+        notifyDataSetChanged();
     }
 
 }
