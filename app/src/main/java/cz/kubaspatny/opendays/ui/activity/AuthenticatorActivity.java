@@ -22,6 +22,7 @@ import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
 import cz.kubaspatny.opendays.oauth.AuthServer;
+import cz.kubaspatny.opendays.sync.SyncHelper;
 
 import static cz.kubaspatny.opendays.util.ToastUtil.*;
 
@@ -173,6 +174,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
         ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
         ContentResolver.addPeriodicSync(account, AppConstants.AUTHORITY, Bundle.EMPTY, 60);
+        SyncHelper.requestManualSync(this, account);
 
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);
