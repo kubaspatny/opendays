@@ -8,10 +8,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import cz.kubaspatny.opendays.R;
+import cz.kubaspatny.opendays.sync.SyncHelper;
 import cz.kubaspatny.opendays.ui.navdrawer.NavigationDrawerCallbacks;
 import cz.kubaspatny.opendays.ui.fragment.GroupListFragment;
 import cz.kubaspatny.opendays.ui.fragment.ManagedStationsListFragment;
 import cz.kubaspatny.opendays.ui.fragment.NavigationDrawerFragment;
+import cz.kubaspatny.opendays.util.AccountUtil;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerCallbacks {
 
@@ -29,6 +31,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerCallba
         mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_drawer);
         mNavigationDrawerFragment.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer), mToolbar);
 
+        if(SyncHelper.isLargeSyncTime(this)) SyncHelper.requestManualSync(this, AccountUtil.getAccount(this));
     }
 
     @Override

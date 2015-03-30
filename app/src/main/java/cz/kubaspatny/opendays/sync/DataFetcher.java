@@ -73,7 +73,7 @@ public class DataFetcher {
 
         HashMap<Long, Long> result = new HashMap<>();
 
-        for(GroupDto g : groups){ // TODO: loadRoute only if g.getDate <= 1 day || lastBigSync >= 4 hours
+        for(GroupDto g : groups){
             result.put(g.getRoute().getId(), g.getId());
         }
 

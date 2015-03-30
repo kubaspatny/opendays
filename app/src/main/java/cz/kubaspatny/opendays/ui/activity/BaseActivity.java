@@ -25,8 +25,6 @@ import cz.kubaspatny.opendays.gcm.GcmUtil;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
 import cz.kubaspatny.opendays.util.AccountUtil;
 
-import static cz.kubaspatny.opendays.util.ToastUtil.*;
-
 public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateListener {
 
     private final static String TAG = BaseActivity.class.getSimpleName();
@@ -224,11 +222,7 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
 
             @Override
             protected void onPostExecute(String msg) {
-                if(e == null){
-                    success(context, msg);
-                } else {
-                    error(context, msg);
-                }
+                Log.d(TAG, msg);
             }
 
         }.execute(null, null, null);

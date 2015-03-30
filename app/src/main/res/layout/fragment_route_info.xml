@@ -17,6 +17,9 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:textSize="24sp"
+            android:drawableTop="@drawable/ic_map_grey"
+            android:drawablePadding="16dp"
+            android:text="Error loading info"
             tools:text="Error loading info."/>
 
     </RelativeLayout>

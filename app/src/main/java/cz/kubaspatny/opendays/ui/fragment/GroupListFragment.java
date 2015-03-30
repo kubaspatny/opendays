@@ -30,6 +30,7 @@ import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.ui.activity.GuideActivity;
 import cz.kubaspatny.opendays.util.AccountUtil;
+import cz.kubaspatny.opendays.util.ToastUtil;
 
 public class GroupListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
 

@@ -434,7 +434,14 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     }
 
     private void loadData(){
-        if(stations == null || groups == null || (!mViewOnly && latestLocation == null)) return;
+        if(stations == null || groups == null || (!stations.isEmpty() && !mViewOnly && latestLocation == null)) return;
+        if(stations.isEmpty()){
+            mLoadingView.setVisibility(View.GONE);
+            mFam.setVisibility(View.GONE);
+            mListView.setVisibility(View.VISIBLE);
+            return;
+        }
+
 
         // TODO: do in async task!!!
         List<StationWrapper> stationWrappers = new ArrayList<>();
