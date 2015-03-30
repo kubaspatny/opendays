@@ -145,18 +145,9 @@ public class SyncHelper {
         setLargeSyncTime();
 
         DataFetcher fetcher = new DataFetcher(mContext);
-        Map<Long, Long> routes = fetcher.loadGuidedGroups(account);
-        Map<Long, Long> routes2 = fetcher.loadManagedRoutes(account);
+        fetcher.loadGuidedGroups(account);
+        fetcher.loadManagedRoutes(account);
 
-        for(Long id : routes2.keySet()){
-            if(!routes.containsKey(id)){
-                routes.put(id, null);
-            }
-        }
-
-        for(Map.Entry<Long, Long> e : routes.entrySet()){
-            fetcher.loadRoute(e.getKey(), e.getValue());
-        }
     }
 
     private void doSmallSync(Account account) throws Exception {
@@ -193,6 +184,7 @@ public class SyncHelper {
             cursor.moveToNext();
         }
 
+        cursor.close();
         cursor = mContext.getContentResolver().query(DataContract.ManagedRoutes.CONTENT_URI, projectionManagedRoutes, null, null, null);
         cursor.moveToFirst();
 
@@ -216,12 +208,19 @@ public class SyncHelper {
             cursor.moveToNext();
         }
 
+        cursor.close();
+
         Log.d(TAG, "doSmallSync, sync #routes: " + routes.size());
 
         DataFetcher fetcher = new DataFetcher(mContext);
         for(Map.Entry<Long, Long> e : routes.entrySet()){
             fetcher.loadRoute(e.getKey(), e.getValue());
         }
+
+    }
+
+    private void doRouteSync(Account account, Long routeId){
+        DataFetcher fetcher = new DataFetcher(mContext);
 
     }
 

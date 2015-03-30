@@ -42,13 +42,13 @@ public class DataFetcher {
         this.mContentResolver = mContext.getContentResolver();
     }
 
-    public Map<Long, Long> loadGuidedGroups(Account account) throws Exception{
+    public void loadGuidedGroups(Account account) throws Exception{
         Log.d(TAG, "loadGuidedGroups");
 
         List<GroupDto> groups = SyncEndpoint.getGroups(account, AccountUtil.getAccessToken(mContext, account), 0, 100); // TODO: Add parameters from bundle
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
-        if(groups == null) return new HashMap<>();
+        if(groups == null) return;
 
         batch.add(ContentProviderOperation.newDelete(
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).build());
@@ -69,25 +69,20 @@ public class DataFetcher {
                     DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).withValues(values).build());
         }
 
-        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
-
-        HashMap<Long, Long> result = new HashMap<>();
-
         for(GroupDto g : groups){
-            result.put(g.getRoute().getId(), g.getId());
+            loadRoute(g.getRoute().getId(), g.getId());
         }
 
-        return result;
-
+        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
     }
 
-    public Map<Long, Long> loadManagedRoutes(Account account) throws Exception{
+    public void loadManagedRoutes(Account account) throws Exception{
         Log.d(TAG, "loadGuidedGroups");
 
         List<RouteDto> routes = SyncEndpoint.getManagedRoutes(account, AccountUtil.getAccessToken(mContext, account), 0, 100); // TODO: Add parameters from bundle
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
-        if(routes == null) return new HashMap<>();
+        if(routes == null) return;
 
         batch.add(ContentProviderOperation.newDelete(
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).build());
@@ -102,13 +97,25 @@ public class DataFetcher {
                     DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).withValues(values).build());
         }
 
-        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
+        String[] projectionGuidedGroups = {DataContract.GuidedGroups._ID,
+                DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID};
+        Cursor cursor;
 
-        Map<Long, Long> result = new HashMap<>();
         for(RouteDto r : routes){
-            result.put(r.getId(), null);
+
+            cursor = mContentResolver.query(DataContract.GuidedGroups.CONTENT_URI,
+                    projectionGuidedGroups,
+                    DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID + "=?",
+                    new String[]{r.getId() + ""},
+                    null);
+            if(cursor.getCount() == 0){
+                loadRoute(r.getId(), null);
+            }
+
+            cursor.close();
         }
-        return result;
+
+        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
     }
 
     public void loadRoute(Long routeId, Long groupId) throws Exception {
