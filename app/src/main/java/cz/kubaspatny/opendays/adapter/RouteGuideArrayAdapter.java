@@ -73,8 +73,19 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         viewHolder.groupsAfterStation.removeAllViews();
 
         for(GroupDto g : stationWrapper.groups){
+
+            // Don't display the group, if the group has left/skipped its last station
+            if(g.isAfterLast(stationWrapper.station.getSequencePosition(), g.getLatestLocationUpdate().getType())) continue;
+
             View groupRow = inflater.inflate(R.layout.group, parent, false);
-            ((TextView)groupRow.findViewById(R.id.group_guide)).setText(g.getGuide().getUsername());
+
+            TextView groupName = (TextView) groupRow.findViewById(R.id.group_guide);
+            groupName.setText(g.getGuide().getUsername());
+            if(g.isCurrentUser()){
+                groupName.setBackgroundResource(R.drawable.group_background_current);
+            } else {
+                groupName.setBackgroundResource(R.drawable.group_background);
+            }
 
             DateTime updateTime = g.getLatestLocationUpdate().getTimestamp();
             DateTime now = DateTime.now();
@@ -94,12 +105,6 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
                 viewHolder.groupsAfterStation.addView(groupRow);
             }
 
-        }
-
-        if(position == (getCount() - 1)){
-            viewHolder.relocationView.setVisibility(View.GONE);
-        } else {
-            viewHolder.relocationView.setVisibility(View.VISIBLE);
         }
 
         return convertView;

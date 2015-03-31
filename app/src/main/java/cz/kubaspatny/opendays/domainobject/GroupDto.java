@@ -12,11 +12,13 @@ public class GroupDto extends BaseDto {
     private RouteDto route;
     private UserDto guide;
     private Integer startingPosition;
+    private Integer lastStation;
     private GroupSizeDto latestGroupSize;
     private LocationUpdateDto latestLocationUpdate;
     private List<GroupSizeDto> groupSizes;
     private List<LocationUpdateDto> locationUpdates;
     private boolean active;
+    private boolean currentUser = false;
 
     public GroupDto() {
     }
@@ -93,4 +95,29 @@ public class GroupDto extends BaseDto {
         setActive(Boolean.parseBoolean(status));
     }
 
+    public boolean isCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(boolean currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public void computeLastStation(int numberStations){
+        int n = startingPosition - 1;
+        if(n <= 0) n = n + numberStations;
+        setLastStation(n);
+    }
+
+    public Integer getLastStation() {
+        return lastStation;
+    }
+
+    public void setLastStation(Integer lastStation) {
+        this.lastStation = lastStation;
+    }
+
+    public boolean isAfterLast(int currentStation, LocationUpdateDto.LocationUpdateType type){
+        return getLastStation().equals(currentStation) && (type == LocationUpdateDto.LocationUpdateType.SKIP || type == LocationUpdateDto.LocationUpdateType.CHECKOUT);
+    }
 }

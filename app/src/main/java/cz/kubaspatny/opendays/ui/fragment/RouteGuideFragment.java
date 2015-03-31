@@ -354,6 +354,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
                     GroupDto g = new GroupDto();
                     g.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID)));
+                    g.setCurrentUser(g.getId().equals(Long.parseLong(mGroupId)));
 
                     Long stationId = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_STATION_ID));
 
@@ -453,7 +454,12 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             stationWrapper.station = s;
 
             if(groups.containsKey(s.getId())){
-                stationWrapper.groups = groups.get(s.getId());
+                List<GroupDto> groupList = groups.get(s.getId());
+                for(GroupDto g : groupList){
+                    g.computeLastStation(stations.size());
+                }
+                stationWrapper.groups = groupList;
+//                stationWrapper.groups = groups.get(s.getId());
             } else {
                 stationWrapper.groups = Collections.emptyList();
             }
