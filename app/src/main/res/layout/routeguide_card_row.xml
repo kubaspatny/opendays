@@ -1,44 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:minHeight="72dp">
+    android:minHeight="72dp"
+    android:paddingTop="16dp"
+    android:orientation="vertical">
 
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/card_view"
-        android:layout_gravity="center"
+        android:id="@+id/station_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        card_view:elevation="4dp"
-        card_view:cardCornerRadius="0dp">
+        android:layout_gravity="center"
+        card_view:cardCornerRadius="0dp"
+        card_view:elevation="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:id="@+id/textview_container"
+
+            <TextView
+                android:id="@+id/stationName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignWithParentIfMissing="true"
-                android:padding="16dp"
-                android:background="@color/grey_800">
+                android:fontFamily="sans-serif-light"
+                android:textSize="24sp"
+                android:textColor="@color/grey_900"
+                tools:text="Station 001"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="0dp"
+                />
 
-                <TextView
-                    android:id="@+id/stationName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textColor="@color/grey_100"
-                    android:textAllCaps="true"
-                    tools:text="Station 001" />
-
-            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,28 +48,30 @@
                     android:id="@+id/stationLocation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:drawableLeft="@drawable/ic_map_marker_black_18dp"
+                    android:layout_centerVertical="true"
+                    android:drawableLeft="@drawable/ic_map_marker_grey600_18dp"
                     android:drawablePadding="8dp"
                     android:paddingBottom="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="@color/grey_600"
                     tools:text="K-123"/>
 
                 <TextView
                     android:id="@+id/stationTimeLimit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:drawableLeft="@drawable/ic_clock_black_18dp"
+                    android:layout_centerVertical="true"
+                    android:drawableLeft="@drawable/ic_clock_grey600_18dp"
                     android:drawablePadding="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="@color/grey_600"
                     tools:text="9 minutes" />
 
                 <LinearLayout
                     android:id="@+id/groups_at_station"
-                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                 </LinearLayout>
 
@@ -86,28 +86,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
-        >
+        android:layout_below="@id/station_card">
 
         <TextView
-            android:layout_centerHorizontal="true"
-            android:gravity="center_vertical"
             android:id="@+id/relocationTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_600"
+            android:layout_centerHorizontal="true"
             android:drawableLeft="@drawable/ic_walk_grey600_24dp"
             android:drawablePadding="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:gravity="center_vertical"
             android:paddingTop="16dp"
-            android:paddingBottom="16dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/grey_600"
             tools:text="2-minute walk" />
 
         <LinearLayout
             android:id="@+id/groups_after_station"
-            android:layout_below="@id/relocationTime"
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/relocationTime"
+            android:orientation="vertical"
             android:paddingLeft="16dp"
             android:paddingRight="16dp">
 
@@ -115,4 +114,4 @@
 
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>
