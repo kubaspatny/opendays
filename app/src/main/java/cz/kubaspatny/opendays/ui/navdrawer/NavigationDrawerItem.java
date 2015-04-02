@@ -9,10 +9,12 @@ public class NavigationDrawerItem {
 
     private String mText;
     private Drawable mDrawable;
+    private Drawable mDrawableSelected;
 
-    public NavigationDrawerItem(String text, Drawable drawable) {
+    public NavigationDrawerItem(String text, Drawable drawable, Drawable drawableSelected) {
         mText = text;
         mDrawable = drawable;
+        mDrawableSelected = drawableSelected;
     }
 
     public String getText() {
@@ -31,4 +33,11 @@ public class NavigationDrawerItem {
         mDrawable = drawable;
     }
 
+    public Drawable getDrawableSelected() {
+        return mDrawableSelected;
+    }
+
+    public void setDrawableSelected(Drawable mDrawableSelected) {
+        this.mDrawableSelected = mDrawableSelected;
+    }
 }

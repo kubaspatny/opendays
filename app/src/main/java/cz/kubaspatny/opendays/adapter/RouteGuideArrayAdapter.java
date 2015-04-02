@@ -82,9 +82,9 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
             TextView groupName = (TextView) groupRow.findViewById(R.id.group_guide);
             groupName.setText(g.getGuide().getUsername());
             if(g.isCurrentUser()){
-                groupName.setBackgroundResource(R.drawable.group_background_current);
+                groupName.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_account_box_green_18dp), null, null, null);
             } else {
-                groupName.setBackgroundResource(R.drawable.group_background);
+                groupName.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_account_box_grey600_18dp), null, null, null);
             }
 
             DateTime updateTime = g.getLatestLocationUpdate().getTimestamp();

@@ -44,10 +44,11 @@ public class NavigationDrawerAdapter extends ArrayAdapter<NavigationDrawerItem> 
         holder.text.setText(item.getText());
         if(position == selected){
             holder.text.setTextColor(context.getResources().getColor(R.color.pink_A200));
+            holder.text.setCompoundDrawablesWithIntrinsicBounds(item.getDrawableSelected(), null, null, null);
         } else {
             holder.text.setTextColor(context.getResources().getColor(R.color.black));
+            holder.text.setCompoundDrawablesWithIntrinsicBounds(item.getDrawable(), null, null, null);
         }
-        holder.text.setCompoundDrawablesWithIntrinsicBounds(item.getDrawable(), null, null, null);
 
         return convertView;
 
