@@ -48,7 +48,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
         if (convertView == null) {
 
-            convertView = inflater.inflate(R.layout.routeguide_row, parent, false);
+            convertView = inflater.inflate(R.layout.routeguide_card_row, parent, false);
 
             viewHolder = new ViewHolder();
             viewHolder.stationName = (TextView) convertView.findViewById(R.id.stationName);
@@ -66,7 +66,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
         viewHolder.stationName.setText(stationWrapper.station.getName());
         viewHolder.stationLocation.setText(stationWrapper.station.getLocation());
-        viewHolder.stationTimeLimit.setText("Time limit: " + stationWrapper.station.getTimeLimit());
+        viewHolder.stationTimeLimit.setText(stationWrapper.station.getTimeLimit() + " min");
         viewHolder.stationRelocationTime.setText(stationWrapper.station.getRelocationTime() + "-minute walk");
 
         viewHolder.groupsAtStation.removeAllViews();
