@@ -38,6 +38,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/loginError"
+        android:drawableLeft="@drawable/ic_account_white_18dp"
+        android:drawablePadding="8dp"
         android:hint="@string/username_hint" />
 
     <EditText
@@ -45,6 +47,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/username"
+        android:drawableLeft="@drawable/ic_key_white_18dp"
+        android:drawablePadding="8dp"
         android:hint="@string/password_hint"
         android:password="true" />
 
