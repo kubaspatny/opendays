@@ -93,12 +93,24 @@ public class GcmIntentService extends IntentService {
         if(!groupBefore && !groupAfter) return;
 
         String routeName = getRouteName(routeId);
-        String stationName = getStationName(stationId);
+        String string1 = groupBefore ? getString(R.string.BEFORE) : getString(R.string.AFTER);
+        String string2 = null;
 
-        String group = groupBefore ? "Group before you" : "Group after you";
+        switch(updateType){
+            case "CHECKIN":
+                string2 = getString(R.string.CHECKIN);
+                break;
+            case "CHECKOUT":
+                string2 = getString(R.string.CHECKOUT);
+                break;
+            case "SKIP":
+                string2 = getString(R.string.SKIP);
+                break;
+        }
 
-        sendNotification(routeName, stationName + ": " + updateType + ", " + group);
+        String string3 = getStationName(stationId);
 
+        sendNotification(routeName, getString(R.string.notification_loc_update, string1, string2, string3));
     }
 
     private String getRouteName(Long routeId){
@@ -116,6 +128,7 @@ public class GcmIntentService extends IntentService {
         String routeName = null;
         while(cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
             routeName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Route.COLUMN_NAME_ROUTE_NAME));
+            break;
         }
         cursor.close();
 
@@ -137,6 +150,7 @@ public class GcmIntentService extends IntentService {
         String stationName = null;
         while(cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
             stationName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_NAME));
+            break;
         }
         cursor.close();
 

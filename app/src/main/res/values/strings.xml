@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_name">Open Days</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="no_response">No token received yet.</string>
     <string name="title_activity_authenticator">AuthenticatorActivity</string>
@@ -25,5 +24,12 @@
     <string name="routeInfo">Route information</string>
     <string name="routeTime">Route time</string>
     <string name="route_guide_empty_state_label">No stations found</string>
+
+    <string name="notification_loc_update">Group %1$s you just %2$s station %3$s.</string>
+    <string name="BEFORE">before</string>
+    <string name="AFTER">after</string>
+    <string name="CHECKIN">checked in at</string>
+    <string name="CHECKOUT">left</string>
+    <string name="SKIP">skipped</string>
 
 </resources>

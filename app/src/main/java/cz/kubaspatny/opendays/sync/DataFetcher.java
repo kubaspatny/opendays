@@ -271,6 +271,7 @@ public class DataFetcher {
 
         }
 
+        cursor.close();
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
 
     }
@@ -309,6 +310,7 @@ public class DataFetcher {
 
         }
 
+        cursor.close();
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
 
     }
