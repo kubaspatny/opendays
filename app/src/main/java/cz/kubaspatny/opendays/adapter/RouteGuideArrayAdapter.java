@@ -32,6 +32,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         View relocationView;
         LinearLayout groupsAtStation;
         LinearLayout groupsAfterStation;
+        View card;
     }
 
     public RouteGuideArrayAdapter(Context context, List<StationWrapper> objects) {
@@ -58,6 +59,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
             viewHolder.relocationView = convertView.findViewById(R.id.relocation_container);
             viewHolder.groupsAtStation = (LinearLayout) convertView.findViewById(R.id.groups_at_station);
             viewHolder.groupsAfterStation = (LinearLayout) convertView.findViewById(R.id.groups_after_station);
+            viewHolder.card = convertView.findViewById(R.id.station_card);
 
             convertView.setTag(viewHolder);
         } else {
@@ -65,6 +67,15 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         }
 
         viewHolder.stationName.setText(stationWrapper.station.getName());
+
+        if(stationWrapper.station.isClosed()){
+            viewHolder.card.setBackgroundColor(getContext().getResources().getColor(R.color.grey_400));
+            viewHolder.stationName.setTextColor(getContext().getResources().getColor(R.color.grey_600));
+        } else {
+            viewHolder.card.setBackgroundColor(getContext().getResources().getColor(R.color.grey_100));
+            viewHolder.stationName.setTextColor(getContext().getResources().getColor(R.color.grey_900));
+        }
+
         viewHolder.stationLocation.setText(stationWrapper.station.getLocation());
         viewHolder.stationTimeLimit.setText(stationWrapper.station.getTimeLimit() + " min");
         viewHolder.stationRelocationTime.setText(stationWrapper.station.getRelocationTime() + "-minute walk");
