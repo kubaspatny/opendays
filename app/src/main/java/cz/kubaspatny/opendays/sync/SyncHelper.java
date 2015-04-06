@@ -39,9 +39,8 @@ public class SyncHelper {
     private final static String TAG = SyncHelper.class.getSimpleName();
     private final static String LAST_SYNC = "cz.kubaspatny.opendays.sync.last_sync";
 
-    private final static String LARGE_SYNC = "cz.kubaspatny.opendays.sync.large_sync";
-    private final static String SMALL_SYNC = "cz.kubaspatny.opendays.sync.small_sync";
-    private final static String SYNC_ROUTE = "cz.kubaspatny.opendays.sync.sync_route";
+    public final static String LARGE_SYNC = "cz.kubaspatny.opendays.sync.large_sync";
+    public final static String SMALL_SYNC = "cz.kubaspatny.opendays.sync.small_sync";
 
     private Context mContext;
 
@@ -98,7 +97,6 @@ public class SyncHelper {
         intent.putExtra(AppConstants.KEY_SYNC_STATUS_CODE, AppConstants.SYNC_STATUS_CODE_START);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
 
-        final boolean manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         final boolean largeSync = extras.getBoolean(LARGE_SYNC, false);
         final boolean uploadOnly = extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD, false);
         Log.d(TAG, "Performing sync for account: " + account);
@@ -110,6 +108,7 @@ public class SyncHelper {
                 doUploadSync();
             } else {
                 Log.d(TAG, "isLargeSyncTime: " + isLargeSyncTime());
+
                 if(largeSync || isLargeSyncTime()) {
                     Log.d(TAG, "Doing large sync.");
                     doLargeSync(account);
@@ -220,7 +219,35 @@ public class SyncHelper {
     }
 
     private void doRouteSync(Account account, Long routeId){
-        DataFetcher fetcher = new DataFetcher(mContext);
+        if(routeId == null || routeId <= 0) return;
+
+        String[] projectionGuidedGroups = {DataContract.GuidedGroups._ID,
+                DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID,
+                DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID,
+                DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP};
+
+        Cursor cursor = null;
+        try {
+            cursor = mContext.getContentResolver().query(DataContract.GuidedGroups.CONTENT_URI,
+                    projectionGuidedGroups,
+                    DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID + "=?",
+                    new String[]{routeId + ""},
+                    null);
+
+            cursor.moveToFirst();
+            Long groupId = null;
+            while(cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
+                groupId = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID));
+            }
+
+            DataFetcher fetcher = new DataFetcher(mContext);
+
+            fetcher.loadRoute(routeId, groupId);
+        } catch (Exception e){
+            Log.e(TAG, "Exception while doRouteSync: " + e.getLocalizedMessage(), e);
+        } finally {
+            if(cursor != null) cursor.close();
+        }
 
     }
 

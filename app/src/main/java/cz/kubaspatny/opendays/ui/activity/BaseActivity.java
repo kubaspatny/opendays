@@ -214,6 +214,7 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
                     // exponential back-off.
                 } catch (Exception e){
                     this.e = e;
+                    Log.e(TAG, e.getLocalizedMessage(), e);
                     msg = "Error registering for GCM.";
                 }
 

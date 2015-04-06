@@ -6,16 +6,21 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import cz.kubaspatny.opendays.R;
+import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.sync.SyncHelper;
 import cz.kubaspatny.opendays.ui.activity.MainActivity;
 import cz.kubaspatny.opendays.util.AccountUtil;
+
+import static cz.kubaspatny.opendays.app.AppConstants.*;
 
 /**
  * Created by Kuba on 14/3/2015.
@@ -48,12 +53,34 @@ public class GcmIntentService extends IntentService {
              */
             if  (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
 
-                sendNotification(extras.getString("message"));
-                Account account = AccountUtil.getAccount(getBaseContext());
-                if(account != null){
-                    SyncHelper.requestManualSync(getBaseContext(), account);
-                }
+                Log.d("GcmIntentService", "Received GCM notification.");
 
+                Account account = AccountUtil.getAccount(getBaseContext());
+                if(account == null) return;
+                int type = Integer.parseInt(extras.getString(EXTRA_NOTIFICATION_TYPE, "-1"));
+
+                switch(type){
+                    case TYPE_SYNC_ALL:
+                        SyncHelper.requestManualSync(getBaseContext(), account);
+                        Log.d("GcmIntentService", "SYNC_ALL");
+                        break;
+                    case TYPE_SYNC_ROUTE:
+                        syncRoute(Long.parseLong(extras.getString(EXTRA_ROUTE_ID, "-1")), account);
+                        Log.d("GcmIntentService", "SYNC_ROUTE");
+                        break;
+                    case TYPE_LOCATION_UPDATE:
+                        sendLocationUpdateNotification(
+                                Long.parseLong(extras.getString(EXTRA_ROUTE_ID, "-1")),
+                                Long.parseLong(extras.getString(EXTRA_STATION_ID, "-1")),
+                                extras.getString(EXTRA_UPDATE_TYPE, ""),
+                                Boolean.parseBoolean(extras.getString(EXTRA_GROUP_BEFORE, "false")),
+                                Boolean.parseBoolean(extras.getString(EXTRA_GROUP_AFTER, "false"))
+                        );
+                        Log.d("GcmIntentService", "LOCATION_UPDATE");
+                        break;
+                    default:
+                        Log.d("GcmIntentService", "default: " + type);
+                }
             }
         }
 
@@ -61,7 +88,69 @@ public class GcmIntentService extends IntentService {
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    private void sendNotification(String msg) {
+    private void sendLocationUpdateNotification(Long routeId, Long stationId, String updateType, boolean groupBefore, boolean groupAfter){
+        // TODO:
+        if(!groupBefore && !groupAfter) return;
+
+        String routeName = getRouteName(routeId);
+        String stationName = getStationName(stationId);
+
+        String group = groupBefore ? "Group before you" : "Group after you";
+
+        sendNotification(routeName, stationName + ": " + updateType + ", " + group);
+
+    }
+
+    private String getRouteName(Long routeId){
+
+        String[] projectionRoute = {DataContract.Route._ID,
+                DataContract.Route.COLUMN_NAME_ROUTE_ID,
+                DataContract.Route.COLUMN_NAME_ROUTE_NAME};
+
+        Cursor cursor = getBaseContext().getContentResolver().query(DataContract.Route.CONTENT_URI,
+                projectionRoute,
+                DataContract.Route.COLUMN_NAME_ROUTE_ID + "=?",
+                new String[]{routeId + ""},
+                null);
+        cursor.moveToFirst();
+        String routeName = null;
+        while(cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
+            routeName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Route.COLUMN_NAME_ROUTE_NAME));
+        }
+        cursor.close();
+
+        return routeName;
+    }
+
+    private String getStationName(Long stationId){
+
+        String[] projectionStation = {DataContract.Station._ID,
+                DataContract.Station.COLUMN_NAME_STATION_ID,
+                DataContract.Station.COLUMN_NAME_STATION_NAME};
+
+        Cursor cursor = getBaseContext().getContentResolver().query(DataContract.Station.CONTENT_URI,
+                projectionStation,
+                DataContract.Station.COLUMN_NAME_STATION_ID + "=?",
+                new String[]{stationId + ""},
+                null);
+        cursor.moveToFirst();
+        String stationName = null;
+        while(cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
+            stationName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_NAME));
+        }
+        cursor.close();
+
+        return stationName;
+    }
+
+    private void syncRoute(Long routeId, Account account){
+        Log.d("GcmIntentService", "syncRoute(" + routeId + ")");
+
+        Bundle b = new Bundle();
+        SyncHelper.requestManualSync(getBaseContext(), account, b);
+    }
+
+    private void sendNotification(String title, String message) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -69,10 +158,10 @@ public class GcmIntentService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("GCM Notification")
+                        .setContentTitle(title)
                         .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(msg))
-                        .setContentText(msg);
+                                .bigText(message))
+                        .setContentText(message);
 
         Intent resultIntent = new Intent(this, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
