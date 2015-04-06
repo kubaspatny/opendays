@@ -3,6 +3,7 @@ package cz.kubaspatny.opendays.ui.activity;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -79,6 +80,15 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
         final String accountType = getIntent().getStringExtra(AccountManager.KEY_ACCOUNT_TYPE);
 
         new AsyncTask<String, Void, Intent>() {
+
+            ProgressDialog dialog;
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                dialog = ProgressDialog.show(AuthenticatorActivity.this, null, "Checking credentials", true);
+            }
+
             @Override
             protected Intent doInBackground(String... params) {
                 Log.d(TAG, "Authenticating using user credentials.");
@@ -110,16 +120,15 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
             @Override
             protected void onPostExecute(Intent intent) {
                 Log.d(TAG, "login > onPostExecute AsyncTask");
+                dialog.dismiss();
 
                 if (intent.hasExtra(KEY_ERROR_MESSAGE)) {
 
                     int error_code = intent.getIntExtra(KEY_ERROR_CODE, 999);
 
                     if(error_code == 400){
-                        // display: Wrong username or password
                         loginError.setVisibility(View.VISIBLE);
                     } else {
-                        // display: Oops! Couldn't log in. Check your internet connection.
                         error(AuthenticatorActivity.this, "Oops! Couldn't log in. Check internet connection.");
                         Log.d(TAG, "login > onPostExecute > " + error_code + " > " + intent.getStringExtra(KEY_ERROR_MESSAGE));
                     }
