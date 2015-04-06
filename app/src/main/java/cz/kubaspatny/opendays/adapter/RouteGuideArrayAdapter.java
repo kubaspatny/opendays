@@ -84,7 +84,11 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
             if(g.isCurrentUser()){
                 groupName.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_account_box_green_18dp), null, null, null);
             } else {
-                groupName.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_account_box_grey600_18dp), null, null, null);
+                if(g.isActive()){
+                    groupName.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_account_box_blue_18dp), null, null, null);
+                } else {
+                    groupName.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_account_box_grey600_18dp), null, null, null);
+                }
             }
 
             DateTime updateTime = g.getLatestLocationUpdate().getTimestamp();
