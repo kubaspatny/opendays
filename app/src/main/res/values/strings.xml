@@ -31,5 +31,8 @@
     <string name="CHECKIN">checked in at</string>
     <string name="CHECKOUT">left</string>
     <string name="SKIP">skipped</string>
+    <string name="guided_groups">Guided routes</string>
+    <string name="managed_stations">Managed stations</string>
+    <string name="logout">Log out</string>
 
 </resources>

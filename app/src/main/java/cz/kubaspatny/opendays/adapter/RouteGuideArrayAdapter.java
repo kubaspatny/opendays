@@ -1,6 +1,7 @@
 package cz.kubaspatny.opendays.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         View relocationView;
         LinearLayout groupsAtStation;
         LinearLayout groupsAfterStation;
-        View card;
+        CardView card;
     }
 
     public RouteGuideArrayAdapter(Context context, List<StationWrapper> objects) {
@@ -59,7 +60,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
             viewHolder.relocationView = convertView.findViewById(R.id.relocation_container);
             viewHolder.groupsAtStation = (LinearLayout) convertView.findViewById(R.id.groups_at_station);
             viewHolder.groupsAfterStation = (LinearLayout) convertView.findViewById(R.id.groups_after_station);
-            viewHolder.card = convertView.findViewById(R.id.station_card);
+            viewHolder.card = (CardView) convertView.findViewById(R.id.station_card);
 
             convertView.setTag(viewHolder);
         } else {
@@ -69,10 +70,10 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         viewHolder.stationName.setText(stationWrapper.station.getName());
 
         if(stationWrapper.station.isClosed()){
-            viewHolder.card.setBackgroundColor(getContext().getResources().getColor(R.color.grey_400));
+            viewHolder.card.setCardBackgroundColor(getContext().getResources().getColor(R.color.grey_400));
             viewHolder.stationName.setTextColor(getContext().getResources().getColor(R.color.grey_600));
         } else {
-            viewHolder.card.setBackgroundColor(getContext().getResources().getColor(R.color.grey_100));
+            viewHolder.card.setCardBackgroundColor(getContext().getResources().getColor(R.color.grey_100));
             viewHolder.stationName.setTextColor(getContext().getResources().getColor(R.color.grey_900));
         }
 

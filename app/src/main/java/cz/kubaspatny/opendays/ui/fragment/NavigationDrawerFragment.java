@@ -172,10 +172,10 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
 
     public NavigationDrawerItem[] getNavigationDrawerItems() {
         NavigationDrawerItem[] items = new NavigationDrawerItem[2];
-        items[0] = new NavigationDrawerItem("Guided tours",
+        items[0] = new NavigationDrawerItem(getString(R.string.guided_groups),
                 getResources().getDrawable(R.drawable.ic_map_grey),
                 getResources().getDrawable(R.drawable.ic_map_pink));
-        items[1] = new NavigationDrawerItem("Managed stations",
+        items[1] = new NavigationDrawerItem(getString(R.string.managed_stations),
                 getResources().getDrawable(R.drawable.ic_location_history_grey),
                 getResources().getDrawable(R.drawable.ic_location_history_pink));
         return items;
@@ -183,7 +183,7 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
 
     public NavigationDrawerItem[] getNavigationDrawerBottomItems() {
         NavigationDrawerItem[] items = new NavigationDrawerItem[1];
-        items[0] = new NavigationDrawerItem("Log out",
+        items[0] = new NavigationDrawerItem(getString(R.string.logout),
                 getResources().getDrawable(R.drawable.ic_person_grey),
                 getResources().getDrawable(R.drawable.ic_person_grey));
         return items;

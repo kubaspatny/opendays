@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Open Days</string>
+    <string name="username_hint">Uživatelské jméno</string>
+    <string name="password_hint">Heslo</string>
+    <string name="login_error_message">Špatné uživatatelské jméno či heslo.</string>
+    <string name="notification_loc_update">Skupina %1$s vámi právě %2$s %3$s.</string>
+    <string name="AFTER">za</string>
+    <string name="BEFORE">před</string>
+    <string name="CHECKIN">přišla na stanici</string>
+    <string name="CHECKOUT">odešla ze statnice</string>
+    <string name="SKIP">přeskočila stanici</string>
+    <string name="action_settings">Nastavení</string>
+    <string name="eventInfo">Informace akce</string>
+    <string name="guided_groups_empty_state_label">Zatím nemáte žádné skupinky.</string>
+    <string name="login">Přihlášení</string>
+    <string name="routeInfo">Informace cesty</string>
+    <string name="routeTime">Čas konání</string>
+    <string name="route_guide_empty_state_label">Nenalezeny žádné stanice</string>
+    <string name="guided_groups">Prováděné cesty</string>
+    <string name="managed_stations">Moje stanice</string>
+    <string name="logout">Odhlášení</string>
+</resources>
