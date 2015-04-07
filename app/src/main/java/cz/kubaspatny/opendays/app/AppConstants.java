@@ -22,6 +22,9 @@ public class AppConstants {
     public final static int TYPE_MESSAGE = 3;
     public final static int TYPE_LOCATION_UPDATE = 4;
 
+    public final static long MINUTE_SYNC_PERIOD = 60;
+    public final static long HOUR_SYNC_PERIOD = 60 * 60;
+
     public final static String EXTRA_ROUTE_ID = "routeId";
     public final static String EXTRA_GROUP_BEFORE = "groupBefore";
     public final static String EXTRA_GROUP_AFTER = "groupAfter";

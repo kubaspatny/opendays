@@ -7,6 +7,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.PeriodicSync;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
@@ -20,6 +21,7 @@ import org.joda.time.DateTime;
 import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cz.kubaspatny.opendays.app.AppConstants;
@@ -117,6 +119,8 @@ public class SyncHelper {
                     doSmallSync(account);
                 }
             }
+
+            recalculateSyncPeriod(account);
 
         } catch (LoginException | AuthenticatorException ex) {
             Log.d(TAG, "Login exception.");
@@ -320,6 +324,73 @@ public class SyncHelper {
         Log.d(TAG, "Enabling sync.");
         ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
+    }
+
+    private void recalculateSyncPeriod(Account account){
+
+        boolean routeSoon = false;
+
+        String[] projectionGuidedGroups = {DataContract.GuidedGroups._ID,
+                DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID,
+                DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID,
+                DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP};
+
+        String[] projectionManagedRoutes = {DataContract.ManagedRoutes._ID,
+                DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID,
+                DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP};
+
+        Cursor cursor = mContext.getContentResolver().query(DataContract.GuidedGroups.CONTENT_URI, projectionGuidedGroups, null, null, null);
+        cursor.moveToFirst();
+
+        DateTime after = DateTime.now().minusHours(1);
+        DateTime before = DateTime.now().plusHours(1);
+
+        DateTime routeTime;
+
+        while(!routeSoon && cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
+
+            routeTime = TimeUtil.parseTimestamp(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP)));
+
+            if(routeTime.isAfter(after) && routeTime.isBefore(before)){
+                routeSoon = true;
+                break;
+            }
+
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        cursor = mContext.getContentResolver().query(DataContract.ManagedRoutes.CONTENT_URI, projectionManagedRoutes, null, null, null);
+        cursor.moveToFirst();
+
+        while(!routeSoon && cursor.getCount() != 0 && !cursor.isBeforeFirst() && !cursor.isAfterLast()){
+
+            routeTime = TimeUtil.parseTimestamp(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP)));
+
+            if(routeTime.isAfter(after) && routeTime.isBefore(before)){
+                routeSoon = true;
+                break;
+            }
+
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+
+        List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, AppConstants.AUTHORITY);
+
+        if(routeSoon){
+            if(syncs.isEmpty() || syncs.get(0).period != AppConstants.MINUTE_SYNC_PERIOD){
+                Log.d(TAG, "Setting minute sync period.");
+                ContentResolver.addPeriodicSync(account, AppConstants.AUTHORITY, Bundle.EMPTY, AppConstants.MINUTE_SYNC_PERIOD);
+            }
+        } else {
+            if(syncs.isEmpty() || syncs.get(0).period != AppConstants.HOUR_SYNC_PERIOD){
+                Log.d(TAG, "Setting hour sync period.");
+                ContentResolver.addPeriodicSync(account, AppConstants.AUTHORITY, Bundle.EMPTY, AppConstants.HOUR_SYNC_PERIOD);
+            }
+        }
+
     }
 
 }
