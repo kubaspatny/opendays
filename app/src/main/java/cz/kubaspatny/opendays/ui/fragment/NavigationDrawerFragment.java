@@ -264,7 +264,7 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            dialog = ProgressDialog.show(getActivity(), "Logging out", "Clearing user data", true);
+            dialog = ProgressDialog.show(getActivity(), getString(R.string.logging_out), getString(R.string.clearing_data), true);
         }
 
         @Override
@@ -274,10 +274,10 @@ public class NavigationDrawerFragment extends Fragment implements NavigationDraw
             dialog.dismiss();
 
             if(e == null){
-                success(getActivity(), "You have been successfully logged out!");
+                success(getActivity(), getString(R.string.logging_out_success));
             } else {
                 Log.e("NavigationDrawerFragment", "Error logging out!", e);
-                error(getActivity(), "Logout attempt failed!");
+                error(getActivity(), getString(R.string.logging_out_error));
             }
         }
     }

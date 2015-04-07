@@ -86,7 +86,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                dialog = ProgressDialog.show(AuthenticatorActivity.this, null, "Checking credentials", true);
+                dialog = ProgressDialog.show(AuthenticatorActivity.this, null, getString(R.string.checking_credentials), true);
             }
 
             @Override
@@ -129,7 +129,7 @@ public class AuthenticatorActivity extends AccountAuthenticatorActivity {
                     if(error_code == 400){
                         loginError.setVisibility(View.VISIBLE);
                     } else {
-                        error(AuthenticatorActivity.this, "Oops! Couldn't log in. Check internet connection.");
+                        error(AuthenticatorActivity.this, getString(R.string.login_failed));
                         Log.d(TAG, "login > onPostExecute > " + error_code + " > " + intent.getStringExtra(KEY_ERROR_MESSAGE));
                     }
 

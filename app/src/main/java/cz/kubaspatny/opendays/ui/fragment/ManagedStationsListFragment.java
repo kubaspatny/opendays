@@ -20,6 +20,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.adapter.GuidedGroupsAdapter;
@@ -75,6 +76,8 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
         listView = (ListView) result.findViewById(R.id.guided_groups_list);
         swipeContainer = (SwipeRefreshLayout) result.findViewById(R.id.swipe_container);
         emptyView = (LinearLayout) result.findViewById(R.id.empty_state);
+        TextView emptyText = (TextView) result.findViewById(R.id.empty_state_text);
+        emptyText.setText(getString(R.string.managed_stations_empty_state_label));
         listView.setEmptyView(emptyView);
 
         swipeContainer.setOnRefreshListener(this);

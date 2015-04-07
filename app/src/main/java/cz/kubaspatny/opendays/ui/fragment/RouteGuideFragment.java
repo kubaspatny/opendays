@@ -516,7 +516,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         int count = adapter.getCount();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Change starting position");
+        builder.setTitle(getString(R.string.change_starting_position));
         String[] types = new String[stations.size()];
         for(int i = 0; i < stations.size(); i++){
             types[i] = stations.get(i).getSequencePosition() + " - " + stations.get(i).getName();
@@ -530,7 +530,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                 if(ConnectionUtils.isConnected(getActivity())){
                     new UpdateStartPositionAsyncTask().execute(stations.get(selected).getSequencePosition());
                 } else {
-                    error(getActivity(), "No internet connection!");
+                    error(getActivity(), getString(R.string.no_internet));
                 }
 
             }
@@ -564,7 +564,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            dialog = ProgressDialog.show(getActivity(), "Updating starting position", "Updating", true);
+            dialog = ProgressDialog.show(getActivity(), null, getString(R.string.updating_starting_position), true);
         }
 
         @Override
@@ -579,9 +579,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                 Log.e(TAG, "Error updating starting position!", e);
 
                 if(e instanceof IOException){
-                    error(getActivity(), "No internet connection!");
+                    error(getActivity(), getString(R.string.no_internet));
                 } else {
-                    error(getActivity(), "Error updating starting position!");
+                    error(getActivity(), getString(R.string.updating_starting_position_error));
                 }
 
             }
@@ -608,7 +608,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                 updateDto.setType(LocationUpdateDto.LocationUpdateType.CHECKOUT);
 
                 builder.setTitle(adapter.getItem(index).station.getName());
-                builder.setPositiveButton("CHECK OUT", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(getString(R.string.location_update_CHECKOUT), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         sendLocationUpdate(updateDto);
@@ -627,7 +627,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     updateDto.setStation(new StationDto(adapter.getItem(index + 1).station.getId()));
 
                     builder.setTitle(adapter.getItem(index + 1).station.getName());
-                    builder.setPositiveButton("CHECK IN", new DialogInterface.OnClickListener() {
+                    builder.setPositiveButton(getString(R.string.location_update_CHECKIN), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             updateDto.setType(LocationUpdateDto.LocationUpdateType.CHECKIN);
@@ -636,12 +636,12 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                                     groupId,
                                     adapter.getItem(index + 1).station.getTimeLimit() * 60 / 2,
                                     adapter.getItem(index + 1).station.getName(),
-                                    "Your time is 1/2 gone!",
+                                    getString(R.string.half_time_notification),
                                     true);
                         }
                     });
 
-                    builder.setNegativeButton("SKIP", new DialogInterface.OnClickListener() {
+                    builder.setNegativeButton(getString(R.string.location_update_SKIP), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             updateDto.setType(LocationUpdateDto.LocationUpdateType.SKIP);
@@ -655,7 +655,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             updateDto.setStation(new StationDto(adapter.getItem(0).station.getId()));
 
             builder.setTitle(adapter.getItem(0).station.getName());
-            builder.setPositiveButton("CHECK IN", new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(getString(R.string.location_update_CHECKIN), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Log.d(TAG, "Clicked CHECK IN");
@@ -666,12 +666,12 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                             groupId,
                             adapter.getItem(0).station.getTimeLimit() * 60 / 2,
                             adapter.getItem(0).station.getName(),
-                            "Your time is 1/2 gone!",
+                            getString(R.string.half_time_notification),
                             true);
                 }
             });
 
-            builder.setNegativeButton("SKIP", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(getString(R.string.location_update_SKIP), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Log.d(TAG, "Clicked SKIP");
@@ -700,16 +700,16 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         linearLayout.addView(numberPicker, numberPickerParams);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setTitle("Select group size");
+        alertDialogBuilder.setTitle(getString(R.string.group_size));
         alertDialogBuilder.setView(linearLayout);
-        alertDialogBuilder.setPositiveButton("Set",
+        alertDialogBuilder.setPositiveButton(getString(R.string.set),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 DbUtil.addGroupSize(getActivity(), mGroupId, numberPicker.getValue());
                             }
                         });
 
-        alertDialogBuilder.setNegativeButton("Cancel",
+        alertDialogBuilder.setNegativeButton(getString(R.string.cancel),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();

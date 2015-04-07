@@ -27,7 +27,7 @@
             android:layout_below="@id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Loading" />
+            android:text="@string/loading" />
 
     </RelativeLayout>
 
@@ -90,7 +90,7 @@
             fab:fab_colorPressed="@color/grey_200"
             fab:fab_icon="@drawable/ic_home"
             fab:fab_size="mini"
-            fab:fab_title="Change starting position"
+            fab:fab_title="@string/change_starting_position"
             />
 
         <cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton
@@ -101,7 +101,7 @@
             fab:fab_colorPressed="@color/grey_200"
             fab:fab_icon="@drawable/ic_group"
             fab:fab_size="mini"
-            fab:fab_title="Add group size"
+            fab:fab_title="@string/add_group_size"
             />
 
         <cz.kubaspatny.opendays.ui.widget.fab.FloatingActionButton
@@ -112,7 +112,7 @@
             fab:fab_colorPressed="@color/grey_200"
             fab:fab_icon="@drawable/ic_place"
             fab:fab_size="mini"
-            fab:fab_title="Add location update"
+            fab:fab_title="@string/add_location_update"
             />
 
     </cz.kubaspatny.opendays.ui.widget.fab.FloatingActionsMenu>

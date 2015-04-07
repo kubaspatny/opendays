@@ -79,7 +79,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
         viewHolder.stationLocation.setText(stationWrapper.station.getLocation());
         viewHolder.stationTimeLimit.setText(stationWrapper.station.getTimeLimit() + " min");
-        viewHolder.stationRelocationTime.setText(stationWrapper.station.getRelocationTime() + "-minute walk");
+        viewHolder.stationRelocationTime.setText(getContext().getString(R.string.minute_walk, stationWrapper.station.getRelocationTime()));
 
         viewHolder.groupsAtStation.removeAllViews();
         viewHolder.groupsAfterStation.removeAllViews();

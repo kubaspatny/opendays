@@ -159,9 +159,9 @@ public class GuideActivity extends BaseActivity {
             String title;
 
             switch(position){
-                case 0: title = "INFO";
+                case 0: title = getString(R.string.info);
                     break;
-                case 1: title = "ROUTE";
+                case 1: title = getString(R.string.route);
                     break;
                 default: title = "ERROR";
             }

@@ -12,7 +12,7 @@
     <string name="SKIP">přeskočila stanici</string>
     <string name="action_settings">Nastavení</string>
     <string name="eventInfo">Informace akce</string>
-    <string name="guided_groups_empty_state_label">Zatím nemáte žádné skupinky.</string>
+    <string name="guided_groups_empty_state_label">Zatím nemáte žádné skupinky...</string>
     <string name="login">Přihlášení</string>
     <string name="routeInfo">Informace cesty</string>
     <string name="routeTime">Čas konání</string>
@@ -20,4 +20,34 @@
     <string name="guided_groups">Prováděné cesty</string>
     <string name="managed_stations">Moje stanice</string>
     <string name="logout">Odhlášení</string>
+    <string name="managed_stations_empty_state_label">Zatím nemáte žádné stanice...</string>
+    <string name="checking_credentials">Ověřování uživatelských údajů</string>
+    <string name="login_failed">Oops! Přihlášení selhalo. Zkontrolujte internetové připojení.</string>
+    <string name="logging_out">Odhlašování</string>
+    <string name="logging_out_success">Odhlášení proběhlo úspěšně.</string>
+    <string name="logging_out_error">Odhlášení se nezdařilo!</string>
+    <string name="clearing_data">Mazání dat</string>
+    <string name="loading">Načítání</string>
+
+    <string name="info">INFORMACE</string>
+    <string name="route">CESTA</string>
+
+    <string name="minute_walk">%1$d-minutový přechod</string>
+
+    <string name="change_starting_position">Změnit počáteční stanoviště</string>
+    <string name="updating_starting_position">Aktualizace počátečního stanoviště</string>
+    <string name="updating_starting_position_error">Nastala chyba při změně počátečního stanoviště!</string>
+    <string name="add_group_size">Změnit velikost skupinky</string>
+    <string name="group_size">Nová velikost skupinky</string>
+    <string name="add_location_update">Aktualizovat moji pozici</string>
+    <string name="location_update_CHECKIN">PŘÍCHOD</string>
+    <string name="location_update_CHECKOUT">ODCHOD</string>
+    <string name="location_update_SKIP">PŘESKOČIT</string>
+    <string name="half_time_notification">Zbývá polovina času.</string>
+    <string name="end_time_notification">Časový limit stanice překročen! Odejděte na další stanoviště!</string>
+    <string name="time_limit">Časový limit</string>
+    <string name="no_internet">Zkontrolujte internetové připojení!</string>
+
+    <string name="cancel">ZRUŠIT</string>
+    <string name="set">NASTAVIT</string>
 </resources>

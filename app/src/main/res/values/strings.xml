@@ -34,5 +34,35 @@
     <string name="guided_groups">Guided routes</string>
     <string name="managed_stations">Managed stations</string>
     <string name="logout">Log out</string>
+    <string name="managed_stations_empty_state_label">No managed stations yet...</string>
+    <string name="checking_credentials">Checking credentials</string>
+    <string name="login_failed">Oops! Couldn\'t log in. Check internet connection.</string>
+    <string name="logging_out">Logging out</string>
+    <string name="logging_out_success">You have been successfully logged out!</string>
+    <string name="logging_out_error">Logout attempt failed!</string>
+    <string name="clearing_data">Clearing user data</string>
+    <string name="loading">Loading</string>
+
+    <string name="info">INFO</string>
+    <string name="route">ROUTE</string>
+
+    <string name="minute_walk">%1$d-minute walk</string>
+
+    <string name="change_starting_position">Change starting position</string>
+    <string name="updating_starting_position">Updating starting position</string>
+    <string name="updating_starting_position_error">Failed to update starting position!</string>
+    <string name="add_group_size">Add group size</string>
+    <string name="group_size">New group size</string>
+    <string name="add_location_update">Add location update</string>
+    <string name="location_update_CHECKIN">CHECK IN</string>
+    <string name="location_update_CHECKOUT">CHECK OUT</string>
+    <string name="location_update_SKIP">SKIP</string>
+    <string name="half_time_notification">You have half of your time left!</string>
+    <string name="end_time_notification">Station limit exceeded! Leave as soon as possible!</string>
+    <string name="time_limit">Timit limit</string>
+    <string name="no_internet">No internet connection!</string>
+
+    <string name="cancel">CANCEL</string>
+    <string name="set">SET</string>
 
 </resources>

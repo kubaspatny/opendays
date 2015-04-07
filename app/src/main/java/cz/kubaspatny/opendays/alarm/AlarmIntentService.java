@@ -40,7 +40,7 @@ public class AlarmIntentService extends IntentService {
                         extras.getInt(AlarmUtil.ID),
                         extras.getInt(AlarmUtil.SECONDS),
                         extras.getString(AlarmUtil.STATION),
-                        "Time is up! Leave ASAP!",
+                        getString(R.string.end_time_notification),
                         false);
             }
 
@@ -58,7 +58,7 @@ public class AlarmIntentService extends IntentService {
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setDefaults(NotificationCompat.DEFAULT_SOUND)
-                        .setContentTitle("Alarm Notification")
+                        .setContentTitle(getString(R.string.time_limit))
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setContentText(msg);
