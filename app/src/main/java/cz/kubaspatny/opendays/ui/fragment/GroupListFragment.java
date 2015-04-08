@@ -124,7 +124,11 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
                 if(position >= cursor.getCount()){
                     if(ConnectionUtils.isConnected(getActivity())){
-                        new LoadMoreGroupsTask(GroupListFragment.this).execute();
+
+                        if(footerViewText.getVisibility() == View.VISIBLE){
+                            new LoadMoreGroupsTask(GroupListFragment.this).execute();
+                        }
+
                     } else {
                         ToastUtil.error(getActivity(), getString(R.string.no_internet));
                     }

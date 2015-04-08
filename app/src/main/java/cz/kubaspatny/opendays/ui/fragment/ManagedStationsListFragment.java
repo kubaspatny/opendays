@@ -126,7 +126,9 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
 
                 if(position >= cursor.getCount()){
                     if(ConnectionUtils.isConnected(getActivity())){
-                        new LoadMoreRoutesTask(ManagedStationsListFragment.this).execute();
+                        if(footerViewText.getVisibility() == View.VISIBLE) {
+                            new LoadMoreRoutesTask(ManagedStationsListFragment.this).execute();
+                        }
                     } else {
                         ToastUtil.error(getActivity(), getString(R.string.no_internet));
                     }
