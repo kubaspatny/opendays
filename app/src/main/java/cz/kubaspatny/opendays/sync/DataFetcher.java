@@ -9,15 +9,10 @@ import android.database.Cursor;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
-import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
 import cz.kubaspatny.opendays.domainobject.GroupSizeDto;
 import cz.kubaspatny.opendays.domainobject.GroupStartingPosition;
@@ -25,7 +20,10 @@ import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
 import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.domainobject.StationDto;
 import cz.kubaspatny.opendays.util.AccountUtil;
+import cz.kubaspatny.opendays.util.PrefsUtil;
 import cz.kubaspatny.opendays.util.TimeUtil;
+
+import static cz.kubaspatny.opendays.app.AppConstants.*;
 
 /**
  * Created by Kuba on 13/3/2015.
@@ -44,8 +42,10 @@ public class DataFetcher {
 
     public void loadGuidedGroups(Account account) throws Exception{
         Log.d(TAG, "loadGuidedGroups");
+        int count = countCachedGroups();
+        count = count < PAGE_SIZE ? PAGE_SIZE : count;
 
-        List<GroupDto> groups = SyncEndpoint.getGroups(account, AccountUtil.getAccessToken(mContext, account), 0, 100); // TODO: Add parameters from bundle
+        List<GroupDto> groups = SyncEndpoint.getGroups(account, AccountUtil.getAccessToken(mContext, account), 0, count); // TODO: Add parameters from bundle
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
         if(groups == null) return;
@@ -75,13 +75,98 @@ public class DataFetcher {
             }
         }
 
+        refreshGroupCount(groups.size());
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
+    }
+
+    public void loadGuidedGroups(Account account, int page, int pageSize) throws Exception {
+
+        List<GroupDto> groups = SyncEndpoint.getGroups(account, AccountUtil.getAccessToken(mContext, account), page, pageSize);
+        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+
+        if(groups == null) return;
+
+        for(GroupDto g : groups){
+            try {
+
+                batch.add(ContentProviderOperation.newDelete(
+                        DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI))
+                        .withSelection(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID + "=?", new String[]{g.getId().toString()}).build());
+
+                loadRoute(g.getRoute().getId(), g.getId());
+
+                ContentValues values = new ContentValues();
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID, g.getId());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, g.getStartingPosition());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ACTIVE, g.isActive());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, g.getRoute().getId());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, g.getRoute().getName());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, g.getRoute().getHexColor());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_INFORMATION, g.getRoute().getInformation());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP, g.getRoute().getDate().toInstant().toString());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_ID, g.getRoute().getEvent().getId());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_NAME, g.getRoute().getEvent().getName());
+                batch.add(ContentProviderOperation.newInsert(
+                        DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).withValues(values).build());
+            } catch (Exception ex){
+                Log.d(TAG, "Error fetching group: " + ex.getLocalizedMessage());
+            }
+        }
+
+        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
+        refreshGroupCount(countCachedGroups());
+
+    }
+
+    public void loadManagedRoutes(Account account, int page, int pageSize) throws Exception {
+
+        List<RouteDto> routes = SyncEndpoint.getManagedRoutes(account, AccountUtil.getAccessToken(mContext, account), page, pageSize);
+        ArrayList<ContentProviderOperation> batch = new ArrayList<>();
+
+        if(routes == null) return;
+
+        String[] projectionGuidedGroups = {DataContract.GuidedGroups._ID,
+                DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID};
+        Cursor cursor;
+
+        for(RouteDto r : routes){
+
+            batch.add(ContentProviderOperation.newDelete(
+                    DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI))
+                    .withSelection(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID + "=?", new String[]{r.getId().toString()}).build());
+
+            cursor = mContentResolver.query(DataContract.GuidedGroups.CONTENT_URI,
+                    projectionGuidedGroups,
+                    DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID + "=?",
+                    new String[]{r.getId() + ""},
+                    null);
+
+            if(cursor.getCount() == 0){
+                loadRoute(r.getId(), null);
+            }
+
+            cursor.close();
+
+            ContentValues values = new ContentValues();
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID, r.getId());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_NAME, r.getName());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_COLOR, r.getHexColor());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP, r.getDate().toInstant().toString());
+            batch.add(ContentProviderOperation.newInsert(
+                    DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).withValues(values).build());
+        }
+
+        mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
+        refreshManagedRoutesCount(countCachedManagedRoutes());
+
     }
 
     public void loadManagedRoutes(Account account) throws Exception{
         Log.d(TAG, "loadGuidedGroups");
+        int count = countCachedManagedRoutes();
+        count = count < PAGE_SIZE ? PAGE_SIZE : count;
 
-        List<RouteDto> routes = SyncEndpoint.getManagedRoutes(account, AccountUtil.getAccessToken(mContext, account), 0, 100); // TODO: Add parameters from bundle
+        List<RouteDto> routes = SyncEndpoint.getManagedRoutes(account, AccountUtil.getAccessToken(mContext, account), 0, count); // TODO: Add parameters from bundle
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
         if(routes == null) return;
@@ -115,8 +200,11 @@ public class DataFetcher {
                     DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).withValues(values).build());
         }
 
+        refreshManagedRoutesCount(routes.size());
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
     }
+
+
 
     public void loadRoute(Long routeId, Long groupId) throws Exception {
         Log.d(TAG, "loadRoute(" + routeId + ")");
@@ -326,6 +414,49 @@ public class DataFetcher {
                 AccountUtil.getAccessToken(mContext, account),
                 g);
 
+    }
+
+    public void refreshGroupCount(int cachedGroups) throws Exception {
+        Account account = AccountUtil.getAccount(mContext);
+        int groupCount = SyncEndpoint.getGroupsCount(account,
+                AccountUtil.getAccessToken(mContext, account));
+
+        PrefsUtil.setRemoteGroupsCount(mContext, groupCount);
+        PrefsUtil.setCachedGroupsCount(mContext, cachedGroups);
+    }
+
+    public void refreshManagedRoutesCount(int cachedManagedRoutes) throws Exception {
+        Account account = AccountUtil.getAccount(mContext);
+        int managedRoutesCount = SyncEndpoint.getManagedRoutesCount(account,
+                AccountUtil.getAccessToken(mContext, account));
+
+        PrefsUtil.setRemoteManagedRoutesCount(mContext, managedRoutesCount);
+        PrefsUtil.setCachedManagedRoutesCount(mContext, cachedManagedRoutes);
+    }
+
+    private int countCachedGroups(){
+        String[] projectionGuidedGroups = {DataContract.GuidedGroups._ID,
+                DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID,
+                DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID,
+                DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP};
+
+        Cursor cursor = mContext.getContentResolver().query(DataContract.GuidedGroups.CONTENT_URI, projectionGuidedGroups, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+
+        return count;
+    }
+
+    private int countCachedManagedRoutes(){
+        String[] projectionManagedRoutes = {DataContract.ManagedRoutes._ID,
+                DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID,
+                DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP};
+
+        Cursor cursor = mContext.getContentResolver().query(DataContract.ManagedRoutes.CONTENT_URI, projectionManagedRoutes, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+
+        return count;
     }
 
 }

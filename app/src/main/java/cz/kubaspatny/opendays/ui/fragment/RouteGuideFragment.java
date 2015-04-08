@@ -71,6 +71,7 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private String mGroupId;
     private int mGroupStartingPosition;
     private boolean mViewOnly;
+    private UpdateUIRunnable mUpdateUIRunnable;
 
     private ListView mListView;
     private View mEmptyView;
@@ -158,12 +159,8 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                 }
             });
 
-            mFam.setVisibility(View.VISIBLE);
+            mFam.setVisibility(View.GONE);
         }
-
-
-        mLoadingView.setVisibility(View.VISIBLE);
-        mListView.setVisibility(View.GONE);
 
         getActivity().getSupportLoaderManager().initLoader(STATION_LOADER, null, this);
         getActivity().getSupportLoaderManager().initLoader(GROUPS_LOADER, null, this);
@@ -177,7 +174,12 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                 showStationInfoDialog(stationWrapper.station);
             }
         });
-        setTimerToUpdateUI();
+
+//        setTimerToUpdateUI();
+
+        mLoadingView.setVisibility(View.VISIBLE);
+        mListView.setVisibility(View.GONE);
+        mEmptyView.setVisibility(View.GONE);
 
         return fragmentView;
 
@@ -302,41 +304,47 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private LocationUpdateDto latestLocation = null;
 
     private void processStations(final Cursor cursor){
-        //TODO: add exception handling
-
         new AsyncTask<Void, Void, Void>(){
+
+            Exception e = null;
 
             @Override
             protected Void doInBackground(Void... params) {
-                ArrayList<StationDto> stationsList = new ArrayList<StationDto>();
+                try {
+                    ArrayList<StationDto> stationsList = new ArrayList<StationDto>();
 
-                cursor.moveToFirst();
-                while(!cursor.isAfterLast() && !cursor.isBeforeFirst() && cursor.getCount() != 0){
+                    cursor.moveToFirst();
+                    while(!cursor.isAfterLast() && !cursor.isBeforeFirst() && cursor.getCount() != 0){
 
-                    StationDto s = new StationDto();
-                    s.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_ID)));
-                    s.setName(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_NAME)));
-                    s.setLocation(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_LOCATION)));
-                    s.setInformation(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_INFORMATION)));
-                    s.setClosed(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_STATUS)));
-                    s.setTimeLimit(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_TIME_LIMIT)));
-                    s.setRelocationTime(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_TIME_RELOCATION)));
-                    s.setSequencePosition(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_SEQ_POSITION)));
+                        StationDto s = new StationDto();
+                        s.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_ID)));
+                        s.setName(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_NAME)));
+                        s.setLocation(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_LOCATION)));
+                        s.setInformation(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_INFORMATION)));
+                        s.setClosed(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_STATUS)));
+                        s.setTimeLimit(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_TIME_LIMIT)));
+                        s.setRelocationTime(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_TIME_RELOCATION)));
+                        s.setSequencePosition(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.Station.COLUMN_NAME_STATION_SEQ_POSITION)));
 
-                    stationsList.add(s);
-                    cursor.moveToNext();
+                        stationsList.add(s);
+                        cursor.moveToNext();
 
+                    }
+
+                    Collections.sort(stationsList, new StationComparator(mGroupStartingPosition, stationsList.size()));
+                    stations = stationsList;
+                } catch (Exception e){
+                    Log.d(TAG, "process stations: " + e.getLocalizedMessage());
+                    this.e = e;
                 }
 
-                Collections.sort(stationsList, new StationComparator(mGroupStartingPosition, stationsList.size()));
-                stations = stationsList;
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                loadData();
+                if(e == null) loadData();
             }
 
         }.execute();
@@ -345,93 +353,121 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     private void processGroups(final Cursor cursor){
         new AsyncTask<Void, Void, Void>(){
 
+            Exception e = null;
+
             @Override
             protected Void doInBackground(Void... params) {
-                HashMap<Long, List<GroupDto>> groupMap = new HashMap<Long, List<GroupDto>>();
 
-                cursor.moveToFirst();
-                while(!cursor.isAfterLast() && !cursor.isBeforeFirst() && cursor.getCount() != 0){
+                try {
+                    HashMap<Long, List<GroupDto>> groupMap = new HashMap<Long, List<GroupDto>>();
 
-                    GroupDto g = new GroupDto();
-                    g.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID)));
-                    g.setCurrentUser(g.getId().equals(Long.parseLong(mGroupId)));
+                    cursor.moveToFirst();
+                    while(!cursor.isAfterLast() && !cursor.isBeforeFirst() && cursor.getCount() != 0){
 
-                    Long stationId = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_STATION_ID));
+                        GroupDto g = new GroupDto();
+                        g.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID)));
+                        g.setCurrentUser(g.getId().equals(Long.parseLong(mGroupId)));
 
-                    if(stationId == null || stationId == 0){ // Group hasn't sent any location updates yet..
+                        Long stationId = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_STATION_ID));
+
+                        if(stationId == null || stationId == 0){ // Group hasn't sent any location updates yet..
+                            cursor.moveToNext();
+                            continue;
+                        }
+
+                        LocationUpdateDto update = new LocationUpdateDto();
+                        update.setStation(new StationDto(stationId));
+                        update.setType(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE)));
+                        update.setTimestamp(TimeUtil.parseTimestamp(
+                                cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP))));
+                        g.setLatestLocationUpdate(update);
+
+                        g.setGuide(new UserDto(
+                                cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE))));
+                        g.setActive(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_STATUS)));
+                        g.setStartingPosition(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION)));
+
+                        if(groupMap.containsKey(stationId)){
+                            groupMap.get(stationId).add(g);
+                        } else {
+                            List<GroupDto> groupsAtStation = new ArrayList<GroupDto>();
+                            groupsAtStation.add(g);
+                            groupMap.put(stationId, groupsAtStation);
+                        }
+
                         cursor.moveToNext();
-                        continue;
+
                     }
 
-                    LocationUpdateDto update = new LocationUpdateDto();
-                    update.setStation(new StationDto(stationId));
-                    update.setType(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE)));
-                    update.setTimestamp(TimeUtil.parseTimestamp(
-                            cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP))));
-                    g.setLatestLocationUpdate(update);
-
-                    g.setGuide(new UserDto(
-                            cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE))));
-                    g.setActive(cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_STATUS)));
-                    g.setStartingPosition(cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION)));
-
-                    if(groupMap.containsKey(stationId)){
-                        groupMap.get(stationId).add(g);
-                    } else {
-                        List<GroupDto> groupsAtStation = new ArrayList<GroupDto>();
-                        groupsAtStation.add(g);
-                        groupMap.put(stationId, groupsAtStation);
-                    }
-
-                    cursor.moveToNext();
-
+                    groups = groupMap;
+                } catch (Exception e){
+                    Log.d(TAG, "process groups: " + e.getLocalizedMessage());
+                    this.e = e;
                 }
 
-                groups = groupMap;
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                loadData();
+                if(e == null) loadData();
             }
 
         }.execute();
     }
 
-    private void processLatestLocation(Cursor cursor){
+    private void processLatestLocation(final Cursor cursor){
+        new AsyncTask<Void, Void, Void>(){
 
-        cursor.moveToFirst();
+            Exception e = null;
 
-        if(cursor.isBeforeFirst() || cursor.isAfterLast() || cursor.getCount() == 0) return;
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    cursor.moveToFirst();
 
-        Long group = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID));
-        String guide = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE));
-        int seq_position = cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION));
-        Long route = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID));
-        Long station = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_STATION_ID));
-        String time = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP));
-        String type = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE));
+                    if(cursor.isBeforeFirst() || cursor.isAfterLast() || cursor.getCount() == 0) return null;
 
-        LocationUpdateDto locationUpdateDto = new LocationUpdateDto();
-        GroupDto groupDto = new GroupDto(group);
-        groupDto.setRoute(new RouteDto(route));
-        groupDto.setGuide(new UserDto(guide));
-        groupDto.setStartingPosition(seq_position);
-        locationUpdateDto.setGroup(groupDto);
+                    Long group = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_ID));
+                    String guide = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE));
+                    int seq_position = cursor.getInt(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION));
+                    Long route = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_ROUTE_ID));
+                    Long station = cursor.getLong(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_STATION_ID));
+                    String time = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TIMESTAMP));
+                    String type = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.GroupLocations.COLUMN_NAME_LOCATION_UPDATE_TYPE));
 
-        if(time == null || type == null){
-            locationUpdateDto.setType(LocationUpdateDto.LocationUpdateType.EMPTY);
-        } else {
-            locationUpdateDto.setType(LocationUpdateDto.LocationUpdateType.parseLocationUpdateType(type));
-            locationUpdateDto.setStation(new StationDto(station));
-            locationUpdateDto.setTimestamp(TimeUtil.parseTimestamp(time));
-        }
+                    LocationUpdateDto locationUpdateDto = new LocationUpdateDto();
+                    GroupDto groupDto = new GroupDto(group);
+                    groupDto.setRoute(new RouteDto(route));
+                    groupDto.setGuide(new UserDto(guide));
+                    groupDto.setStartingPosition(seq_position);
+                    locationUpdateDto.setGroup(groupDto);
 
-        latestLocation = locationUpdateDto;
-        loadData();
+                    if(time == null || type == null){
+                        locationUpdateDto.setType(LocationUpdateDto.LocationUpdateType.EMPTY);
+                    } else {
+                        locationUpdateDto.setType(LocationUpdateDto.LocationUpdateType.parseLocationUpdateType(type));
+                        locationUpdateDto.setStation(new StationDto(station));
+                        locationUpdateDto.setTimestamp(TimeUtil.parseTimestamp(time));
+                    }
 
+                    latestLocation = locationUpdateDto;
+
+                } catch (Exception e){
+                    Log.d(TAG, "process latest location: " + e.getLocalizedMessage());
+                    this.e = e;
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if(e == null) loadData();
+            }
+        }.execute();
     }
 
     private void loadData(){
@@ -440,11 +476,10 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             mLoadingView.setVisibility(View.GONE);
             mFam.setVisibility(View.GONE);
             mListView.setVisibility(View.VISIBLE);
+            mEmptyView.setVisibility(View.VISIBLE);
             return;
         }
 
-
-        // TODO: do in async task!!!
         List<StationWrapper> stationWrappers = new ArrayList<>();
 
         StationWrapper stationWrapper;
@@ -459,7 +494,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     g.computeLastStation(stations.size());
                 }
                 stationWrapper.groups = groupList;
-//                stationWrapper.groups = groups.get(s.getId());
             } else {
                 stationWrapper.groups = Collections.emptyList();
             }
@@ -489,6 +523,8 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                 mFam.setVisibility(View.VISIBLE);
             }
         }
+
+        setTimerToUpdateUI();
 
     }
 
@@ -732,7 +768,11 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
     }
 
     private void setTimerToUpdateUI() {
-        new UpdateUIRunnable(this, new Handler()).scheduleNextRun();
+        if(mUpdateUIRunnable == null){
+            Log.d(TAG, "started UpdateUIRunnable!");
+            mUpdateUIRunnable = new UpdateUIRunnable(this, new Handler());
+            mUpdateUIRunnable.scheduleNextRun();
+        }
     }
 
     boolean hasBeenDestroyed() {

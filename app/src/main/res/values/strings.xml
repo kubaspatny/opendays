@@ -64,5 +64,7 @@
 
     <string name="cancel">CANCEL</string>
     <string name="set">SET</string>
+    <string name="load_more">Load more</string>
+    <string name="more_than_day"><![CDATA[> 1 day]]></string>
 
 </resources>

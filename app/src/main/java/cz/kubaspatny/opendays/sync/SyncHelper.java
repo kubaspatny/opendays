@@ -31,6 +31,7 @@ import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.ui.activity.BaseActivity;
 import cz.kubaspatny.opendays.util.AccountUtil;
 import cz.kubaspatny.opendays.util.ConnectionUtils;
+import cz.kubaspatny.opendays.util.PrefsUtil;
 import cz.kubaspatny.opendays.util.TimeUtil;
 
 /**
@@ -139,7 +140,7 @@ public class SyncHelper {
 
     }
 
-    private void doLargeSync(Account account) throws Exception { // TODO: get rid of account
+    private void doLargeSync(Account account) throws Exception {
         if(!ConnectionUtils.isConnected(mContext)) {
             Log.d(TAG, "doSync: Not connected to internet. Cannot sync.");
             return;

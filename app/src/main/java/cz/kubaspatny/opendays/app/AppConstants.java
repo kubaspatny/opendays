@@ -25,6 +25,8 @@ public class AppConstants {
     public final static long MINUTE_SYNC_PERIOD = 60;
     public final static long HOUR_SYNC_PERIOD = 60 * 60;
 
+    public final static int PAGE_SIZE = 100;
+
     public final static String EXTRA_ROUTE_ID = "routeId";
     public final static String EXTRA_GROUP_BEFORE = "groupBefore";
     public final static String EXTRA_GROUP_AFTER = "groupAfter";

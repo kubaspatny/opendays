@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -22,23 +23,33 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
+
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.adapter.GuidedGroupsAdapter;
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
+import cz.kubaspatny.opendays.sync.DataFetcher;
 import cz.kubaspatny.opendays.sync.SyncHelper;
 import cz.kubaspatny.opendays.ui.activity.GuideActivity;
 import cz.kubaspatny.opendays.util.AccountUtil;
+import cz.kubaspatny.opendays.util.ConnectionUtils;
+import cz.kubaspatny.opendays.util.PrefsUtil;
+import cz.kubaspatny.opendays.util.ToastUtil;
 
 public class ManagedStationsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     public final static String TAG = ManagedStationsListFragment.class.getSimpleName();
 
     private ListView listView;
+    private View footerView;
+    private View footerViewText;
+    private View footerViewProgressBar;
     private SwipeRefreshLayout swipeContainer;
     private LinearLayout emptyView;
     private GuidedGroupsAdapter cursorAdapter;
+    boolean mDestroyed = false;
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -68,6 +79,7 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -86,6 +98,10 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
                 R.color.red_600,
                 R.color.green_600);
         swipeContainer.setEnabled(true);
+
+        footerView = inflater.inflate(R.layout.load_more_footer, null, false);
+        footerViewText = footerView.findViewById(R.id.load_more_text);
+        footerViewProgressBar = footerView.findViewById(R.id.load_more_progressBar);
 
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -107,19 +123,28 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = cursorAdapter.getCursor();
-                cursor.moveToPosition(position);
-                String routeName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_NAME));
-                String routeColor = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_COLOR));
-                String routeId = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID));
 
-                Log.d(TAG, "Clicked on: " + routeName);
+                if(position >= cursor.getCount()){
+                    if(ConnectionUtils.isConnected(getActivity())){
+                        new LoadMoreRoutesTask(ManagedStationsListFragment.this).execute();
+                    } else {
+                        ToastUtil.error(getActivity(), getString(R.string.no_internet));
+                    }
+                } else {
+                    cursor.moveToPosition(position);
+                    String routeName = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_NAME));
+                    String routeColor = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_COLOR));
+                    String routeId = cursor.getString(cursor.getColumnIndexOrThrow(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID));
 
-                Intent i = new Intent(getActivity(), GuideActivity.class);
-                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, routeName);
-                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, routeColor);
-                i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, routeId);
-                i.putExtra(RouteGuideFragment.ARG_VIEW_ONLY, true);
-                startActivity(i);
+                    Log.d(TAG, "Clicked on: " + routeName);
+
+                    Intent i = new Intent(getActivity(), GuideActivity.class);
+                    i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, routeName);
+                    i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, routeColor);
+                    i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, routeId);
+                    i.putExtra(RouteGuideFragment.ARG_VIEW_ONLY, true);
+                    startActivity(i);
+                }
 
             }
 
@@ -142,8 +167,19 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mDestroyed = true;
+    }
+
+    @Override
     public void onRefresh() {
-        SyncHelper.requestManualSync(getActivity(), AccountUtil.getAccount(getActivity()));
+        if(ConnectionUtils.isConnected(getActivity())){
+            SyncHelper.requestManualSync(getActivity(), AccountUtil.getAccount(getActivity()));
+        } else {
+            ToastUtil.error(getActivity(), getString(R.string.no_internet));
+            swipeContainer.setRefreshing(false);
+        }
     }
 
     @Override
@@ -162,6 +198,7 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "swapping cursor");
+        toggleListFooterVisibility();
         cursorAdapter.swapCursor(data);
     }
 
@@ -171,10 +208,77 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
         cursorAdapter.swapCursor(null);
     }
 
+    private void toggleListFooterVisibility(){
+        if(PrefsUtil.getCachedManagedRoutesCount(getActivity()) < PrefsUtil.getRemoteManagedRoutesCount(getActivity())){
+            Log.d(TAG, "Displaying load more.");
+            if(listView.getFooterViewsCount() == 0) listView.addFooterView(footerView, null, true);
+        } else {
+            Log.d(TAG, "Hiding load more.");
+            if(listView.getFooterViewsCount() != 0) listView.removeFooterView(footerView);
+        }
+    }
+
+    private void toggleListFooterState(boolean loading){
+        if(loading){
+            footerViewText.setVisibility(View.GONE);
+            footerViewProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            footerViewText.setVisibility(View.VISIBLE);
+            footerViewProgressBar.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         getActivity().getSupportLoaderManager().destroyLoader(0);
+    }
+
+    boolean hasBeenDestroyed() {
+        return mDestroyed;
+    }
+
+    private class LoadMoreRoutesTask extends AsyncTask<Void, Void, Void> {
+
+        Exception e = null;
+        WeakReference<ManagedStationsListFragment> weakRefToParent;
+
+        private LoadMoreRoutesTask(ManagedStationsListFragment fragment) {
+            this.weakRefToParent = new WeakReference<ManagedStationsListFragment>(fragment);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                int page = PrefsUtil.getCachedManagedRoutesCount(getActivity()) / AppConstants.PAGE_SIZE;
+                new DataFetcher(getActivity()).loadManagedRoutes(AccountUtil.getAccount(getActivity()), page, AppConstants.PAGE_SIZE);
+            } catch (Exception e){
+                this.e = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            toggleListFooterState(true);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            if(e != null){
+                Log.e(TAG, "Error loading more routes!", e);
+            }
+
+            ManagedStationsListFragment parent = weakRefToParent.get();
+            if(parent != null && !parent.hasBeenDestroyed()){
+                toggleListFooterState(false);
+                toggleListFooterVisibility();
+            }
+        }
     }
 
 }

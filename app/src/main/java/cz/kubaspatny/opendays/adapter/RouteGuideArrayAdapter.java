@@ -112,7 +112,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
             long seconds = difSec % 60;
 
 
-            ((TextView)groupRow.findViewById(R.id.group_time)).setText(formatTime(hours, minutes, seconds));
+            ((TextView)groupRow.findViewById(R.id.group_time)).setText(formatTime(getContext(), hours, minutes, seconds));
 
 
             if(g.getLatestLocationUpdate().getType() == LocationUpdateDto.LocationUpdateType.CHECKIN){
@@ -126,9 +126,9 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         return convertView;
     }
 
-    public static String formatTime(long hours, long minutes, long seconds){
+    public static String formatTime(Context context, long hours, long minutes, long seconds){
 
-        if(hours >= 24) return "> 1 day";
+        if(hours >= 24) return context.getString(R.string.more_than_day);
 
         DateTime time = new DateTime().withTime((int)hours, (int)minutes, (int)seconds, 0);
         return time.toString("HH:mm:ss");

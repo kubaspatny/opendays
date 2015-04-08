@@ -74,6 +74,45 @@ public class SyncEndpoint {
         return Arrays.asList(gson.fromJson(json, GroupDto[].class));
     }
 
+    public static int getGroupsCount(Account account, String accessToken) throws Exception {
+
+        String url = HOST + API_V1 + "user/" + account.name + "/groups/count";
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        int result = -1;
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.code() != 200){
+                Log.d(TAG + ".getGroupsCount", "Response code " + response.code());
+                ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
+                Log.d(TAG, "Error loading groups count! " + errorMessage.getMessage());
+
+                throw new ErrorCodeException("Error loading groups count! " + response.body().string(), response.code());
+            }
+
+            String json = response.body().string();
+            result = Integer.parseInt(json);
+
+        } catch (UnknownHostException e) {
+            throw new NetworkErrorException(e.getLocalizedMessage());
+        } catch (ErrorCodeException e) {
+            throw e;
+        } catch (Exception e){
+            Log.d(TAG, e.getMessage());
+            throw new Exception(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+
+        return result;
+
+    }
+
     public static List<RouteDto> getManagedRoutes(Account account, String accessToken, int page, int pageSize) throws Exception {
 
         String url = HOST + API_V1 + "user/" + account.name + "/managedroutes?page=" + page + "&pageSize=" + pageSize;
@@ -110,6 +149,45 @@ public class SyncEndpoint {
         Log.d(TAG, "Parsing json.");
         Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeSerializer()).create();
         return Arrays.asList(gson.fromJson(json, RouteDto[].class));
+    }
+
+    public static int getManagedRoutesCount(Account account, String accessToken) throws Exception {
+
+        String url = HOST + API_V1 + "user/" + account.name + "/managedroutes/count";
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        int result = -1;
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.code() != 200){
+                Log.d(TAG + ".getGroupsCount", "Response code " + response.code());
+                ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
+                Log.d(TAG, "Error loading groups count! " + errorMessage.getMessage());
+
+                throw new ErrorCodeException("Error loading groups count! " + response.body().string(), response.code());
+            }
+
+            String json = response.body().string();
+            result = Integer.parseInt(json);
+
+        } catch (UnknownHostException e) {
+            throw new NetworkErrorException(e.getLocalizedMessage());
+        } catch (ErrorCodeException e) {
+            throw e;
+        } catch (Exception e){
+            Log.d(TAG, e.getMessage());
+            throw new Exception(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+
+        return result;
+
     }
 
     public static RouteDto getRoute(Account account, String accessToken, String routeId) throws Exception {
@@ -190,7 +268,6 @@ public class SyncEndpoint {
 
     }
 
-    // TODO: make methods in syncendpoint return http codes
     public static void registerDevice(Account account, String accessToken, String registrationId) throws Exception {
 
         String url = HOST + API_V1 + "gcm/android-device";
