@@ -217,7 +217,11 @@ public class SyncHelper {
 
         DataFetcher fetcher = new DataFetcher(mContext);
         for(Map.Entry<Long, Long> e : routes.entrySet()){
-            fetcher.loadRoute(e.getKey(), e.getValue());
+            try {
+                fetcher.loadRoute(e.getKey(), e.getValue());
+            } catch (Exception ex){
+                Log.d(TAG, "Error fetching route: " + ex.getLocalizedMessage());
+            }
         }
 
     }
