@@ -54,23 +54,25 @@ public class DataFetcher {
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).build());
 
         for(GroupDto g : groups){
-            ContentValues values = new ContentValues();
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID, g.getId());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, g.getStartingPosition());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ACTIVE, g.isActive());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, g.getRoute().getId());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, g.getRoute().getName());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, g.getRoute().getHexColor());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_INFORMATION, g.getRoute().getInformation());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP, g.getRoute().getDate().toInstant().toString());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_ID, g.getRoute().getEvent().getId());
-            values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_NAME, g.getRoute().getEvent().getName());
-            batch.add(ContentProviderOperation.newInsert(
-                    DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).withValues(values).build());
-        }
+            try {
+                loadRoute(g.getRoute().getId(), g.getId());
 
-        for(GroupDto g : groups){
-            loadRoute(g.getRoute().getId(), g.getId());
+                ContentValues values = new ContentValues();
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID, g.getId());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_STARTING_POSITION, g.getStartingPosition());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ACTIVE, g.isActive());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, g.getRoute().getId());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, g.getRoute().getName());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, g.getRoute().getHexColor());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_INFORMATION, g.getRoute().getInformation());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_TIMESTAMP, g.getRoute().getDate().toInstant().toString());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_ID, g.getRoute().getEvent().getId());
+                values.put(DataContract.GuidedGroups.COLUMN_NAME_EVENT_NAME, g.getRoute().getEvent().getName());
+                batch.add(ContentProviderOperation.newInsert(
+                        DataContract.addCallerIsSyncAdapterParameter(DataContract.GuidedGroups.CONTENT_URI)).withValues(values).build());
+            } catch (Exception ex){
+                Log.d(TAG, "Error fetching group: " + ex.getLocalizedMessage());
+            }
         }
 
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
@@ -86,16 +88,6 @@ public class DataFetcher {
 
         batch.add(ContentProviderOperation.newDelete(
                 DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).build());
-
-        for(RouteDto r : routes){
-            ContentValues values = new ContentValues();
-            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID, r.getId());
-            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_NAME, r.getName());
-            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_COLOR, r.getHexColor());
-            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP, r.getDate().toInstant().toString());
-            batch.add(ContentProviderOperation.newInsert(
-                    DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).withValues(values).build());
-        }
 
         String[] projectionGuidedGroups = {DataContract.GuidedGroups._ID,
                 DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID};
@@ -113,6 +105,14 @@ public class DataFetcher {
             }
 
             cursor.close();
+
+            ContentValues values = new ContentValues();
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_ID, r.getId());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_NAME, r.getName());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_COLOR, r.getHexColor());
+            values.put(DataContract.ManagedRoutes.COLUMN_NAME_ROUTE_TIMESTAMP, r.getDate().toInstant().toString());
+            batch.add(ContentProviderOperation.newInsert(
+                    DataContract.addCallerIsSyncAdapterParameter(DataContract.ManagedRoutes.CONTENT_URI)).withValues(values).build());
         }
 
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
