@@ -1,6 +1,7 @@
 package cz.kubaspatny.opendays.domainobject;
 
 import android.content.ContentValues;
+import android.util.Log;
 
 import java.util.List;
 
@@ -92,6 +93,14 @@ public class GroupDto extends BaseDto {
     }
 
     public void setActive(String status){
+        try {
+            int i = Integer.parseInt(status);
+            boolean active = (i == 1) ? true : false;
+            setActive(active);
+            return;
+        } catch (NumberFormatException e){
+        }
+
         setActive(Boolean.parseBoolean(status));
     }
 
