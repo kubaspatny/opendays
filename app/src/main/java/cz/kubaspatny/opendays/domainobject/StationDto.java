@@ -58,6 +58,14 @@ public class StationDto extends BaseDto {
     }
 
     public void setClosed(String status){
+        try {
+            int i = Integer.parseInt(status);
+            boolean active = (i == 1) ? true : false;
+            setClosed(active);
+            return;
+        } catch (NumberFormatException e){
+        }
+
         setClosed(Boolean.parseBoolean(status));
     }
 
