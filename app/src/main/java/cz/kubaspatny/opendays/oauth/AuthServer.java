@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.domainobject.GroupDto;
 import cz.kubaspatny.opendays.exception.ErrorCodeException;
@@ -50,7 +51,7 @@ public class AuthServer {
         postData.append("username=").append(username).append("&");
         postData.append("password=").append(password).append("&");
 
-        String url = "http://resttime-kubaspatny.rhcloud.com/oauth/token";
+        String url = AppConstants.HOST + "oauth/token";
         String token = null;
 
         OkHttpClient client = new OkHttpClient();
@@ -88,7 +89,7 @@ public class AuthServer {
         postData.append("client_secret=").append("android").append("&");
         postData.append("refresh_token=").append(refreshToken);
 
-        String url = "http://resttime-kubaspatny.rhcloud.com/oauth/token";
+        String url = AppConstants.HOST + "oauth/token";
         String token = null;
 
         OkHttpClient client = new OkHttpClient();
