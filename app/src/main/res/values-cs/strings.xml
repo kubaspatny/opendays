@@ -12,7 +12,7 @@
     <string name="SKIP">přeskočila stanici</string>
     <string name="action_settings">Nastavení</string>
     <string name="eventInfo">Informace akce</string>
-    <string name="guided_groups_empty_state_label">Zatím nemáte žádné skupinky...</string>
+    <string name="guided_groups_empty_state_label">Zatím nemáte žádné skupinky..\nKlikněte pro aktualizaci listu!</string>
     <string name="login">Přihlášení</string>
     <string name="routeInfo">Informace cesty</string>
     <string name="routeTime">Čas konání</string>
@@ -20,7 +20,7 @@
     <string name="guided_groups">Prováděné cesty</string>
     <string name="managed_stations">Moje stanice</string>
     <string name="logout">Odhlášení</string>
-    <string name="managed_stations_empty_state_label">Zatím nemáte žádné stanice...</string>
+    <string name="managed_stations_empty_state_label">Zatím nemáte žádné stanice..\nKlikněte pro aktualizaci listu!</string>
     <string name="checking_credentials">Ověřování uživatelských údajů</string>
     <string name="login_failed">Oops! Přihlášení selhalo. Zkontrolujte internetové připojení.</string>
     <string name="logging_out">Odhlašování</string>

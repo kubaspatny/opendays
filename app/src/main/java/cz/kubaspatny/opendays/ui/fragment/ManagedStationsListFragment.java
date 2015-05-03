@@ -88,6 +88,12 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
         listView = (ListView) result.findViewById(R.id.guided_groups_list);
         swipeContainer = (SwipeRefreshLayout) result.findViewById(R.id.swipe_container);
         emptyView = (LinearLayout) result.findViewById(R.id.empty_state);
+        emptyView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshList();
+            }
+        });
         TextView emptyText = (TextView) result.findViewById(R.id.empty_state_text);
         emptyText.setText(getString(R.string.managed_stations_empty_state_label));
         listView.setEmptyView(emptyView);
@@ -176,6 +182,10 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
 
     @Override
     public void onRefresh() {
+        refreshList();
+    }
+
+    private void refreshList(){
         if(ConnectionUtils.isConnected(getActivity())){
             SyncHelper.requestManualSync(getActivity(), AccountUtil.getAccount(getActivity()));
         } else {

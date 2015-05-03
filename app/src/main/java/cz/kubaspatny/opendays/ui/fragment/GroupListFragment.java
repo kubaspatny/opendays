@@ -87,6 +87,13 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         listView = (ListView) result.findViewById(R.id.guided_groups_list);
         swipeContainer = (SwipeRefreshLayout) result.findViewById(R.id.swipe_container);
         emptyView = (LinearLayout) result.findViewById(R.id.empty_state);
+        emptyView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshList();
+            }
+        });
+
         listView.setEmptyView(emptyView);
 
         swipeContainer.setOnRefreshListener(this);
@@ -179,6 +186,10 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onRefresh() {
+        refreshList();
+    }
+
+    private void refreshList(){
         if(ConnectionUtils.isConnected(getActivity())){
             SyncHelper.requestManualSync(getActivity(), AccountUtil.getAccount(getActivity()));
         } else {
