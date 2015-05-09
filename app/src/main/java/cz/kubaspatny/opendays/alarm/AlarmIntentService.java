@@ -32,7 +32,7 @@ public class AlarmIntentService extends IntentService {
         Bundle extras = intent.getExtras();
 
         if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
-            sendNotification(extras.getString(AlarmUtil.MESSAGE));
+            sendNotification(extras.getString(AlarmUtil.MESSAGE), !extras.getBoolean(AlarmUtil.REPEAT, true));
 
 
             if(extras.getBoolean(AlarmUtil.REPEAT, false)){
@@ -51,17 +51,23 @@ public class AlarmIntentService extends IntentService {
 
     }
 
-    private void sendNotification(String msg) {
+    private void sendNotification(String msg, boolean annoy) {
         mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setSmallIcon(R.drawable.ic_walk_grey600_24dp) // TODO: change to white
                         .setDefaults(NotificationCompat.DEFAULT_SOUND)
                         .setContentTitle(getString(R.string.time_limit))
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setContentText(msg);
+
+        if(annoy){
+            mBuilder.setVibrate(new long[]{200l, 500l, 200l, 500l, 200l, 1000l, 200l, 1000l, 200l, 1000l, 200l, 1000l, 200l});
+        } else {
+            mBuilder.setVibrate(new long[]{200l, 500l, 200l, 500l, 200l});
+        }
 
         Intent resultIntent = new Intent(this, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
