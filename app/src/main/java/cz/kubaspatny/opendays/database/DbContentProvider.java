@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import static cz.kubaspatny.opendays.app.AppConstants.*;
 
 /**
- * Created by Kuba on 8/3/2015.
+ * Application's ContentProvider, which provides a generic interface over the underlying
+ * SQLite database and its tables. ContentProvider is to used indirectly through ContentResolver.
  */
 public class DbContentProvider extends ContentProvider {
 
@@ -78,12 +79,13 @@ public class DbContentProvider extends ContentProvider {
     }
 
     /**
+     * Method returns a type based on given URI.
+     *
      * Should follow these rules:
      * vnd.android.cursor.dir/vnd.com.example.provider.table1 --- dir if more than one row
      * vnd.android.cursor.item/vnd.com.example.provider.table1 --- item if only one row
      *
-     * @param uri
-     * @return
+     * @return URI type
      */
     @Override
     public String getType(Uri uri) {
@@ -130,6 +132,12 @@ public class DbContentProvider extends ContentProvider {
 
     }
 
+    /**
+     * Inserts values into underlying data storage structure based on URI.
+     * @param uri table URI
+     * @param contentValues values to be added
+     * @return used URI
+     */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
 
@@ -167,6 +175,11 @@ public class DbContentProvider extends ContentProvider {
 
     }
 
+    /**
+     * Query method returning a database Cursor based on the search parametrs
+     * @param uri table URI
+     * @return database cursor
+     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
@@ -258,6 +271,9 @@ public class DbContentProvider extends ContentProvider {
         return cursor;
     }
 
+    /**
+     * Deletes data in underlying data structure based on selection parameters and given table URI.
+     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
 
@@ -356,6 +372,9 @@ public class DbContentProvider extends ContentProvider {
 
     }
 
+    /**
+     * Updates values into underlying data storage structure based on URI and selection parameters.
+     */
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
 
@@ -477,6 +496,10 @@ public class DbContentProvider extends ContentProvider {
         }
     }
 
+    /**
+     * Notifies change to ContentResolver, which schedules automatic sync,
+     * if the data has changed.
+     */
     private void notifyChange(Uri uri) {
         // We only notify changes if the caller is not the sync adapter.
         // The sync adapter has the responsibility of notifying changes (it can do so

@@ -7,7 +7,7 @@ import android.util.Log;
 import cz.kubaspatny.opendays.ui.activity.BaseActivity;
 
 /**
- * Created by Kuba on 8/4/2015.
+ * Utility class for working with Android's Shared Preferences.
  */
 public class PrefsUtil {
 
@@ -21,6 +21,9 @@ public class PrefsUtil {
         return context.getSharedPreferences(BaseActivity.class.getSimpleName(), Context.MODE_PRIVATE);
     }
 
+    /**
+     * Sets the number of groups available at the remote server.
+     */
     public static void setRemoteGroupsCount(Context context, int count){
         Log.d(TAG, "Setting remote group count: " + count);
         SharedPreferences prefs = getPreferences(context);
@@ -34,6 +37,9 @@ public class PrefsUtil {
         return prefs.getInt(GROUPS_COUNT_REMOTE, -1);
     }
 
+    /**
+     * Sets the number of groups cached on the device.
+     */
     public static void setCachedGroupsCount(Context context, int count){
         Log.d(TAG, "Setting cached group count: " + count);
         SharedPreferences prefs = getPreferences(context);
@@ -47,6 +53,9 @@ public class PrefsUtil {
         return prefs.getInt(GROUPS_COUNT_CACHED, -1);
     }
 
+    /**
+     * Sets the number of managed routes available at the remote server.
+     */
     public static void setRemoteManagedRoutesCount(Context context, int count){
         Log.d(TAG, "Setting remote managed route count: " + count);
         SharedPreferences prefs = getPreferences(context);
@@ -60,6 +69,9 @@ public class PrefsUtil {
         return prefs.getInt(MANAGEDROUTES_COUNT_REMOTE, -1);
     }
 
+    /**
+     * Sets the number of managed routes cached on the device.
+     */
     public static void setCachedManagedRoutesCount(Context context, int count){
         Log.d(TAG, "Setting cached managed route count: " + count);
         SharedPreferences prefs = getPreferences(context);

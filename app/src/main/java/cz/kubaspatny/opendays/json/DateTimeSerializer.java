@@ -15,7 +15,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import java.lang.reflect.Type;
 
 /**
- * Created by Kuba on 8/3/2015.
+ * Json Serializer and Deserializer for JodaTime DateTime objects to be used in GSON library.
  */
 public final class DateTimeSerializer implements JsonDeserializer<DateTime>, JsonSerializer<DateTime> {
     static final org.joda.time.format.DateTimeFormatter DATE_TIME_FORMATTER = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC);

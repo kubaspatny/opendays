@@ -1,7 +1,7 @@
 package cz.kubaspatny.opendays.app;
 
 /**
- * Created by Kuba on 11/3/2015.
+ * Application constants to avoid hardcoding in code.
  */
 public class AppConstants {
 

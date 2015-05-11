@@ -6,13 +6,16 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 
 /**
- * Created by Kuba on 8/3/2015.
+ * Data contract for the application's data tables.
  */
 public class DataContract {
 
     public DataContract() {
     }
 
+    /**
+     * Table representing routes, where current user guides a group.
+     */
     public static abstract class GuidedGroups implements BaseColumns {
 
         public static final String TABLE_NAME = "guided_groups";
@@ -28,10 +31,11 @@ public class DataContract {
         public static final String COLUMN_NAME_ROUTE_TIMESTAMP = "route_timestamp";
         public static final String COLUMN_NAME_EVENT_ID = "eventid";
         public static final String COLUMN_NAME_EVENT_NAME = "event_name";
-        // TODO: remove unused columns, to get rid of data duplication
-
     }
 
+    /**
+     * Table representing routes, where current user manages a station.
+     */
     public static abstract class ManagedRoutes implements BaseColumns {
 
         public static final String TABLE_NAME = "managed_routes";
@@ -44,6 +48,9 @@ public class DataContract {
 
     }
 
+    /**
+     * Table used for route's full information storage.
+     */
     public static abstract class Route implements BaseColumns {
 
         public static final String TABLE_NAME = "route";
@@ -61,6 +68,9 @@ public class DataContract {
 
     }
 
+    /**
+     * Table used for station's full information storage.
+     */
     public static abstract class Station implements BaseColumns {
 
         public static final String TABLE_NAME = "station";
@@ -99,6 +109,9 @@ public class DataContract {
 
     }
 
+    /**
+     * Table representing a local cache for unsent local updates.
+     */
     public static abstract class LocationUpdates implements BaseColumns {
 
         public static final String TABLE_NAME = "locationupdates";
@@ -112,6 +125,9 @@ public class DataContract {
 
     }
 
+    /**
+     * Table representing a local cache for unsent group size updates.
+     */
     public static abstract class GroupSizes implements BaseColumns {
 
         public static final String TABLE_NAME = "groupsizes";
@@ -123,11 +139,22 @@ public class DataContract {
 
     }
 
+    /**
+     * Method add parameters, which causes content provider
+     * to ignore the data change, thus NOT invoking an automatic
+     * synchronization.
+     * @param uri base URI
+     * @return URI with appended paramater
+     */
     public static Uri addCallerIsSyncAdapterParameter(Uri uri) {
         return uri.buildUpon().appendQueryParameter(
                 ContactsContract.CALLER_IS_SYNCADAPTER, "true").build();
     }
 
+    /**
+     * Checks whether given URI has CALLER_IS_SYNCADAPTER paramater.
+     * @return true if URI contains CALLER_IS_SYNCADAPTER, otherwise false
+     */
     public static boolean hasCallerIsSyncAdapterParameter(Uri uri) {
         return TextUtils.equals("true",
                 uri.getQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER));

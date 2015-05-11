@@ -8,14 +8,20 @@ import android.widget.Toast;
 import cz.kubaspatny.opendays.R;
 
 /**
- * Created by Kuba on 28/3/2015.
+ * Utility class for working with Custom Toasts.
  */
 public class ToastUtil {
 
+    /**
+     * Shows toast with red background.
+     */
     public static void error(Context context, String message){
         showMessage(context, message, true);
     }
 
+    /**
+     * Shows toast with green background.
+     */
     public static void success(Context context, String message){
         showMessage(context, message, false);
     }

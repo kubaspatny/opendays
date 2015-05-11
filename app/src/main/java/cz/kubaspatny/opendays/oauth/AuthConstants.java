@@ -1,7 +1,7 @@
 package cz.kubaspatny.opendays.oauth;
 
 /**
- * Created by Kuba on 6/3/2015.
+ * Class used to store authenticatino constants to reduce hardcoded values in code.
  */
 public class AuthConstants {
 

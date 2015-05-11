@@ -8,7 +8,7 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 /**
- * Created by Kuba on 21/3/2015.
+ * BroadcastReceiver receiving alarm broadcast notifying station time limit exceeding.
  */
 public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
 

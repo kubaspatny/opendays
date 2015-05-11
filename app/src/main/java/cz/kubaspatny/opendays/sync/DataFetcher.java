@@ -26,7 +26,7 @@ import cz.kubaspatny.opendays.util.TimeUtil;
 import static cz.kubaspatny.opendays.app.AppConstants.*;
 
 /**
- * Created by Kuba on 13/3/2015.
+ * Helper class for data fetching and storing using ContentResolver.
  */
 public class DataFetcher {
 
@@ -40,12 +40,16 @@ public class DataFetcher {
         this.mContentResolver = mContext.getContentResolver();
     }
 
+    /**
+     * Fetches and saves all guided groups of current user.
+     * @param account current user
+     */
     public void loadGuidedGroups(Account account) throws Exception{
         Log.d(TAG, "loadGuidedGroups");
         int count = countCachedGroups();
         count = count < PAGE_SIZE ? PAGE_SIZE : count;
 
-        List<GroupDto> groups = SyncEndpoint.getGroups(account, AccountUtil.getAccessToken(mContext, account), 0, count); // TODO: Add parameters from bundle
+        List<GroupDto> groups = SyncEndpoint.getGroups(account, AccountUtil.getAccessToken(mContext, account), 0, count);
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
         if(groups == null) return;
@@ -79,6 +83,10 @@ public class DataFetcher {
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
     }
 
+    /**
+     * Fetches and saves a page of guided groups of current user.
+     * @param account current user
+     */
     public void loadGuidedGroups(Account account, int page, int pageSize) throws Exception {
 
         List<GroupDto> groups = SyncEndpoint.getGroups(account, AccountUtil.getAccessToken(mContext, account), page, pageSize);
@@ -118,6 +126,10 @@ public class DataFetcher {
 
     }
 
+    /**
+     * Fetches and saves a page of managed routes of current user.
+     * @param account current user
+     */
     public void loadManagedRoutes(Account account, int page, int pageSize) throws Exception {
 
         List<RouteDto> routes = SyncEndpoint.getManagedRoutes(account, AccountUtil.getAccessToken(mContext, account), page, pageSize);
@@ -161,12 +173,16 @@ public class DataFetcher {
 
     }
 
+    /**
+     * Fetches and saves all managed routes of current user.
+     * @param account current user
+     */
     public void loadManagedRoutes(Account account) throws Exception{
         Log.d(TAG, "loadGuidedGroups");
         int count = countCachedManagedRoutes();
         count = count < PAGE_SIZE ? PAGE_SIZE : count;
 
-        List<RouteDto> routes = SyncEndpoint.getManagedRoutes(account, AccountUtil.getAccessToken(mContext, account), 0, count); // TODO: Add parameters from bundle
+        List<RouteDto> routes = SyncEndpoint.getManagedRoutes(account, AccountUtil.getAccessToken(mContext, account), 0, count);
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
         if(routes == null) return;
@@ -204,8 +220,9 @@ public class DataFetcher {
         mContentResolver.applyBatch(AppConstants.AUTHORITY, batch);
     }
 
-
-
+    /**
+     * Loads and saves a single route.
+     */
     public void loadRoute(Long routeId, Long groupId) throws Exception {
         Log.d(TAG, "loadRoute(" + routeId + ")");
 
@@ -318,6 +335,10 @@ public class DataFetcher {
 
     }
 
+    /**
+     * Uploads all cached location updates to the remote server. Successfully sent records are
+     * afterwards deleted.
+     */
     public void uploadLocationUpdates() throws Exception {
 
         String[] projection = {DataContract.LocationUpdates._ID,
@@ -364,6 +385,10 @@ public class DataFetcher {
 
     }
 
+    /**
+     * Uploads all cached group size updates to the remote server. Successfully sent records are
+     * afterwards deleted.
+     */
     public void uploadGroupSizes() throws Exception {
 
         String[] projection = {DataContract.GroupSizes._ID,
@@ -403,6 +428,11 @@ public class DataFetcher {
 
     }
 
+    /**
+     * Upload new starting position to the remote server.
+     * @param groupId group id
+     * @param startingPosition new starting position
+     */
     public void updateStartingPosition(String groupId, int startingPosition) throws Exception {
 
         GroupStartingPosition g = new GroupStartingPosition();
@@ -416,6 +446,9 @@ public class DataFetcher {
 
     }
 
+    /**
+     * Refreshes the number of available groups from the remote server.
+     */
     public void refreshGroupCount(int cachedGroups) throws Exception {
         Account account = AccountUtil.getAccount(mContext);
         int groupCount = SyncEndpoint.getGroupsCount(account,
@@ -425,6 +458,9 @@ public class DataFetcher {
         PrefsUtil.setCachedGroupsCount(mContext, cachedGroups);
     }
 
+    /**
+     * Refreshes the number of available managed routes from the remote server.
+     */
     public void refreshManagedRoutesCount(int cachedManagedRoutes) throws Exception {
         Account account = AccountUtil.getAccount(mContext);
         int managedRoutesCount = SyncEndpoint.getManagedRoutesCount(account,

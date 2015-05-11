@@ -18,6 +18,9 @@ import cz.kubaspatny.opendays.oauth.AuthConstants;
  */
 public class AccountUtil {
 
+    /**
+     * Returns current user's account.
+     */
     public static Account getAccount(final Context context){
         AccountManager accountManager = AccountManager.get(context);
         Account[] accounts = accountManager.getAccountsByType(AuthConstants.ACCOUNT_TYPE);
@@ -29,11 +32,17 @@ public class AccountUtil {
         }
     }
 
+    /**
+     * Removes current user's account.
+     */
     public static void removeAccount(final Context context){
         AccountManager accountManager = AccountManager.get(context);
         accountManager.removeAccount(getAccount(context), null, null);
     }
 
+    /**
+     * Obtains an access token using current user's account.
+     */
     public static String getAccessToken(Context context, Account account) throws LoginException, NetworkErrorException, IOException, AuthenticatorException, OperationCanceledException {
 
         AccountManager accountManager = AccountManager.get(context);

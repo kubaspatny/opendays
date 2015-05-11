@@ -23,7 +23,7 @@ import cz.kubaspatny.opendays.util.AccountUtil;
 import static cz.kubaspatny.opendays.app.AppConstants.*;
 
 /**
- * Created by Kuba on 14/3/2015.
+ * A Service running on a background thread to handle incoming GCM messages.
  */
 public class GcmIntentService extends IntentService {
 
@@ -88,8 +88,16 @@ public class GcmIntentService extends IntentService {
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
+    /**
+     * Displays notification when a group before or after the current group changed its position.
+     * @param routeId id of the route
+     * @param stationId id of the station from the location update
+     * @param updateType location update type (CHECKIN, CHECKOUT, SKIP)
+     * @param groupBefore true if changed group is before current group, otherwise false
+     * @param groupAfter true if changed group is after current group, otherwise false
+     */
     private void sendLocationUpdateNotification(Long routeId, Long stationId, String updateType, boolean groupBefore, boolean groupAfter){
-        // TODO:
+        // Illegal arguments -> ignore message
         if(!groupBefore && !groupAfter) return;
 
         String routeName = getRouteName(routeId);
@@ -113,6 +121,9 @@ public class GcmIntentService extends IntentService {
         sendNotification(routeName, getString(R.string.notification_loc_update, string1, string2, string3));
     }
 
+    /**
+     * Loads route name based on its id.
+     */
     private String getRouteName(Long routeId){
 
         String[] projectionRoute = {DataContract.Route._ID,
@@ -135,6 +146,9 @@ public class GcmIntentService extends IntentService {
         return routeName;
     }
 
+    /**
+     * Loads station name based on its id.
+     */
     private String getStationName(Long stationId){
 
         String[] projectionStation = {DataContract.Station._ID,
@@ -157,6 +171,9 @@ public class GcmIntentService extends IntentService {
         return stationName;
     }
 
+    /**
+     * Schedules synchronization for given route.
+     */
     private void syncRoute(Long routeId, Account account){
         Log.d("GcmIntentService", "syncRoute(" + routeId + ")");
 
@@ -164,6 +181,11 @@ public class GcmIntentService extends IntentService {
         SyncHelper.requestManualSync(getBaseContext(), account, b);
     }
 
+    /**
+     * Displays notification in the system's notification tray.
+     * @param title notification title
+     * @param message notification text
+     */
     private void sendNotification(String title, String message) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -185,6 +207,5 @@ public class GcmIntentService extends IntentService {
 
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
-
 
 }

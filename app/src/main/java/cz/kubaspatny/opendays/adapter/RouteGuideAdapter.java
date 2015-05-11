@@ -12,7 +12,7 @@ import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.database.DataContract;
 
 /**
- * Created by Kuba on 15/3/2015.
+ * Cursor adapter for displaying stations of a route.
  */
 public class RouteGuideAdapter extends CursorAdapter {
 

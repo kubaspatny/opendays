@@ -1,6 +1,5 @@
 package cz.kubaspatny.opendays.adapter;
 
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -21,7 +20,7 @@ import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.ui.widget.CircleView;
 
 /**
- * Created by Kuba on 8/3/2015.
+ * Cursor adapter for guided groups of currently logged in user.
  */
 public class GuidedGroupsAdapter extends CursorAdapter {
 

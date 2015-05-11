@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import cz.kubaspatny.opendays.database.DataContract.*;
 
 /**
- * Created by Kuba on 8/3/2015.
+ * Helper class used for database and table creation.
  */
 public class DbHelper extends SQLiteOpenHelper {
 
@@ -116,6 +116,9 @@ public class DbHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    /**
+     * Runs scripts to create tables when a new database has been created.
+     */
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_GUIDEDGROUPS);
         db.execSQL(SQL_CREATE_ROUTE);
@@ -126,6 +129,9 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_MANAGED_ROUTES);
     }
 
+    /**
+     * Runs scripts to delete and recreate tables when the database version has been upgraded.
+     */
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
@@ -139,10 +145,16 @@ public class DbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /**
+     * Runs scripts to delete and recreate tables when the database version has been downgraded.
+     */
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
 
+    /**
+     * Clears user data in all tables by deleting them and recreating them afterwards.
+     */
     public void clearUserData(){
         onUpgrade(getWritableDatabase(), 0, 0);
     }

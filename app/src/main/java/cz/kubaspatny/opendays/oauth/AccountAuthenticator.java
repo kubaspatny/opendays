@@ -17,7 +17,8 @@ import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
 
 /**
- * Created by Kuba on 6/3/2015.
+ * Applications account authenticator, which allows to add accounts and get access token
+ * for remote server requests.
  */
 public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
@@ -30,6 +31,9 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
         this.mContext = mContext;
     }
 
+    /**
+     * Adds a new account to the Android system account framework.
+     */
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
 
@@ -47,6 +51,10 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     /**
+     * Method obtains a valid access token for remote request authentication. If there is no
+     * user account, the AuthenticatorActivity is started. Before each request, the stored
+     * refresh token is used to obtain new access token. If this action fails, the user is
+     * reprompted for his/her password to obtain a new access/refresh token pair.
      *
      * @throws NetworkErrorException throws in case of network error while obtaining refresh token
      */
@@ -121,6 +129,9 @@ public class AccountAuthenticator extends AbstractAccountAuthenticator {
 
     }
 
+    /**
+     * Disables synchronization using SyncAdapter for given account.
+     */
     private static void disableSync(Account account){
         boolean pending = ContentResolver.isSyncPending(account, AppConstants.AUTHORITY);
         boolean active = ContentResolver.isSyncActive(account, AppConstants.AUTHORITY);

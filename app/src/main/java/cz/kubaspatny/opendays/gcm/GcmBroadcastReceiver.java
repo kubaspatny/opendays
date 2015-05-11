@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 /**
- * Created by Kuba on 14/3/2015.
+ * WakefulBroadcastReceiver, which receives Google Cloud Messaging (GCM) broadcasts.
  */
 public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 

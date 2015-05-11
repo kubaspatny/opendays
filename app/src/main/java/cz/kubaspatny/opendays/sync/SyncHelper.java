@@ -3,7 +3,6 @@ package cz.kubaspatny.opendays.sync;
 import android.accounts.Account;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,24 +17,19 @@ import android.util.Log;
 
 import org.joda.time.DateTime;
 
-import java.security.spec.ECField;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.database.DataContract;
-import cz.kubaspatny.opendays.domainobject.RouteDto;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.ui.activity.BaseActivity;
-import cz.kubaspatny.opendays.util.AccountUtil;
 import cz.kubaspatny.opendays.util.ConnectionUtils;
-import cz.kubaspatny.opendays.util.PrefsUtil;
 import cz.kubaspatny.opendays.util.TimeUtil;
 
 /**
- * Created by Kuba on 13/3/2015.
+ * Helper class facilitating the synchronization while using a SyncAdapter.
  */
 public class SyncHelper {
 
@@ -51,12 +45,19 @@ public class SyncHelper {
         mContext = context;
     }
 
+    /**
+     * Requests an immediate synchronization.
+     */
     public static void requestManualSync(Context context, Account account){
         Bundle extras = new Bundle();
         extras.putBoolean(LARGE_SYNC, true);
         requestManualSync(context, account, extras);
     }
 
+    /**
+     * Requests an immediate synchronization with additional bundle data to be passed
+     * to the sync adapter.
+     */
     public static void requestManualSync(Context context, Account account, Bundle bundle) {
         if (account != null) {
             Log.d(TAG, "requestManualSync > requesting sync for " + account.name);
@@ -74,6 +75,9 @@ public class SyncHelper {
         }
     }
 
+    /**
+     * Requests an immediate upload synchronization.
+     */
     public static void requestManualUploadSync(Context context, Account account) {
         if (account != null) {
             Log.d(TAG, "requestManualUploadSync > requesting sync for " + account.name);
@@ -94,6 +98,9 @@ public class SyncHelper {
         }
     }
 
+    /**
+     * Performs all synchronization tasks, such as data download or upload.
+     */
     public void performSync(SyncResult syncResult, Account account, Bundle extras) {
 
         Intent intent = new Intent(AppConstants.KEY_SYNC_STATUS);
@@ -135,11 +142,13 @@ public class SyncHelper {
             intent = new Intent(AppConstants.KEY_SYNC_STATUS);
             intent.putExtra(AppConstants.KEY_SYNC_STATUS_CODE, AppConstants.SYNC_STATUS_CODE_END);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-            // TODO: if the activity is paused -> then goes active -> still showing progressbar
         }
 
     }
 
+    /**
+     * Perform a "large" sync -> syncing all guided groups and managed routes.
+     */
     private void doLargeSync(Account account) throws Exception {
         if(!ConnectionUtils.isConnected(mContext)) {
             Log.d(TAG, "doSync: Not connected to internet. Cannot sync.");
@@ -154,6 +163,9 @@ public class SyncHelper {
 
     }
 
+    /**
+     * Perform a "small" sync -> syncing only active guided groups and managed routes.
+     */
     private void doSmallSync(Account account) throws Exception {
 
         String[] projectionGuidedGroups = {DataContract.GuidedGroups._ID,
@@ -227,6 +239,9 @@ public class SyncHelper {
 
     }
 
+    /**
+     * Perform a route sync based on its id.
+     */
     private void doRouteSync(Account account, Long routeId){
         if(routeId == null || routeId <= 0) return;
 
@@ -260,6 +275,9 @@ public class SyncHelper {
 
     }
 
+    /**
+     * Perform an upload sync of cached location updates and group sizes.
+     */
     private void doUploadSync() throws Exception {
         if(!ConnectionUtils.isConnected(mContext)) {
             Log.d(TAG, "doUploadSync: Not connected to internet. Cannot sync.");
@@ -274,12 +292,18 @@ public class SyncHelper {
 
     }
 
+    /**
+     * Sets the time of current sync.
+     */
     private void setLargeSyncTime(){
         SharedPreferences.Editor editor = getSharedPreferences().edit();
         editor.putString(LAST_SYNC, DateTime.now().toInstant().toString());
         editor.commit();
     }
 
+    /**
+     * Checks whether it has been at least 5 minutes from the last "large" sync.
+     */
     private boolean isLargeSyncTime(){
         SharedPreferences prefs = getSharedPreferences();
         String timestamp = prefs.getString(LAST_SYNC, "");
@@ -289,6 +313,9 @@ public class SyncHelper {
         return time.isBefore(DateTime.now().minusMinutes(5));
     }
 
+    /**
+     * Checks whether it has been at least 5 minutes from the last "large" sync.
+     */
     public static boolean isLargeSyncTime(Context context){
         SharedPreferences prefs = context.getSharedPreferences(BaseActivity.class.getSimpleName(), Context.MODE_PRIVATE);
         String timestamp = prefs.getString(LAST_SYNC, "");
@@ -302,12 +329,18 @@ public class SyncHelper {
         return mContext.getSharedPreferences(BaseActivity.class.getSimpleName(), Context.MODE_PRIVATE);
     }
 
+    /**
+     * Cancels scheduled syncs.
+     */
     public static void cancelSync(Context context, Account account){
         if (account != null) {
             if (isSyncPending(context, account)) ContentResolver.cancelSync(account, AppConstants.AUTHORITY);
         }
     }
 
+    /**
+     * Checks whether there's a scheduled or active sync.
+     */
     public static boolean isSyncPending(Context context, Account account){
         if (account != null) {
             boolean pending = ContentResolver.isSyncPending(account, AppConstants.AUTHORITY);
@@ -319,18 +352,28 @@ public class SyncHelper {
         return false;
     }
 
+    /**
+     * Disables synchronization.
+     */
     public static void disableSync(Context context, Account account){
         Log.d(TAG, "Disabling sync.");
         ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 0);
         ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, false);
     }
 
+    /**
+     * Enables synchronization.
+     */
     public static void enableSync(Context context, Account account){
         Log.d(TAG, "Enabling sync.");
         ContentResolver.setIsSyncable(account, AppConstants.AUTHORITY, 1);
         ContentResolver.setSyncAutomatically(account, AppConstants.AUTHORITY, true);
     }
 
+    /**
+     * Recalculates synchronization period based on next route time proximity.
+     * Sets 1 minute interval in case there's active route, otherwise 1 hour.
+     */
     private void recalculateSyncPeriod(Account account){
 
         boolean routeSoon = false;

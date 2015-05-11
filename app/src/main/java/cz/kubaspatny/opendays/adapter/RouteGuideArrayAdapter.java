@@ -21,7 +21,7 @@ import cz.kubaspatny.opendays.domainobject.LocationUpdateDto;
 import cz.kubaspatny.opendays.domainobject.StationWrapper;
 
 /**
- * Created by Kuba on 15/3/2015.
+ * Array adapter displaying the guided route with its stations and other groups.
  */
 public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
@@ -49,7 +49,6 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         ViewHolder viewHolder;
 
         if (convertView == null) {
-
             convertView = inflater.inflate(R.layout.routeguide_card_row, parent, false);
 
             viewHolder = new ViewHolder();
@@ -69,6 +68,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
         viewHolder.stationName.setText(stationWrapper.station.getName());
 
+        // if station is closed -> gray it out
         if(stationWrapper.station.isClosed()){
             viewHolder.card.setCardBackgroundColor(getContext().getResources().getColor(R.color.grey_400));
             viewHolder.stationName.setTextColor(getContext().getResources().getColor(R.color.grey_600));
@@ -84,6 +84,7 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
         viewHolder.groupsAtStation.removeAllViews();
         viewHolder.groupsAfterStation.removeAllViews();
 
+        // display groups
         for(GroupDto g : stationWrapper.groups){
 
             // Don't display the group, if the group has left/skipped its last station
@@ -93,6 +94,11 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
             TextView groupName = (TextView) groupRow.findViewById(R.id.group_guide);
             groupName.setText(g.getGuide().getUsername());
+
+            // set group icon:
+            // current group    - GREEN
+            // active group     - BLUE
+            // inactive group   - GRAY
             if(g.isCurrentUser()){
                 groupName.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_account_box_green_18dp), null, null, null);
             } else {
@@ -114,7 +120,8 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
             ((TextView)groupRow.findViewById(R.id.group_time)).setText(formatTime(getContext(), hours, minutes, seconds));
 
-
+            // if last is CHECKIN -> display in the station box
+            // if last is CHECKOUT, SKIP -> display after the station box
             if(g.getLatestLocationUpdate().getType() == LocationUpdateDto.LocationUpdateType.CHECKIN){
                 viewHolder.groupsAtStation.addView(groupRow);
             } else {
@@ -135,6 +142,9 @@ public class RouteGuideArrayAdapter extends ArrayAdapter<StationWrapper> {
 
     }
 
+    /**
+     * Updates the list UI to set correct times.
+     */
     public void forceUpdate(){
         notifyDataSetChanged();
     }

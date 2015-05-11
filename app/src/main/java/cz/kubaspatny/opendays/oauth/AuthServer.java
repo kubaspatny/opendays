@@ -17,12 +17,15 @@ import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.exception.LoginException;
 
 /**
- * Created by Kuba on 6/3/2015.
+ * Service layer for obtaining OAuth2.0 tokens from the remote server.
  */
 public class AuthServer {
 
     private final static String TAG = AuthServer.class.getSimpleName();
 
+    /**
+     * Obtains access/refresh token pair using user's username and password.
+     */
     public static AccessToken obtainAccessToken(String username, String password, String authType) throws Exception {
 
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
@@ -62,6 +65,10 @@ public class AuthServer {
         return new Gson().fromJson(token, AccessToken.class);
     }
 
+    /**
+     * Obtains a new access token using previously obtained refreshToken.
+     * @throws Exception throws Exception upon refresh token expiration
+     */
     public static AccessToken refreshAccessToken(String username, String refreshToken, String authType) throws Exception {
 
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");

@@ -14,7 +14,7 @@ import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.ui.activity.MainActivity;
 
 /**
- * Created by Kuba on 21/3/2015.
+ * IntentService to handle Alarm Intents.
  */
 public class AlarmIntentService extends IntentService {
 
@@ -34,7 +34,8 @@ public class AlarmIntentService extends IntentService {
         if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
             sendNotification(extras.getString(AlarmUtil.MESSAGE), !extras.getBoolean(AlarmUtil.REPEAT, true));
 
-
+            // if REPEAT == true, then only 1/2 time is exhausted
+            // therefore set another alarm for the same time
             if(extras.getBoolean(AlarmUtil.REPEAT, false)){
                 AlarmUtil.setAlarm(this,
                         extras.getInt(AlarmUtil.ID),
@@ -51,6 +52,11 @@ public class AlarmIntentService extends IntentService {
 
     }
 
+    /**
+     * Displays notification in the system's notification tray.
+     * @param msg Message text
+     * @param annoy Whether to set annoying vibrations or not
+     */
     private void sendNotification(String msg, boolean annoy) {
         mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 

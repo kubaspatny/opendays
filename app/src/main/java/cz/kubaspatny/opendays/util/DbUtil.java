@@ -19,6 +19,9 @@ import cz.kubaspatny.opendays.sync.SyncHelper;
  */
 public class DbUtil {
 
+    /**
+     * Saves location update to the database and triggers a synchronization request.
+     */
     public static void sendLocationUpdate(Context context, LocationUpdateDto update){
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
@@ -61,6 +64,9 @@ public class DbUtil {
         }
     }
 
+    /**
+     * Saves group size update to the database and triggers a synchronization request.
+     */
     public static void addGroupSize(Context context, String groupId, int size){
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
@@ -81,6 +87,9 @@ public class DbUtil {
         }
     }
 
+    /**
+     * Updates current user's starting position for given group.
+     */
     public static void updateStartLocation(Context context, String groupId, int startingPosition){
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();

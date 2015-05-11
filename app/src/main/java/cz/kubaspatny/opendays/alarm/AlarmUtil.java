@@ -6,10 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.SystemClock;
-import android.util.Log;
 
 /**
- * Created by Kuba on 21/3/2015.
+ * Utility class containing helper method for alarm handling.
  */
 public class AlarmUtil {
 
@@ -19,6 +18,15 @@ public class AlarmUtil {
     public final static String STATION = "cz.kubaspatny.opendays.alarm.AlarmUtil.station";
     public final static String ID = "cz.kubaspatny.opendays.alarm.AlarmUtil.id";
 
+    /**
+     * Sets alarm for station time limit.
+     * @param context application context
+     * @param id      alarm id
+     * @param seconds time length
+     * @param station current station
+     * @param message message to be displayed when the alarm rings
+     * @param repeat  if true, the alarm will be repeated with the same time limit
+     */
     public static void setAlarm(Context context, int id, int seconds, String station, String message, boolean repeat){
 
         if(seconds <= 0) return;
@@ -45,6 +53,11 @@ public class AlarmUtil {
 
     }
 
+    /**
+     * Cancels scheduled alarm.
+     * @param context application context
+     * @param id alarm id
+     */
     public static void cancelAlarm(Context context, int id){
 
         AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

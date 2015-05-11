@@ -30,12 +30,20 @@ import cz.kubaspatny.opendays.json.DateTimeSerializer;
 import static cz.kubaspatny.opendays.app.AppConstants.*;
 
 /**
- * Created by Kuba on 11/3/2015.
+ * Service layer facilitating data transfers from/to the remote server.
  */
 public class SyncEndpoint {
 
     public final static String TAG = SyncEndpoint.class.getSimpleName();
 
+    /**
+     * Loads user guided groups.
+     * @param account current user
+     * @param accessToken OAuth2.0 access token
+     * @param page page offset
+     * @param pageSize page size
+     * @return list of groups
+     */
     public static List<GroupDto> getGroups(Account account, String accessToken, int page, int pageSize) throws Exception {
 
         String url = HOST + API_V1 + "user/" + account.name + "/groups?page=" + page + "&pageSize=" + pageSize;
@@ -74,6 +82,9 @@ public class SyncEndpoint {
         return Arrays.asList(gson.fromJson(json, GroupDto[].class));
     }
 
+    /**
+     * Returns a number of user guided groups to be used for list pagination.
+     */
     public static int getGroupsCount(Account account, String accessToken) throws Exception {
 
         String url = HOST + API_V1 + "user/" + account.name + "/groups/count";
@@ -110,6 +121,14 @@ public class SyncEndpoint {
 
     }
 
+    /**
+     * Loads user user managed routes.
+     * @param account current user
+     * @param accessToken OAuth2.0 access token
+     * @param page page offset
+     * @param pageSize page size
+     * @return list of routes
+     */
     public static List<RouteDto> getManagedRoutes(Account account, String accessToken, int page, int pageSize) throws Exception {
 
         String url = HOST + API_V1 + "user/" + account.name + "/managedroutes?page=" + page + "&pageSize=" + pageSize;
@@ -148,6 +167,9 @@ public class SyncEndpoint {
         return Arrays.asList(gson.fromJson(json, RouteDto[].class));
     }
 
+    /**
+     * Returns a number of user managed routes to be used for list pagination.
+     */
     public static int getManagedRoutesCount(Account account, String accessToken) throws Exception {
 
         String url = HOST + API_V1 + "user/" + account.name + "/managedroutes/count";
@@ -187,6 +209,9 @@ public class SyncEndpoint {
 
     }
 
+    /**
+     * Retrieves a single route.
+     */
     public static RouteDto getRoute(Account account, String accessToken, String routeId) throws Exception {
 
         String url = HOST + API_V1 + "route/" + routeId;
@@ -226,6 +251,9 @@ public class SyncEndpoint {
 
     }
 
+    /**
+     * Retrieves all groups of a route.
+     */
     public static List<GroupDto> getRouteGroups(Account account, String accessToken, String routeId) throws Exception {
 
         String url = HOST + API_V1 + "route/" + routeId + "/groups";
@@ -265,6 +293,9 @@ public class SyncEndpoint {
 
     }
 
+    /**
+     * Uploads the GCM registration ID to the remote server.
+     */
     public static void registerDevice(Account account, String accessToken, String registrationId) throws Exception {
 
         String url = HOST + API_V1 + "gcm/android-device";
@@ -300,6 +331,9 @@ public class SyncEndpoint {
 
     }
 
+    /**
+     * Uploads cached location update to the remote server.
+     */
     public static void uploadLocationUpdates(Account account, String accessToken, LocationUpdateDto updateDto) throws Exception {
 
         String url = HOST + API_V1 + "group/locationUpdate";
@@ -334,6 +368,9 @@ public class SyncEndpoint {
 
     }
 
+    /**
+     * Uploads cached group size update to the remote server.
+     */
     public static void uploadGroupSize(Account account, String accessToken, GroupSizeDto sizeDto) throws Exception {
 
         String url = HOST + API_V1 + "group/groupSize";
@@ -368,6 +405,9 @@ public class SyncEndpoint {
 
     }
 
+    /**
+     * Uploads new start position to the remote server.
+     */
     public static void updateStartingPosition(Account account, String accessToken, GroupStartingPosition startingPosition) throws Exception {
         String url = HOST + API_V1 + "group/startingPosition";
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");

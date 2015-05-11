@@ -5,7 +5,7 @@ import java.util.Comparator;
 import cz.kubaspatny.opendays.domainobject.StationDto;
 
 /**
- * Created by Kuba on 23/3/2015.
+ * Comparator, used for station sorting based on their sequence position.
  */
 public class StationComparator implements Comparator<StationDto> {
 
