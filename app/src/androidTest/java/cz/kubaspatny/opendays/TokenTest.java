@@ -12,12 +12,6 @@ import cz.kubaspatny.opendays.domainobject.AccessToken;
 import cz.kubaspatny.opendays.exception.LoginException;
 import cz.kubaspatny.opendays.oauth.AuthServer;
 
-import static org.junit.Assert.assertThat;
-
-/**
- * Created by Kuba on 10/5/2015.
- */
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class TokenTest {

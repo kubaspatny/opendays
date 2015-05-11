@@ -1,37 +1,20 @@
 package cz.kubaspatny.opendays.oauth;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
 import android.accounts.NetworkErrorException;
-import android.app.Activity;
-import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.joda.time.DateTime;
-
-import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import cz.kubaspatny.opendays.app.AppConstants;
 import cz.kubaspatny.opendays.domainobject.AccessToken;
-import cz.kubaspatny.opendays.domainobject.GroupDto;
-import cz.kubaspatny.opendays.exception.ErrorCodeException;
 import cz.kubaspatny.opendays.exception.LoginException;
-import cz.kubaspatny.opendays.json.DateTimeSerializer;
 
 /**
  * Created by Kuba on 6/3/2015.

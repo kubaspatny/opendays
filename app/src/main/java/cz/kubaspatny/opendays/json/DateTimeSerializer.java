@@ -17,8 +17,7 @@ import java.lang.reflect.Type;
 /**
  * Created by Kuba on 8/3/2015.
  */
-public final class DateTimeSerializer implements JsonDeserializer<DateTime>, JsonSerializer<DateTime>
-{
+public final class DateTimeSerializer implements JsonDeserializer<DateTime>, JsonSerializer<DateTime> {
     static final org.joda.time.format.DateTimeFormatter DATE_TIME_FORMATTER = ISODateTimeFormat.dateTime().withZone(DateTimeZone.UTC);
 
     @Override
