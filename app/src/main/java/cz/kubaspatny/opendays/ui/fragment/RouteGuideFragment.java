@@ -49,10 +49,8 @@ import cz.kubaspatny.opendays.util.TimeUtil;
 import static cz.kubaspatny.opendays.util.ToastUtil.*;
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * Use the {@link RouteGuideFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment showing the stations of a route with current group positions. It is also used
+ * by guides to update their positions and group sizes.
  */
 public class RouteGuideFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -175,8 +173,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
             }
         });
 
-//        setTimerToUpdateUI();
-
         mLoadingView.setVisibility(View.VISIBLE);
         mListView.setVisibility(View.GONE);
         mEmptyView.setVisibility(View.GONE);
@@ -241,9 +237,6 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
                     DataContract.GroupLocations.COLUMN_NAME_GROUP_ID,
                     DataContract.GroupLocations.COLUMN_NAME_GROUP_GUIDE,
                     DataContract.GroupLocations.COLUMN_NAME_GROUP_SEQ_POSITION
-
-                    // TODO: when there's no update -> local, nor remote -> where to get starting position
-
             };
 
             CursorLoader cursorLoader = new CursorLoader(getActivity(),
@@ -470,6 +463,10 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         }.execute();
     }
 
+    /**
+     * Method which creates a list of StationWrapper, containing stations with attached groups
+     * currently at those stations.
+     */
     private void loadData(){
         if(stations == null || groups == null || (!stations.isEmpty() && !mViewOnly && latestLocation == null)) return;
         if(stations.isEmpty()){
@@ -528,6 +525,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
     }
 
+    /**
+     * Checks whether the current user has visited all of route's stations.
+     */
     private boolean isGuideDone(){
         if(adapter.getCount() == 0) return true;
 
@@ -543,10 +543,16 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         return false;
     }
 
+    /**
+     * Checks whether the current user has checked in at the first station.
+     */
     private boolean isGuideStarted(){
         return !latestLocation.isEmpty();
     }
 
+    /**
+     * Dialog for changing the current user's starting position.
+     */
     private void showStartLocationDialog(){
         int current = mGroupStartingPosition;
         int count = adapter.getCount();
@@ -624,6 +630,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+    /**
+     * Dialog used to send new location update by the current user.
+     */
     private void showLocationUpdateDialog(){
 
         Long routeId = Long.parseLong(mRouteId);
@@ -721,6 +730,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
 
     }
 
+    /**
+     * Dialog used by the current user to add his/her group position.
+     */
     private void showAddGroupSizeDialog(){
 
         RelativeLayout linearLayout = new RelativeLayout(getActivity());
@@ -756,6 +768,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         alertDialog.show();
     }
 
+    /**
+     * Dialog displaying given station's information.
+     */
     private void showStationInfoDialog(StationDto station){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(station.getName());
@@ -767,6 +782,9 @@ public class RouteGuideFragment extends Fragment implements LoaderManager.Loader
         DbUtil.sendLocationUpdate(getActivity(), update);
     }
 
+    /**
+     * Sets timer to update the list UI in order to show correct times.
+     */
     private void setTimerToUpdateUI() {
         if(mUpdateUIRunnable == null){
             Log.d(TAG, "started UpdateUIRunnable!");

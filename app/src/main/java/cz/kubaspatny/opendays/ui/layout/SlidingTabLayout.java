@@ -31,7 +31,6 @@ import android.widget.LinearLayout;
  * limitations under the License.
  */
 
-
 /**
  * Source: https://developer.android.com/samples/SlidingTabsBasic/src/com.example.android.common/view/SlidingTabLayout.html
  *

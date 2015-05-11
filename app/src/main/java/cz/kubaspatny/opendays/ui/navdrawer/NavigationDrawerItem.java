@@ -3,7 +3,7 @@ package cz.kubaspatny.opendays.ui.navdrawer;
 import android.graphics.drawable.Drawable;
 
 /**
- * Created by Kuba on 14/3/2015.
+ * Navigation Drawer list item.
  */
 public class NavigationDrawerItem {
 

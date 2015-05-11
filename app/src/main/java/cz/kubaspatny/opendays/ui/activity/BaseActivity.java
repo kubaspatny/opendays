@@ -25,6 +25,11 @@ import cz.kubaspatny.opendays.gcm.GcmUtil;
 import cz.kubaspatny.opendays.oauth.AuthConstants;
 import cz.kubaspatny.opendays.util.AccountUtil;
 
+/**
+ * Project's base activity, which carries out common tasks such as
+ * checking whether a user is logged in, or registers the app for
+ * push notifications with GCM.
+ */
 public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateListener {
 
     private final static String TAG = BaseActivity.class.getSimpleName();
@@ -55,6 +60,10 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Method used to check authentication. If there's no authenticated user
+     * then the AuthenticatorActivity class is started.
+     */
     @Override
     public void onAccountsUpdated(Account[] accounts) {
 
@@ -134,7 +143,6 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
 
     /**
      * Gets the current registration ID for application on GCM service.
-     * <p>
      * If result is empty, the app needs to register.
      *
      * @return registration ID, or empty string if there is no existing
@@ -181,7 +189,6 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
 
     /**
      * Registers the application with GCM servers asynchronously.
-     * <p>
      * Stores the registration ID and app versionCode in the application's
      * shared preferences.
      */
@@ -207,11 +214,6 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
                 } catch (IOException e) {
                     this.e = e;
                     msg = "Error :" + e.getMessage();
-
-                    // TODO:
-                    // If there is an error, don't just keep trying to register.
-                    // Require the user to click a button again, or perform
-                    // exponential back-off.
                 } catch (Exception e){
                     this.e = e;
                     Log.e(TAG, e.getLocalizedMessage(), e);
@@ -230,8 +232,7 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
     }
 
     /**
-     * Stores the registration ID and app versionCode in the application's
-     * {@code SharedPreferences}.
+     * Stores the registration ID and app versionCode in the application's SharedPreferences.
      *
      * @param context application's context.
      * @param regId registration ID
@@ -253,6 +254,5 @@ public class BaseActivity extends ActionBarActivity implements OnAccountsUpdateL
         editor.putString(PROPERTY_REG_ID, "");
         editor.commit();
     }
-
 
 }

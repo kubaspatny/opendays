@@ -15,6 +15,10 @@ import cz.kubaspatny.opendays.ui.fragment.ManagedStationsListFragment;
 import cz.kubaspatny.opendays.ui.fragment.NavigationDrawerFragment;
 import cz.kubaspatny.opendays.util.AccountUtil;
 
+/**
+ * The application's main (launcher) activity. Displays a list of guided or managed routes
+ * based on the selection from the Navigation Drawer menu.
+ */
 public class MainActivity extends BaseActivity implements NavigationDrawerCallbacks {
 
     private Toolbar mToolbar;
@@ -64,7 +68,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerCallba
                 fragment = ManagedStationsListFragment.newInstance();
                 break;
             default:
-                fragment = null; // TODO: Error fragment
+                fragment = null;
         }
 
         getSupportFragmentManager().beginTransaction()
@@ -80,6 +84,5 @@ public class MainActivity extends BaseActivity implements NavigationDrawerCallba
         else
             super.onBackPressed();
     }
-
 
 }

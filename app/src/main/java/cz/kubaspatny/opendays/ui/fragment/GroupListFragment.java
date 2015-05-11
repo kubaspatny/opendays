@@ -55,7 +55,7 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         public void onReceive(Context context, Intent intent) {
             int sync_code = intent.getIntExtra(AppConstants.KEY_SYNC_STATUS_CODE, -1);
             switch(sync_code){
-                case AppConstants.SYNC_STATUS_CODE_START: // TODO: remove for PROD build
+                case AppConstants.SYNC_STATUS_CODE_START:
                     swipeContainer.setRefreshing(true);
                     return;
                 case AppConstants.SYNC_STATUS_CODE_END:
@@ -117,7 +117,6 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
                 swipeContainer.setEnabled(topRowVerticalPosition >= 0);
             }
         });
-
 
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
         cursorAdapter = new GuidedGroupsAdapter(getActivity(), null, 0);
@@ -220,6 +219,9 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         cursorAdapter.swapCursor(data);
     }
 
+    /**
+     * Shows/Hides "load more" button.
+     */
     private void toggleListFooterVisibility(){
         if(PrefsUtil.getCachedGroupsCount(getActivity()) < PrefsUtil.getRemoteGroupsCount(getActivity())){
             Log.d(TAG, "Displaying load more.");
@@ -230,6 +232,10 @@ public class GroupListFragment extends Fragment implements SwipeRefreshLayout.On
         }
     }
 
+    /**
+     * Shows/Hides footer "loading" animation.
+     * @param loading
+     */
     private void toggleListFooterState(boolean loading){
         if(loading){
             footerViewText.setVisibility(View.GONE);

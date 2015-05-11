@@ -11,7 +11,6 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,12 +19,14 @@ import android.view.WindowManager;
 
 import cz.kubaspatny.opendays.R;
 import cz.kubaspatny.opendays.database.DataContract;
-import cz.kubaspatny.opendays.ui.fragment.ManagedStationsListFragment;
 import cz.kubaspatny.opendays.ui.fragment.RouteGuideFragment;
 import cz.kubaspatny.opendays.ui.fragment.RouteInfoFragment;
 import cz.kubaspatny.opendays.ui.layout.SlidingTabLayout;
 import cz.kubaspatny.opendays.util.ColorUtil;
 
+/**
+ * Activity, which shows information and stations of a single route.
+ */
 public class GuideActivity extends BaseActivity {
 
     private final static String TAG = GuideActivity.class.getSimpleName();
@@ -51,7 +52,6 @@ public class GuideActivity extends BaseActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //TODO: How to update the title as well..
         String title = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME);
         String routeId = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID);
         String groupId = getIntent().getStringExtra(DataContract.GuidedGroups.COLUMN_NAME_GROUP_ID);
@@ -143,7 +143,7 @@ public class GuideActivity extends BaseActivity {
 
                     break;
                 default:
-                    fragment = null; // TODO: Error fragment
+                    fragment = null;
             }
 
             return fragment;

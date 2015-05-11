@@ -220,6 +220,9 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
         cursorAdapter.swapCursor(null);
     }
 
+    /**
+     * Shows/Hides "load more" button.
+     */
     private void toggleListFooterVisibility(){
         if(PrefsUtil.getCachedManagedRoutesCount(getActivity()) < PrefsUtil.getRemoteManagedRoutesCount(getActivity())){
             Log.d(TAG, "Displaying load more.");
@@ -230,6 +233,10 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
         }
     }
 
+    /**
+     * Shows/Hides footer "loading" animation.
+     * @param loading
+     */
     private void toggleListFooterState(boolean loading){
         if(loading){
             footerViewText.setVisibility(View.GONE);

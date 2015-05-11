@@ -10,7 +10,7 @@ import android.widget.TextView;
 import cz.kubaspatny.opendays.R;
 
 /**
- * Created by Kuba on 14/3/2015.
+ * Adapter for the Navigation Drawer.
  */
 public class NavigationDrawerAdapter extends ArrayAdapter<NavigationDrawerItem> {
 

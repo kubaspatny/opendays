@@ -10,7 +10,8 @@ import android.view.View;
 import cz.kubaspatny.opendays.R;
 
 /**
- * Created by Kuba on 8/3/2015.
+ * Custom View used for displaying colored circle for each route item in the list of
+ * the application's main (launcher) activity.
  */
 public class CircleView extends View {
 

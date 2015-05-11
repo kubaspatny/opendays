@@ -32,7 +32,8 @@ import cz.kubaspatny.opendays.util.AccountUtil;
 import static cz.kubaspatny.opendays.util.ToastUtil.*;
 
 /**
- * Created by Kuba on 14/3/2015.
+ * Fragment implementing the Navigation Drawer pattern, which is used for the application's
+ * main menu.
  */
 public class NavigationDrawerFragment extends Fragment implements NavigationDrawerCallbacks {
     private static final String PREF_USER_LEARNED_DRAWER =  "navigation_drawer_learned";
