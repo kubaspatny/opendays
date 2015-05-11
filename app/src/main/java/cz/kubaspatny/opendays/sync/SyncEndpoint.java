@@ -91,9 +91,6 @@ public class SyncEndpoint {
 
             if(response.code() != 200){
                 Log.d(TAG + ".getGroupsCount", "Response code " + response.code());
-                ErrorMessage errorMessage = new Gson().fromJson(response.body().string(), ErrorMessage.class);
-                Log.d(TAG, "Error loading groups count! " + errorMessage.getMessage());
-
                 throw new ErrorCodeException("Error loading groups count! " + response.body().string(), response.code());
             }
 
