@@ -63,6 +63,9 @@ public class LocationUpdateDto extends BaseDto {
 
     }
 
+    /**
+     * Acts a NULL OBJECT pattern.
+     */
     public boolean isEmpty(){
         return type == LocationUpdateType.EMPTY;
     }

@@ -62,7 +62,7 @@ public class AlarmIntentService extends IntentService {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_walk_grey600_24dp) // TODO: change to white
+                        .setSmallIcon(R.drawable.ic_walk_grey600_24dp)
                         .setDefaults(NotificationCompat.DEFAULT_SOUND)
                         .setContentTitle(getString(R.string.time_limit))
                         .setStyle(new NotificationCompat.BigTextStyle()

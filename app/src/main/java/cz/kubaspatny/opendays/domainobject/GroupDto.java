@@ -112,6 +112,10 @@ public class GroupDto extends BaseDto {
         this.currentUser = currentUser;
     }
 
+    /**
+     * Computes and sets the last position of this group.
+     * @param numberStations number of stations on the route
+     */
     public void computeLastStation(int numberStations){
         int n = startingPosition - 1;
         if(n <= 0) n = n + numberStations;
@@ -126,6 +130,9 @@ public class GroupDto extends BaseDto {
         this.lastStation = lastStation;
     }
 
+    /**
+     * Checks whether user has visited all stations.
+     */
     public boolean isAfterLast(int currentStation, LocationUpdateDto.LocationUpdateType type){
         return getLastStation().equals(currentStation) && (type == LocationUpdateDto.LocationUpdateType.SKIP || type == LocationUpdateDto.LocationUpdateType.CHECKOUT);
     }

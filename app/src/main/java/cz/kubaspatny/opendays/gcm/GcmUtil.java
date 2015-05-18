@@ -24,5 +24,4 @@ public class GcmUtil {
         SyncEndpoint.registerDevice(account, AccountUtil.getAccessToken(context, account), registrationId);
     }
 
-
 }
