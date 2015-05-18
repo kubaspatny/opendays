@@ -27,9 +27,9 @@ import cz.kubaspatny.opendays.util.ColorUtil;
 /**
  * Activity, which shows information and stations of a single route.
  */
-public class GuideActivity extends BaseActivity {
+public class RouteActivity extends BaseActivity {
 
-    private final static String TAG = GuideActivity.class.getSimpleName();
+    private final static String TAG = RouteActivity.class.getSimpleName();
 
     private Toolbar mToolbar;
 

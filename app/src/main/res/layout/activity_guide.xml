@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cz.kubaspatny.opendays.ui.activity.GuideActivity">
+    tools:context="cz.kubaspatny.opendays.ui.activity.RouteActivity">
 
     <include
         android:id="@+id/toolbar_actionbar"

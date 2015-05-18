@@ -32,7 +32,7 @@ import cz.kubaspatny.opendays.database.DataContract;
 import cz.kubaspatny.opendays.database.DbContentProvider;
 import cz.kubaspatny.opendays.sync.DataFetcher;
 import cz.kubaspatny.opendays.sync.SyncHelper;
-import cz.kubaspatny.opendays.ui.activity.GuideActivity;
+import cz.kubaspatny.opendays.ui.activity.RouteActivity;
 import cz.kubaspatny.opendays.util.AccountUtil;
 import cz.kubaspatny.opendays.util.ConnectionUtils;
 import cz.kubaspatny.opendays.util.PrefsUtil;
@@ -146,7 +146,7 @@ public class ManagedStationsListFragment extends Fragment implements SwipeRefres
 
                     Log.d(TAG, "Clicked on: " + routeName);
 
-                    Intent i = new Intent(getActivity(), GuideActivity.class);
+                    Intent i = new Intent(getActivity(), RouteActivity.class);
                     i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_NAME, routeName);
                     i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_COLOR, routeColor);
                     i.putExtra(DataContract.GuidedGroups.COLUMN_NAME_ROUTE_ID, routeId);

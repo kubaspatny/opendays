@@ -92,7 +92,7 @@
         <service android:name="cz.kubaspatny.opendays.alarm.AlarmIntentService" />
 
         <activity
-            android:name="cz.kubaspatny.opendays.ui.activity.GuideActivity"
+            android:name=".ui.activity.RouteActivity"
             android:label="@string/title_activity_guide"
             android:parentActivityName="cz.kubaspatny.opendays.ui.activity.MainActivity" >
             <meta-data
